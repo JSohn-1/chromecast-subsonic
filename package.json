@@ -4,20 +4,21 @@
   "description": "plays subsonic streams to chromecast with a restful api",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "tsc --build",
+    "build": "bun build --target=bun ./src/index.ts --outfile=server.js",
     "clean": "tsc --build --clean",
-    "run": "node ./dist/index.js",
+    "run": "bun ./dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "yacob",
   "license": "ISC",
-  "devDependencies": {
-    "typescript": "^5.3.3"
-  },
+  "devDependencies": { "@types/bun": "^1.0.2", "bun-types": "latest" },
   "dependencies": {
     "chromecast-api": "^0.4.2",
     "crypto-random-string": "^3.3.1",
     "express": "^4.18.2",
     "md5": "^2.3.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
   }
 }
