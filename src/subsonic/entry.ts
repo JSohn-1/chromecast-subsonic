@@ -27,15 +27,11 @@ import { constants } from '../helper/constants';
         url = url.slice(0, -1);
 
         return new Promise<JSON>((resolve, reject) => {
-            https.get(url, (res: any) => {
-                let data = '';
-                res.on('data', (chunk: any) => {
-                    data += chunk;
-                });
-                res.on('end', () => {
-                    resolve(JSON.parse(data));
-                });
-            }).on('error', (err: any) => {
+            fetch(url)
+            .then(async (res: any) => {  
+                resolve(await res.json());
+            })
+            .catch((err: any) => {
                 reject(err);
             });
         });
