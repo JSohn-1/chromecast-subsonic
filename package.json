@@ -4,9 +4,10 @@
   "description": "plays subsonic streams to chromecast with a restful api",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "bun build --target=bun ./src/index.ts --outfile=server.js",
+    "build": "tsc --build",
     "clean": "tsc --build --clean",
-    "run": "bun ./dist/index.js",
+    "run": "node ./dist/index.js",
+    "bun-run": "bun ./src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "yacob",
