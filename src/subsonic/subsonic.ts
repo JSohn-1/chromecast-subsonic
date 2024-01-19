@@ -1,7 +1,7 @@
 import { ping } from './ping';
+import { getPlaylists } from './getPlaylists';
 
 export class Subsonic {
-    public static ping (){
-        return ping();
-    }
+    static ping = ping;
+    static getPlaylists = getPlaylists;
 }

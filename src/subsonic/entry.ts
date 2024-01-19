@@ -4,13 +4,14 @@ const cryptoRandomString = require('crypto-random-string');
 
 const md5 = require('md5');
 
-import { constants } from '../helper/constants';
+// import the config file
+import config from '../../config.json';
 
     export function _requestHandler(method: string, data: Map<any, any>){
         const salt: string = cryptoRandomString({length: 10});
         const params: Map<any, any> = new Map();
-        params.set('u', constants.username);
-        params.set('t', md5(constants.password + salt));
+        params.set('u', config.username);
+        params.set('t', md5(config.password + salt));
         params.set('s', salt);
         params.set('v', '1.16.1');
         params.set('c', 'subsonic-restful-api');
@@ -20,7 +21,7 @@ import { constants } from '../helper/constants';
             params.set(key, value);
         });
         
-        let url: string = `${constants.url}/rest/${method}?`;
+        let url: string = `${config.url}/rest/${method}?`;
         params.forEach((value, key) => {
             url += key + '=' + value + '&';
         });

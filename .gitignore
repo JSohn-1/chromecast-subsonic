@@ -130,3 +130,4 @@ dist
 .pnp.*
 
 src/helper/constants.ts
+config.json

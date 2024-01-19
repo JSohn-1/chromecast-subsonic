@@ -7,9 +7,15 @@ const app = express();
 const port = 3000;
 
 app.get('/ping', (req: string, res: any) => {
-//   console.log(Subsonic.ping());
-  
-  res.send(Subsonic.ping());
+    Subsonic.ping().then((_: string) => {
+        res.send(_);
+        });
+});
+
+app.get('/getPlaylists', (req: string, res: any) => {
+    Subsonic.getPlaylists().then((_: string) => {
+        res.send(_);
+    });
 });
 
 app.listen(port, () => {
