@@ -18,6 +18,13 @@ app.get('/getPlaylists', (req: string, res: any) => {
     });
 });
 
+app.get('/getPlaylist', (req: any, res: any) => {
+    console.log(typeof req);
+    Subsonic.getPlaylist(req.query.id).then((_: string) => {
+        res.send(_);
+    });
+});
+
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });

@@ -14,6 +14,7 @@
   "license": "ISC",
   "devDependencies": { "@types/bun": "^1.0.2", "bun-types": "latest" },
   "dependencies": {
+    "@spotify/web-api-ts-sdk": "^1.2.0",
     "chromecast-api": "^0.4.2",
     "crypto-random-string": "^3.3.1",
     "express": "^4.18.2",
