@@ -21,7 +21,7 @@ import config from '../../config.json';
             params.set(key, value);
         });
         
-        let url: string = `${config.url}/rest/${method}?`;
+        let url: string = `${config.subsonic.url}/rest/${method}?`;
         params.forEach((value, key) => {
             url += key + '=' + value + '&';
         });
