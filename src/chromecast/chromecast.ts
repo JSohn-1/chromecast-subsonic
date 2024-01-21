@@ -1,6 +1,7 @@
 const ChromecastAPI = require('chromecast-api')
 
 import { getChromecasts } from './utilChromecast';
+import { play } from './mediaPlayback';
 
 export class Chromecast {
     static client = new ChromecastAPI();
@@ -18,4 +19,5 @@ export class Chromecast {
     }
 
     static getChromecasts(){return getChromecasts(this.client)};
+    static play = play;
 }
