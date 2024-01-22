@@ -1,12 +1,16 @@
-import Client = require('chromecast-api');
-import  Device  from 'chromecast-api';
+import type Client = require('chromecast-api');
 
 export function getChromecasts(client: Client) {
-	const chromecasts: string[] = client.devices.map((device: Device) => device.friendlyName);
+	const chromecasts = client.devices.forEach((device) => device.friendlyName);
+
 	return { 'status': 'ok', 'response': chromecasts };
 }
 
-export function getChromecast(client: Client, chromecastName: string){
-	const device = client.devices.find((device: Device) => device.friendlyName === chromecastName);
+export function getChromecast(client: Client, chromecastName: string) {
+	const device = client.devices.find((device) => device.friendlyName === chromecastName);
 	return device;
+}
+
+export function errorMessage(err: Error) {
+	return { 'status': 'error', 'response': `${err.name}: ${err.message}` };
 }

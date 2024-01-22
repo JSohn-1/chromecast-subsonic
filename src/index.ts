@@ -2,12 +2,10 @@
 
 import { Subsonic } from './subsonic/subsonic';
 import { getPlaylistInfo } from './download/helper';
-import { getChromecasts } from './chromecast/utilChromecast';
 import { Chromecast } from './chromecast/chromecast';
 
-Chromecast.init();
-
 import express from 'express';
+
 const app = express();
 const port = 3000;
 

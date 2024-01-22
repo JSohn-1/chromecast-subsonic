@@ -1,13 +1,22 @@
 import { stream } from '../subsonic/stream';
-// import { getChromecast } from './utilChromecast';
+
+import type Client = require('chromecast-api');
+
+import { getChromecast, errorMessage } from './utilChromecast';
 
 interface response {
 	status: string,
 	response: string
 }
 
-export function play(client: any, chromecastName: string, songId: string) {
-	const device = client.devices.find((device: any) => device.friendlyName === chromecastName);
+export function play(client: Client, chromecastName: string, songId: string) {
+	const device = getChromecast(client, chromecastName);
+
+	if (!device) {
+		return new Promise<response>((resolve) => {
+			resolve({ status: 'error', response: 'device not found' });
+		});
+	}
 
 	return new Promise<response>((resolve, reject) => {
 		stream(songId)
@@ -22,42 +31,55 @@ export function play(client: any, chromecastName: string, songId: string) {
 				return media;
 			})
 			.then((media: { url: string; cover: { title: string; url: string; }; }) => {
-				device.play(media, (err: any) => {
+				device.play(media, (err?: Error) => {
 					if (err) {
 						console.error(err);
-						reject({ status: 'error', response: err });
+						resolve(errorMessage(err));
 					}
 					resolve({ status: 'ok', response: 'playing' });
 				});
-			}).catch((err: any) => {
+			})
+			.catch((err) => {
 				console.error(err);
 				reject({ status: 'error', response: err });
 			});
 	});
 }
 
-export function pause(client: any, chromecastName: string) {
-	const device = client.devices.find((device: any) => device.friendlyName === chromecastName);
+export function pause(client: Client, chromecastName: string) {
+	const device = getChromecast(client, chromecastName);
 
-	return new Promise<response>((resolve, reject) => {
-		device.pause((err: any) => {
+	if (!device) {
+		return new Promise<response>((resolve) => {
+			resolve({ status: 'error', response: 'device not found' });
+		});
+	}
+
+	return new Promise<response>((resolve) => {
+		device.pause((err) => {
 			if (err) {
 				console.error(err);
-				resolve({ status: 'error', response: err });
+				resolve(errorMessage(err));
 			}
 			resolve({ status: 'ok', response: 'paused' });
 		});
 	});
 }
 
-export function resume(client: any, chromecastName: string) {
-	const device = client.devices.find((device: any) => device.friendlyName === chromecastName);
+export function resume(client: Client, chromecastName: string) {
+	const device = getChromecast(client, chromecastName);
 
-	return new Promise<response>((resolve, reject) => {
-		device.resume((err: any) => {
+	if (!device) {
+		return new Promise<response>((resolve) => {
+			resolve({ status: 'error', response: 'device not found' });
+		});
+	}
+
+	return new Promise<response>((resolve) => {
+		device.resume((err?: Error) => {
 			if (err) {
-				console.error(typeof err);
-				resolve({ status: 'error', response: err });
+				console.error(err);
+				resolve(errorMessage(err));
 			}
 			resolve({ status: 'ok', response: 'resumed' });
 		});
