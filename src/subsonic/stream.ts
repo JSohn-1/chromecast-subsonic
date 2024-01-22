@@ -6,7 +6,7 @@ export function stream(id: string) {
 	const coverURL = generateURL('getCoverArt', new Map([['id', id]]));
 
 	return new Promise<{ songURL: string, coverURL: string, title: string }>((resolve, reject) => {
-		getSong(id).then((response: song) => {
+		getSong(id).then((response: any) => {
 			resolve({ songURL, coverURL, title: response.title });
 		}).catch((err: string) => {
 			reject(err);

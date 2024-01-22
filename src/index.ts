@@ -9,49 +9,82 @@ import express from 'express';
 const app = express();
 const port = 3000;
 
-app.get('/ping', (req: string, res: any) => {
+app.get('/ping', (req, res) => {
 	Subsonic.ping().then((_: string) => {
 		res.send(_);
 	});
 });
 
-app.get('/getPlaylists', (req: string, res: any) => {
+app.get('/getPlaylists', (req, res) => {
 	Subsonic.getPlaylists().then((_: string) => {
 		res.send(_);
 	});
 });
 
-app.get('/getPlaylist', (req: any, res: any) => {
-	Subsonic.getPlaylist(req.query.id).then((_: string) => {
+app.get('/getPlaylist', (req, res) => {
+	const id = req.query.id ? req.query.id.toString() : '';
+
+	if (!id) {
+		res.send({ status: 'error', response: 'no id provided' });
+		return;
+	}
+
+	Subsonic.getPlaylist(id).then((_: string) => {
 		res.send(_);
 	});
 });
 
-app.get('/playlistInfo', (req: any, res: any) => {
-	console.log('init');
-	getPlaylistInfo(req.query.id).then((_: any) => {
+app.get('/playlistInfo', (req, res) => {
+	const id = req.query.id ? req.query.id.toString() : '';
+
+	if (!id) {
+		res.send({ status: 'error', response: 'no id provided' });
+		return;
+	}
+
+	getPlaylistInfo(id).then((_) => {
 		res.send(_);
 	});
 });
 
-app.get('/getChromecasts', (req: any, res: any) => {
+app.get('/getChromecasts', (req, res) => {
 	res.send(Chromecast.getChromecasts());
 });
 
-app.post('/play', (req: any, res: any) => {
-	Chromecast.play(req.query.chromecastName, req.query.songId).then((_: any) => {
+app.post('/play', (req, res) => {
+	const songId = req.query.id ? req.query.id.toString() : '';
+	const chromecastName = req.query.chromecastName ? req.query.chromecastName.toString() : '';
+
+	if (!songId || !chromecastName) {
+		res.send({ status: 'error', response: 'incorrect parameters' });
+		return;
+	}
+
+	Chromecast.play(chromecastName, songId).then((_) => {
 		res.send(_);
 	});
 });
 
-app.post('/pause', (req: any, res: any) => {
-	Chromecast.pause(req.query.chromecastName).then((_: any) => {
+app.post('/pause', (req, res) => {
+	const chromecastName = req.query.chromecastName ? req.query.chromecastName.toString() : '';
+
+	if (!chromecastName) {
+		res.send({ status: 'error', response: 'incorrect parameters' });
+		return;
+	}
+	Chromecast.pause(chromecastName).then((_) => {
 		res.send(_);
 	});
 });
 
-app.post('/resume', (req: any, res: any) => {
-	Chromecast.resume(req.query.chromecastName).then((_: any) => {
+app.post('/resume', (req, res) => {
+	const chromecastName = req.query.chromecastName ? req.query.chromecastName.toString() : '';
+
+	if (!chromecastName) {
+		res.send({ status: 'error', response: 'incorrect parameters' });
+		return;
+	}
+	Chromecast.resume(chromecastName).then((_) => {
 		res.send(_);
 	});
 });
