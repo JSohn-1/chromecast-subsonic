@@ -12,13 +12,12 @@ interface response {
 export function play(client: Client, chromecastName: string, songId: string) {
 	const device = getChromecast(client, chromecastName);
 
-	if (!device) {
-		return new Promise<response>((resolve) => {
-			resolve({ status: 'error', response: 'device not found' });
-		});
-	}
-
 	return new Promise<response>((resolve, reject) => {
+		if (!device) {
+			resolve({ status: 'error', response: 'device not found' });
+			return;
+		}
+
 		stream(songId)
 			.then((response: { songURL: string, coverURL: string, title: string }) => {
 				const media = {
@@ -49,13 +48,12 @@ export function play(client: Client, chromecastName: string, songId: string) {
 export function pause(client: Client, chromecastName: string) {
 	const device = getChromecast(client, chromecastName);
 
-	if (!device) {
-		return new Promise<response>((resolve) => {
-			resolve({ status: 'error', response: 'device not found' });
-		});
-	}
-
 	return new Promise<response>((resolve) => {
+		if (!device) {
+			resolve({ status: 'error', response: 'device not found' });
+			return;
+		}
+
 		device.pause((err) => {
 			if (err) {
 				console.error(err);
@@ -69,13 +67,12 @@ export function pause(client: Client, chromecastName: string) {
 export function resume(client: Client, chromecastName: string) {
 	const device = getChromecast(client, chromecastName);
 
-	if (!device) {
-		return new Promise<response>((resolve) => {
-			resolve({ status: 'error', response: 'device not found' });
-		});
-	}
-
 	return new Promise<response>((resolve) => {
+		if (!device) {
+			resolve({ status: 'error', response: 'device not found' });
+			return;
+		}
+
 		device.resume((err?: Error) => {
 			if (err) {
 				console.error(err);
