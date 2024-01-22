@@ -33,10 +33,10 @@ export function _requestHandler(method: string, data: Map<string, string>) {
 
 	return new Promise<JSON>((resolve, reject) => {
 		fetch(url)
-			.then(async (res: any) => {
+			.then(async (res: fetch.Response) => {
 				resolve(await res.json());
 			})
-			.catch((err: any) => {
+			.catch((err: fetch.Response) => {
 				reject(err);
 			});
 	});
