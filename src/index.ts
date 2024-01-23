@@ -86,6 +86,14 @@ io.on('connection', (socket) => {
 			socket.emit('resume', _);
 		});
 	});
+
+	socket.on('subscribe', (chromecastName: string) => {
+		if (!chromecastName) {
+			socket.emit(JSON.stringify({ status: 'error', response: 'no chromecast provided' }));
+			return;
+		}
+		Chromecast.subscribe(chromecastName, socket);
+	});
 });
 
 console.log('Discovering Chromecasts...');

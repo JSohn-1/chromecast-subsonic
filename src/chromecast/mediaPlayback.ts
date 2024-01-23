@@ -3,6 +3,7 @@ import { stream } from '../subsonic/stream';
 import type Client = require('chromecast-api');
 
 import { getChromecast, errorMessage } from './utilChromecast';
+import eventEmitter from 'events';
 
 export function play(client: Client, chromecastName: string, songId: string) {
 	const device = getChromecast(client, chromecastName);
@@ -75,5 +76,18 @@ export function resume(client: Client, chromecastName: string) {
 			}
 			resolve(JSON.stringify({ status: 'ok', response: 'resumed' }));
 		});
+	});
+}
+
+export function subscribe(client: Client, chromecastName: string, socket: eventEmitter) {
+	const device = getChromecast(client, chromecastName);
+
+	if (!device) {
+		socket.emit('subscribe', JSON.stringify({ status: 'error', response: 'device not found' }));
+		return;
+	}
+
+	device.on('status', (status) => {
+		socket.emit('subscribe', JSON.stringify({ status: 'ok', response: status }));
 	});
 }
