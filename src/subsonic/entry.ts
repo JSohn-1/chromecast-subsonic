@@ -31,11 +31,8 @@ export function generateURL(method: string, data: Map<string, string>) {
 export function _requestHandler(method: string, data: Map<string, string>) {
 	const url: string = generateURL(method, data);
 
-	return new Promise<JSON>((resolve, reject) => {
-		fetch(url)
-			.then(async (res: fetch.Response) => {
-				resolve(await res.json());
-			})
+	return new Promise<string>((resolve, reject) => {
+		fetch(url).then((_: fetch.Response) => resolve(_.text()))
 			.catch((err: fetch.Response) => {
 				reject(err);
 			});

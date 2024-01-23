@@ -4,8 +4,8 @@ import { getPlaylistInfo } from './helper';
 import config from '../../config.json';
 
 export function download(url: string) {
-	const name = getPlaylistInfo(url).then((_: { response: { name: string; }; }) => {
-		return _.response.name;
+	const name = getPlaylistInfo(url).then((_: string) => {
+		return JSON.parse(_).response.name;
 	}).then((_: string) => {
 		const command = spawn('./download.sh', [config.spotdl.server, config.spotdl.username, config.spotdl.password, _, config.spotdl.directory, url]);
 		command.stdout.on('data', (chunk: any) => {

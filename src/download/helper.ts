@@ -7,21 +7,11 @@ export function getPlaylistInfo(id: string) {
 		config.spotdl.clientSecret
 	);
 
-	interface playlistInfo {
-		name: string;
-		owner: string;
-		description: string;
-	}
 
-	interface Response {
-		status: string;
-		response: playlistInfo;
-	}
-
-	return new Promise<Response>((resolve, reject) => {
+	return new Promise<string>((resolve, reject) => {
 		spotify.playlists.getPlaylist(id)
 			.then((res) => {
-				resolve({ status: 'ok', response: parsePlaylistInfo(res) });
+				resolve(JSON.stringify({ status: 'ok', response: parsePlaylistInfo(res) }));
 			}).catch((err) => {
 				reject({ status: 'error', response: err });
 			});

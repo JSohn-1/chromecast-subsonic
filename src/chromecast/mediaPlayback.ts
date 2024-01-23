@@ -4,17 +4,12 @@ import type Client = require('chromecast-api');
 
 import { getChromecast, errorMessage } from './utilChromecast';
 
-interface response {
-	status: string,
-	response: string
-}
-
 export function play(client: Client, chromecastName: string, songId: string) {
 	const device = getChromecast(client, chromecastName);
 
-	return new Promise<response>((resolve, reject) => {
+	return new Promise<string>((resolve, reject) => {
 		if (!device) {
-			resolve({ status: 'error', response: 'device not found' });
+			resolve(JSON.stringify({ status: 'error', response: 'device not found' }));
 			return;
 		}
 
@@ -33,9 +28,9 @@ export function play(client: Client, chromecastName: string, songId: string) {
 				device.play(media, (err?: Error) => {
 					if (err) {
 						console.error(err);
-						resolve(errorMessage(err));
+						resolve(JSON.stringify(errorMessage(err)));
 					}
-					resolve({ status: 'ok', response: 'playing' });
+					resolve(JSON.stringify({ status: 'ok', response: 'playing' }));
 				});
 			})
 			.catch((err) => {
@@ -48,18 +43,18 @@ export function play(client: Client, chromecastName: string, songId: string) {
 export function pause(client: Client, chromecastName: string) {
 	const device = getChromecast(client, chromecastName);
 
-	return new Promise<response>((resolve) => {
+	return new Promise<string>((resolve) => {
 		if (!device) {
-			resolve({ status: 'error', response: 'device not found' });
+			resolve(JSON.stringify({ status: 'error', response: 'device not found' }));
 			return;
 		}
 
 		device.pause((err) => {
 			if (err) {
 				console.error(err);
-				resolve(errorMessage(err));
+				resolve(JSON.stringify(errorMessage(err)));
 			}
-			resolve({ status: 'ok', response: 'paused' });
+			resolve(JSON.stringify({ status: 'ok', response: 'paused' }));
 		});
 	});
 }
@@ -67,18 +62,18 @@ export function pause(client: Client, chromecastName: string) {
 export function resume(client: Client, chromecastName: string) {
 	const device = getChromecast(client, chromecastName);
 
-	return new Promise<response>((resolve) => {
+	return new Promise<string>((resolve) => {
 		if (!device) {
-			resolve({ status: 'error', response: 'device not found' });
+			resolve(JSON.stringify({ status: 'error', response: 'device not found' }));
 			return;
 		}
 
 		device.resume((err?: Error) => {
 			if (err) {
 				console.error(err);
-				resolve(errorMessage(err));
+				resolve(JSON.stringify(errorMessage(err)));
 			}
-			resolve({ status: 'ok', response: 'resumed' });
+			resolve(JSON.stringify({ status: 'ok', response: 'resumed' }));
 		});
 	});
 }
