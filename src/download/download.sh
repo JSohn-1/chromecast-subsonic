@@ -8,6 +8,7 @@ sshpass -p $3 ssh -o StrictHostKeyChecking=no $2@$1 << EOF
     echo "Connected to $1"
     echo "Downloading playlist $4 to directory $5"
     cd $5
+	
     # spotdl --m3u $6
 EOF
 

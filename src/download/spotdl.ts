@@ -1,14 +1,16 @@
 import { spawn } from 'node:child_process';
+import eventEmitter from 'events';
 
 import { getPlaylistInfo } from './helper';
 import config from '../../config.json';
 
-export function download(url: string) {
-	const name = getPlaylistInfo(url).then((_: string) => {
-		return JSON.parse(_).response.name;
-	}).then((_: string) => {
-		const command = spawn('./download.sh', [config.spotdl.server, config.spotdl.username, config.spotdl.password, _, config.spotdl.directory, url]);
+export function download(url: string, socket: eventEmitter) {
+	getPlaylistInfo(url).then((_: string) => {
+		const name = JSON.parse(_).response.name;
+
+		const command = spawn('./download.sh', [config.spotdl.server, config.spotdl.username, config.spotdl.password, name, config.spotdl.directory, url]);
 		command.stdout.on('data', (chunk: any) => {
+			socket.emit('spotdl', chunk.toString());
 			console.log(chunk.toString()); // data from the standard output is here as buffers
 			// data from standard output is here as buffers
 		});
@@ -17,6 +19,7 @@ export function download(url: string) {
 		//   command.stderr.pipe(dest);
 
 		command.on('close', (code: any) => {
+			socket.emit('spotdl', `child process exited with code ${code}`);
 			console.log(`child process exited with code ${code}`);
 		});
 	});

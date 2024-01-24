@@ -37,7 +37,6 @@ io.on('connection', (socket) => {
 			socket.emit(JSON.stringify({ status: 'error', response: 'no id provided' }));
 			return;
 		}
-		console.log(id);
 		Subsonic.getPlaylist(id).then((_: string) => {
 			socket.emit('getPlaylist', _);
 		});
