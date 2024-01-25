@@ -9,7 +9,7 @@ export function download(url: string, socket: eventEmitter) {
 		const name = JSON.parse(_).response.name;
 
 		const command = spawn('./download.sh', [config.spotdl.server, config.spotdl.username, config.spotdl.password, name, config.spotdl.directory, url]);
-		command.stdout.on('data', (chunk: any) => {
+		command.stdout.on('data', (chunk) => {
 			socket.emit('spotdl', chunk.toString());
 			console.log(chunk.toString()); // data from the standard output is here as buffers
 			// data from standard output is here as buffers
@@ -18,7 +18,7 @@ export function download(url: string, socket: eventEmitter) {
 		// since these are streams, you can pipe them elsewhere
 		//   command.stderr.pipe(dest);
 
-		command.on('close', (code: any) => {
+		command.on('close', (code) => {
 			socket.emit('spotdl', `child process exited with code ${code}`);
 			console.log(`child process exited with code ${code}`);
 		});
