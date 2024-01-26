@@ -91,3 +91,16 @@ export function subscribe(client: Client, chromecastName: string, socket: eventE
 		socket.emit('subscribe', JSON.stringify({ status: 'ok', response: status }));
 	});
 }
+
+export function unsubscribe(client: Client, chromecastName: string, socket: eventEmitter) {
+	const device = getChromecast(client, chromecastName);
+
+	if (!device) {
+		socket.emit('unsubscribe', JSON.stringify({ status: 'error', response: 'device not found' }));
+		return;
+	}
+
+	socket.removeListener('status',  (status) => {
+		socket.emit('unsubscribe', JSON.stringify({ status: 'ok', response: status }));
+	});
+}

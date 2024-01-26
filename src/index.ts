@@ -1,5 +1,3 @@
-// Create restful api server which just returns pong to a ping request
-
 import { Subsonic } from './subsonic/subsonic';
 import { getPlaylistInfo } from './download/helper';
 import { Chromecast } from './chromecast/chromecast';
@@ -93,13 +91,27 @@ io.on('connection', (socket) => {
 		}
 		Chromecast.subscribe(chromecastName, socket);
 	});
+
+	socket.on('unsubscribe', (chromecastName: string) => {
+		if (!chromecastName) {
+			socket.emit(JSON.stringify({ status: 'error', response: 'no chromecast provided' }));
+			return;
+		}
+		Chromecast.unsubscribe(chromecastName, socket);
+	});
+
+	Chromecast.newChromecast(socket);
 });
 
-console.log('Discovering Chromecasts...');
-Chromecast.init()
-	.then(() => {
-		console.log('Chromecasts discovered.');
-		httpServer.listen(port, () => {
-			console.log(`Server listening at http://localhost:${port}`);
-		});
-	});
+// console.log('Discovering Chromecasts...');
+// Chromecast.init()
+// 	.then(() => {
+// 		console.log('Chromecasts discovered.');
+// 		httpServer.listen(port, () => {
+// 			console.log(`Server listening at http://localhost:${port}`);
+// 		});
+// 	});
+
+httpServer.listen(port, () => {
+	console.log(`Server listening at http://localhost:${port}`);
+});
