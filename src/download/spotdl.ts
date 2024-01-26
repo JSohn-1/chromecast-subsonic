@@ -24,9 +24,7 @@ export function download(url: string, socket: eventEmitter) {
 		});
 	});
 
-
 	// use child.stdout.setEncoding('utf8'); // if you want text chunks
-
 
 }
 

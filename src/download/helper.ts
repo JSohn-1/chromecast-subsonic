@@ -7,7 +7,6 @@ export function getPlaylistInfo(id: string) {
 		config.spotdl.clientSecret
 	);
 
-
 	return new Promise<string>((resolve, reject) => {
 		spotify.playlists.getPlaylist(id)
 			.then((res) => {
@@ -16,7 +15,6 @@ export function getPlaylistInfo(id: string) {
 				reject({ status: 'error', response: err });
 			});
 	});
-
 }
 
 function parsePlaylistInfo(info: { name: string, owner: { display_name: string }, description: string }) {
