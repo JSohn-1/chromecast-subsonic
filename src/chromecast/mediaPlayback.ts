@@ -100,7 +100,5 @@ export function unsubscribe(client: Client, chromecastName: string, socket: even
 		return;
 	}
 
-	socket.removeListener('status',  (status) => {
-		socket.emit('unsubscribe', JSON.stringify({ status: 'ok', response: status }));
-	});
+	socket.removeListener('subscribe',  subscribe);
 }
