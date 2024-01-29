@@ -100,5 +100,5 @@ export function unsubscribe(client: Client, chromecastName: string, socket: even
 		return;
 	}
 
-	socket.removeListener('subscribe',  subscribe);
+	device.removeAllListeners('status');
 }

@@ -15,8 +15,8 @@ export class Chromecast {
 	// }
 
 	static newChromecast(socket: EventEmitter) {
-		this.client.on('device', () => {
-			socket.emit('newChromecast', getChromecasts(this.client));
+		this.client.on('device', (device) => {
+			socket.emit('newChromecast', device.friendlyName);
 		});
 	}
 
