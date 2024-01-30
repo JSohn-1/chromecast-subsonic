@@ -5,6 +5,7 @@ import { Chromecast } from './chromecast/chromecast';
 import express from 'express';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
+import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
 const port = 3000;
@@ -13,7 +14,9 @@ const httpServer = createServer(app);
 const io = new Server(httpServer);
 
 io.on('connection', (socket) => {
-	console.log('a user connected');
+	const uuid = uuidv4();
+
+	console.log('a user connected: ' + uuid);
 	socket.on('disconnect', () => {
 		console.log('a user disconnected');
 	});
@@ -89,7 +92,7 @@ io.on('connection', (socket) => {
 			socket.emit(JSON.stringify({ status: 'error', response: 'no chromecast provided' }));
 			return;
 		}
-		Chromecast.subscribe(chromecastName, socket);
+		Chromecast.subscribe(chromecastName, uuid, socket);
 	});
 
 	socket.on('unsubscribe', (chromecastName: string) => {
@@ -97,20 +100,11 @@ io.on('connection', (socket) => {
 			socket.emit(JSON.stringify({ status: 'error', response: 'no chromecast provided' }));
 			return;
 		}
-		Chromecast.unsubscribe(chromecastName, socket);
+		Chromecast.unsubscribe(chromecastName, uuid, socket);
 	});
 
 	Chromecast.newChromecast(socket);
 });
-
-// console.log('Discovering Chromecasts...');
-// Chromecast.init()
-// 	.then(() => {
-// 		console.log('Chromecasts discovered.');
-// 		httpServer.listen(port, () => {
-// 			console.log(`Server listening at http://localhost:${port}`);
-// 		});
-// 	});
 
 httpServer.listen(port, () => {
 	console.log(`Server listening at http://localhost:${port}`);

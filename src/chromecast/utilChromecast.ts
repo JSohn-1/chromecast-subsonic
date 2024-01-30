@@ -1,3 +1,4 @@
+import EventEmitter from 'events';
 import type Client = require('chromecast-api');
 
 export function getChromecasts(client: Client) {
@@ -12,4 +13,10 @@ export function getChromecast(client: Client, chromecastName: string) {
 
 export function errorMessage(err: Error) {
 	return { 'status': 'error', 'response': `${err.name}: ${err.message}` };
+}
+
+export function newChromecast(client: Client, socket: EventEmitter) {
+	client.on('device', (device) => {
+		socket.emit('newChromecast', device.friendlyName);
+	});
 }

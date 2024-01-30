@@ -1,9 +1,13 @@
 import { stream } from '../subsonic/stream';
 
 import type Client = require('chromecast-api');
+import Device = require('chromecast-api/lib/device');
+
+import eventEmitter from 'events';
 
 import { getChromecast, errorMessage } from './utilChromecast';
-import eventEmitter from 'events';
+
+const listeners = {} as { [uuid: string]: (status: Device.DeviceStatus) => void };
 
 export function play(client: Client, chromecastName: string, songId: string) {
 	const device = getChromecast(client, chromecastName);
@@ -79,7 +83,7 @@ export function resume(client: Client, chromecastName: string) {
 	});
 }
 
-export function subscribe(client: Client, chromecastName: string, socket: eventEmitter) {
+export function subscribe(client: Client, chromecastName: string, uuid: string, socket: eventEmitter) {
 	const device = getChromecast(client, chromecastName);
 
 	if (!device) {
@@ -87,12 +91,15 @@ export function subscribe(client: Client, chromecastName: string, socket: eventE
 		return;
 	}
 
-	device.on('status', (status) => {
+	const listener = (status: Device.DeviceStatus) => {
 		socket.emit('subscribe', JSON.stringify({ status: 'ok', response: status }));
-	});
+	};
+
+	device.on('status', listener);
+	listeners[uuid] = listener;
 }
 
-export function unsubscribe(client: Client, chromecastName: string, socket: eventEmitter) {
+export function unsubscribe(client: Client, chromecastName: string, uuid: string, socket: eventEmitter) {
 	const device = getChromecast(client, chromecastName);
 
 	if (!device) {
@@ -100,5 +107,6 @@ export function unsubscribe(client: Client, chromecastName: string, socket: even
 		return;
 	}
 
-	device.removeAllListeners('status');
+	device.removeListener('status', listeners[uuid]);
+	delete listeners[uuid];
 }
