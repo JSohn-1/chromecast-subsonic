@@ -6,6 +6,8 @@ import Device = require('chromecast-api/lib/device');
 import eventEmitter from 'events';
 
 import { getChromecast, errorMessage } from './utilChromecast';
+import { Subsonic } from '../subsonic/subsonic';
+import { Chromecast } from './chromecast';
 
 const listeners = {} as { [uuid: string]: (status: Device.DeviceStatus) => void };
 
@@ -27,6 +29,7 @@ export function play(client: Client, chromecastName: string, songId: string) {
 						url: response.coverURL
 					}
 				};
+				console.log(media);
 				return media;
 			})
 			.then((media: { url: string; cover: { title: string; url: string; }; }) => {
@@ -109,4 +112,23 @@ export function unsubscribe(client: Client, chromecastName: string, uuid: string
 
 	device.removeListener('status', listeners[uuid]);
 	delete listeners[uuid];
+}
+
+export function playQueue(client: Client, chromecastName: string, socket: eventEmitter) {
+	const device = getChromecast(client, chromecastName);
+
+	if (!device) {
+		socket.emit('playQueue', JSON.stringify({ status: 'error', response: 'device not found' }));
+		return;
+	}
+
+	device.on('finished', () => {
+		Chromecast.play(chromecastName, Subsonic.startNextSong().id).then((_: string) => {
+			socket.emit('playQueue', _);
+		});
+	});
+
+	Chromecast.play(chromecastName, Subsonic.startNextSong().id).then((_: string) => {
+		socket.emit('playQueue', _);
+	});
 }

@@ -8,4 +8,33 @@ export class Subsonic {
 	static getPlaylists = getPlaylists;
 	static getPlaylist = getPlaylist;
 	static getSong = getSong;
+
+	static queue: string[] = [];
+	static index: number = 0;
+	static queuePlaylist(id: string) {
+		Subsonic.queue = [];
+
+		return new Promise<string>((resolve) => {
+			getPlaylist(id).then((_: string) => {
+				const playlist = JSON.parse(_);
+				Subsonic.queue = playlist.response.entry.map((song: { id: string }) => song.id);
+				resolve('ok');
+			});
+		});
+	}
+
+	static startNextSong() {
+		if (Subsonic.index < Subsonic.queue.length) {
+			Subsonic.index++;
+			return { id: Subsonic.queue[Subsonic.index - 1], index: Subsonic.index - 1 };
+		}
+
+		if (Subsonic.index === Subsonic.queue.length) {
+			Subsonic.index = 0;
+			Subsonic.index++;
+			return { id: Subsonic.queue[Subsonic.index - 1], index: Subsonic.index - 1 };
+		}
+
+		return { id: '', index: -1 };
+	}
 }

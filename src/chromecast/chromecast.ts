@@ -2,7 +2,7 @@ import ChromecastAPI from 'chromecast-api';
 
 import { EventEmitter } from 'events';
 import { getChromecasts } from './utilChromecast';
-import { play, pause, resume, subscribe, unsubscribe } from './mediaPlayback';
+import { play, pause, resume, subscribe, unsubscribe, playQueue } from './mediaPlayback';
 
 export class Chromecast {
 	static client = new ChromecastAPI();
@@ -14,4 +14,5 @@ export class Chromecast {
 	static resume(chromecastName: string) { return resume(this.client, chromecastName); }
 	static subscribe(chromecastName: string, uuid: string, socket: EventEmitter) { return subscribe(this.client, chromecastName, uuid, socket); }
 	static unsubscribe(chromecastName: string, uuid: string, socket: EventEmitter) { return unsubscribe(this.client, chromecastName, uuid, socket); }
+	static playQueue(chromecastName: string, socket: EventEmitter) { return playQueue(this.client, chromecastName, socket); }
 }

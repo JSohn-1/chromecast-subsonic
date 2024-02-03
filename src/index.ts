@@ -104,6 +104,13 @@ io.on('connection', (socket) => {
 	});
 
 	Chromecast.newChromecast(socket);
+
+	socket.on('queuePlaylist', (id: string, chromecastName: string) => {
+		Subsonic.queuePlaylist(id).then((_: string) => {
+			Chromecast.playQueue(chromecastName, socket);
+			socket.emit('queuePlaylist', _);
+		});
+	});
 });
 
 httpServer.listen(port, () => {
