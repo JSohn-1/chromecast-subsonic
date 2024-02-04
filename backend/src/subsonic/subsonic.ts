@@ -2,12 +2,14 @@ import { ping } from './ping';
 import { getPlaylists } from './getPlaylists';
 import { getPlaylist } from './getPlaylist';
 import { getSong } from './getSong';
+import { getSongInfo } from './getSongInfo';
 
 export class Subsonic {
 	static ping = ping;
 	static getPlaylists = getPlaylists;
 	static getPlaylist = getPlaylist;
 	static getSong = getSong;
+	static getSongInfo = getSongInfo;
 
 	static queue: string[] = [];
 	static index: number = 0;
@@ -45,5 +47,9 @@ export class Subsonic {
 		}
 
 		return { id: '', index: -1 };
+	}
+
+	static getCurrentSong() {
+		return { id: Subsonic.queue[Subsonic.index - 1], index: Subsonic.index - 1 };
 	}
 }

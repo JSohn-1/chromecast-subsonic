@@ -94,7 +94,7 @@ export function subscribe(client: Client, chromecastName: string, uuid: string, 
 	}
 
 	const listener = (status: Device.DeviceStatus) => {
-		socket.emit('subscribe', JSON.stringify({ status: 'ok', response: status }));
+		socket.emit('subscribe', JSON.stringify({ status: 'ok', response: {chromecastStatus: status, queue: Subsonic.getCurrentSong()} }));
 	};
 
 	device.on('status', listener);

@@ -53,6 +53,16 @@ io.on('connection', (socket) => {
 		});
 	});
 
+	socket.on('getSongInfo', (id: string) => {
+		if (!id) {
+			socket.emit(JSON.stringify({ status: 'error', response: 'no id provided' }));
+			return;
+		}
+		Subsonic.getSongInfo(id).then((_: string) => {
+			socket.emit('getSongInfo', _);
+		});
+	});
+
 	socket.on('getChromecasts', () => {
 		socket.emit('getChromecasts', Chromecast.getChromecasts());
 	});
