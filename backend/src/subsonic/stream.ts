@@ -7,9 +7,8 @@ export function stream(id: string) {
 
 	return new Promise<{ songURL: string, coverURL: string, title: string }>((resolve, reject) => {
 		getSong(id).then((response) => {
-			console.log(id);
 			const _ = JSON.parse(response);
-			resolve({ songURL, coverURL, title: _.title });
+			resolve({ songURL, coverURL, title: _.response.title });
 		}).catch((err: string) => {
 			reject(err);
 		});

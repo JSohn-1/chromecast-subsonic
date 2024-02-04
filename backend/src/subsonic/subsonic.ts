@@ -37,4 +37,13 @@ export class Subsonic {
 
 		return { id: '', index: -1 };
 	}
+
+	static startSong(index: number) {
+		if (index < Subsonic.queue.length) {
+			Subsonic.index = index;
+			return { id: Subsonic.queue[Subsonic.index], index: Subsonic.index };
+		}
+
+		return { id: '', index: -1 };
+	}
 }

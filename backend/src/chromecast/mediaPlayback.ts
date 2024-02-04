@@ -29,7 +29,6 @@ export function play(client: Client, chromecastName: string, songId: string) {
 						url: response.coverURL
 					}
 				};
-				console.log(media);
 				return media;
 			})
 			.then((media: { url: string; cover: { title: string; url: string; }; }) => {
@@ -123,12 +122,23 @@ export function playQueue(client: Client, chromecastName: string, socket: eventE
 	}
 
 	device.on('finished', () => {
-		Chromecast.play(chromecastName, Subsonic.startNextSong().id).then((_: string) => {
-			socket.emit('playQueue', _);
+		const song = Subsonic.startNextSong();
+		Chromecast.play(chromecastName, song.id).then(() => {
+			socket.emit('playQueue', song);
 		});
 	});
 
-	Chromecast.play(chromecastName, Subsonic.startNextSong().id).then((_: string) => {
-		socket.emit('playQueue', _);
+	socket.on('skip', (chromecastName: string) => {
+		if (chromecastName !== device.friendlyName) return;
+
+		const song = Subsonic.startNextSong();
+		Chromecast.play(chromecastName, song.id).then(() => {
+			socket.emit('playQueue', song);
+		});
+	});
+
+	const song = Subsonic.startNextSong();
+	Chromecast.play(chromecastName, song.id).then(() => {
+		socket.emit('playQueue', song);
 	});
 }

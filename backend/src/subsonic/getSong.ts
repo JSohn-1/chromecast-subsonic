@@ -6,8 +6,7 @@ export function getSong(id: string) {
 
 	return _requestHandler('getSong', map).then((_) => {
 		const __ = JSON.parse(_);
-
-		if (__.status === 'ok') {
+		if (__['subsonic-response'].status === 'ok') {
 			return JSON.stringify({ status: 'ok', response: __['subsonic-response']['song'] });
 		}
 		return JSON.stringify({ status: 'error', response: __['subsonic-response']['error']['message'] });

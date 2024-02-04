@@ -57,6 +57,16 @@ io.on('connection', (socket) => {
 		socket.emit('getChromecasts', Chromecast.getChromecasts());
 	});
 
+	socket.on('getSong', (id: string) => {
+		if (!id) {
+			socket.emit(JSON.stringify({ status: 'error', response: 'no id provided' }));
+			return;
+		}
+		Subsonic.getSong(id).then((_: string) => {
+			socket.emit('getSong', _);
+		});
+	});
+
 	socket.on('play', (songId: string, chromecastName: string) => {
 		if (!songId || !chromecastName) {
 			socket.emit(JSON.stringify({ status: 'error', response: 'incorrect parameters' }));
