@@ -1,9 +1,5 @@
 // Create the music screen which will take in the parameters of the song title, artist, and album art. 
-
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 import '../constants.dart';
 
@@ -36,8 +32,10 @@ class MusicPlayer extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center, 
               children: [
+                PreviousButton(onPressed: () {}),
+                const Padding(padding: EdgeInsets.all(5),),
                 PlayButton(isPlaying: isPlaying, onPressed: onPressedPlay),
-                Padding(padding: EdgeInsets.all(5),),
+                const Padding(padding: EdgeInsets.all(5),),
                 SkipButton(onPressed: onPressedSkip)
                 ]),
             const Spacer( flex: 3),
@@ -58,13 +56,13 @@ class PlayButton extends StatelessWidget {
     return Container(
       width: 50,
       height: 50,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         shape: BoxShape.circle,
-        color: Constants.secondaryColor.withAlpha(13),
+        color: Constants.secondaryColor,
       ),
       child: IconButton(
         iconSize: 50,
-        icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow, color: Constants.secondaryColor, size: 30),
+        icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow, color: Constants.backgroundColor, size: 30),
         onPressed: onPressed,
       ),
     );
@@ -81,6 +79,21 @@ class SkipButton extends StatelessWidget {
     return IconButton(
         iconSize: 50,
         icon: const Icon(Icons.skip_next, color: Constants.secondaryColor, size: 30),
+        onPressed: onPressed,
+      );
+  }
+}
+
+class PreviousButton extends StatelessWidget {
+  const PreviousButton({super.key, required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+        iconSize: 50,
+        icon: const Icon(Icons.skip_previous, color: Constants.secondaryColor, size: 30),
         onPressed: onPressed,
       );
   }

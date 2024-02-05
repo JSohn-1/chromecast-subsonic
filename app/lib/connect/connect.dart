@@ -15,10 +15,9 @@ class MusicScreen extends StatefulWidget {
 
 class _MusicScreenState extends State<MusicScreen> {
   IO.Socket? socket; 
-  String message = 'temp';
-  var songTitle = 'Song Title';
+  String songTitle = 'Song Title';
   String artist = 'Artist';
-  String albumArt = 'https://via.placeholder.com/150';
+  String albumArt = 'https://via.placeholder.com/250';
   bool songPlaying = false;
 
   @override
@@ -34,7 +33,7 @@ class _MusicScreenState extends State<MusicScreen> {
       socket!.emit('subscribe', 'Master Bedroom speaker');
     });
 
-    socket!.onConnectError((data) => print(data));
+    socket!.onConnectError((data) => showErrorDialog(context, data.toString()));
 
     socket!.on('subscribe', (data) {
       data = json.decode(data);
@@ -79,4 +78,24 @@ class _MusicScreenState extends State<MusicScreen> {
       ),
     );
   }
+}
+
+void showErrorDialog(BuildContext context, String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
 }
