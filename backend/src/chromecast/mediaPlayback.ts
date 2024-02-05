@@ -128,17 +128,22 @@ export function playQueue(client: Client, chromecastName: string, socket: eventE
 		});
 	});
 
-	socket.on('skip', (chromecastName: string) => {
-		if (chromecastName !== device.friendlyName) return;
-
-		const song = Subsonic.startNextSong();
-		Chromecast.play(chromecastName, song.id).then(() => {
-			socket.emit('playQueue', song);
-		});
-	});
-
 	const song = Subsonic.startNextSong();
 	Chromecast.play(chromecastName, song.id).then(() => {
 		socket.emit('playQueue', song);
+	});
+}
+
+export function skip(client: Client, chromecastName: string, socket: eventEmitter) {
+	const device = getChromecast(client, chromecastName);
+
+	if (!device) return;
+
+	const song = Subsonic.startNextSong();
+	Chromecast.play(chromecastName, song.id);
+	socket.emit('playQueue', song);
+
+	return new Promise<string>((resolve) => {
+		resolve(JSON.stringify({ status: 'ok', response: song }));
 	});
 }

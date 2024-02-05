@@ -19,6 +19,7 @@ class _MusicScreenState extends State<MusicScreen> {
   var songTitle = 'Song Title';
   String artist = 'Artist';
   String albumArt = 'https://via.placeholder.com/150';
+  bool songPlaying = false;
 
   @override
   void initState() {
@@ -29,9 +30,7 @@ class _MusicScreenState extends State<MusicScreen> {
     socket = IO.io(Config.BASE_URL, <String, dynamic>{
     "transports": ["websocket"],
 });
-    // socket!.connect();
     socket!.onConnect((_) {
-      print('connect');
       socket!.emit('subscribe', 'Master Bedroom speaker');
     });
 
@@ -39,16 +38,21 @@ class _MusicScreenState extends State<MusicScreen> {
 
     socket!.on('subscribe', (data) {
       data = json.decode(data);
-      String id = data['response']['queue']['id'];
+      setState(() {
+              songPlaying = data['response']['chromecastStatus']['playerState'] == 'PLAYING';
+      });
+    });
+
+    socket!.on('playQueue', (data) {
+      String id = data['id'];
       socket!.emit('getSongInfo', id);
     });
+
     socket!.on('getSongInfo', (data) {
         data = json.decode(data);
         setState(() {
           songTitle = data['response']['title'];
           artist = data['response']['artist'];
-                    
-
           albumArt = data['response']['coverURL'];
         });
       });
@@ -56,11 +60,22 @@ class _MusicScreenState extends State<MusicScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      // appBar: AppBar(),
       body: MusicPlayer(
         title: songTitle,
         artist: artist,
         albumArt: albumArt,
+        isPlaying: songPlaying,
+        onPressedPlay: () {
+          if (songPlaying) {
+            socket!.emit('pause', 'Master Bedroom speaker');
+          } else {
+            socket!.emit('resume', 'Master Bedroom speaker');
+          }
+        },
+        onPressedSkip: () {
+          socket!.emit('skip', 'Master Bedroom speaker');
+        },
       ),
     );
   }

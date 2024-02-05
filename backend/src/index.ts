@@ -17,6 +17,9 @@ io.on('connection', (socket) => {
 	const uuid = uuidv4();
 
 	console.log('a user connected: ' + uuid);
+
+	socket.emit('playQueue', Subsonic.getCurrentSong());
+
 	socket.on('disconnect', () => {
 		console.log('a user disconnected');
 	});
@@ -104,6 +107,16 @@ io.on('connection', (socket) => {
 		}
 		Chromecast.resume(chromecastName).then((_: string) => {
 			socket.emit('resume', _);
+		});
+	});
+
+	socket.on('skip', (chromecastName: string) => {
+		if (!chromecastName) {
+			socket.emit(JSON.stringify({ status: 'error', response: 'no chromecast provided' }));
+			return;
+		}
+		Chromecast.skip(chromecastName, socket)?.then((_: string) => {
+			socket.emit('skip', _);
 		});
 	});
 
