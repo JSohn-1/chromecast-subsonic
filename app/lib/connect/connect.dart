@@ -38,7 +38,7 @@ class _MusicScreenState extends State<MusicScreen> {
     socket!.on('subscribe', (data) {
       data = json.decode(data);
       setState(() {
-              songPlaying = data['response']['chromecastStatus']['playerState'] == 'PLAYING';
+        songPlaying = data['response']['chromecastStatus']['playerState'] == 'PLAYING';
       });
     });
 
@@ -49,6 +49,18 @@ class _MusicScreenState extends State<MusicScreen> {
 
     socket!.on('getSongInfo', (data) {
         data = json.decode(data);
+
+        // If there were no changes, don't update
+        if (data['response']['title'] == songTitle) {
+          return;
+        }
+        if(data['response']['artist'] == artist){
+          return;
+        }
+        if(data['response']['coverURL'] == albumArt){
+          return;
+        }
+
         setState(() {
           songTitle = data['response']['title'];
           artist = data['response']['artist'];

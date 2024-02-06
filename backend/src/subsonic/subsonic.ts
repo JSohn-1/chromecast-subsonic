@@ -50,6 +50,10 @@ export class Subsonic {
 	}
 
 	static getCurrentSong() {
+		if (this.queue.length == 0){
+			return { id: '', index: -1 };
+		}
+
 		return { id: Subsonic.queue[Subsonic.index - 1], index: Subsonic.index - 1 };
 	}
 }
