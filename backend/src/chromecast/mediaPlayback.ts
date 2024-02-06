@@ -123,6 +123,7 @@ export function playQueue(client: Client, chromecastName: string, socket: eventE
 
 	device.on('finished', () => {
 		const song = Subsonic.startNextSong();
+		socket.emit('playQueue', song);
 		Chromecast.play(chromecastName, song.id).then(() => {
 			socket.emit('playQueue', song);
 		});
