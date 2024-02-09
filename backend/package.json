@@ -6,7 +6,7 @@
 	"scripts": {
 		"build": "rm -rf backend/dist; tsc --build",
 		"clean": "tsc --build --clean",
-		"run": "node ./dist/src/index.js",
+		"run": "node --trace-warnings ./dist/src/index.js",
 		"bun-run": "bun ./src/index.ts",
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"windowsDebug": "@powershell -Command $env:DEBUG='chromecast-api';node backend/dist/src/index.js > log.txt 2>&1"

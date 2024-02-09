@@ -36,6 +36,11 @@ class _MusicScreenState extends State<MusicScreen> {
 
     socket!.on('subscribe', (data) {
       data = json.decode(data);
+
+      if ((data['response']['chromecastStatus']['playerState'] == 'PLAYING') == songPlaying) {
+        return;
+      }
+
       setState(() {
         songPlaying = data['response']['chromecastStatus']['playerState'] == 'PLAYING';
       });
@@ -43,13 +48,13 @@ class _MusicScreenState extends State<MusicScreen> {
 
     socket!.on('playQueue', (data) {
       String id = data['id'];
+      
       socket!.emit('getSongInfo', id);
     });
 
     socket!.on('getSongInfo', (data) {
         data = json.decode(data);
-
-        // If there were no changes, don't update
+        
         if (data['response']['title'] == songTitle) {
           return;
         }

@@ -19,9 +19,10 @@ io.on('connection', (socket) => {
 	console.log('a user connected: ' + uuid);
 
 	socket.emit('playQueue', Subsonic.getCurrentSong());
-
+	Subsonic.subscribers.push(socket);
 	socket.on('disconnect', () => {
 		console.log('a user disconnected');
+		Subsonic.subscribers = Subsonic.subscribers.filter((subscriber) => subscriber !== socket);
 	});
 
 	socket.on('ping', () => {

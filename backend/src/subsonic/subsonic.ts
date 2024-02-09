@@ -3,6 +3,7 @@ import { getPlaylists } from './getPlaylists';
 import { getPlaylist } from './getPlaylist';
 import { getSong } from './getSong';
 import { getSongInfo } from './getSongInfo';
+import { EventEmitter } from 'events';
 
 export class Subsonic {
 	static ping = ping;
@@ -13,6 +14,8 @@ export class Subsonic {
 
 	static queue: string[] = [];
 	static index: number = 0;
+	static subscribers: EventEmitter[] = [];
+
 	static queuePlaylist(id: string) {
 		Subsonic.queue = [];
 
@@ -28,14 +31,21 @@ export class Subsonic {
 	static startNextSong() {
 		if (Subsonic.index < Subsonic.queue.length) {
 			Subsonic.index++;
+			this.subscribers.forEach((socket) => {
+				socket.emit('playQueue', {id: Subsonic.queue[Subsonic.index - 1], index: Subsonic.index - 1 });
+			});
 			return { id: Subsonic.queue[Subsonic.index - 1], index: Subsonic.index - 1 };
 		}
 
 		if (Subsonic.index === Subsonic.queue.length) {
 			Subsonic.index = 0;
 			Subsonic.index++;
+			this.subscribers.forEach((socket) => {
+				socket.emit('playQueue', {id: Subsonic.queue[Subsonic.index - 1], index: Subsonic.index - 1 });
+			});
 			return { id: Subsonic.queue[Subsonic.index - 1], index: Subsonic.index - 1 };
 		}
+
 
 		return { id: '', index: -1 };
 	}
