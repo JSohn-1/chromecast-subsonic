@@ -18,11 +18,10 @@ io.on('connection', (socket) => {
 
 	console.log('a user connected: ' + uuid);
 
-	socket.emit('playQueue', Subsonic.getCurrentSong());
-	Subsonic.subscribers.push(socket);
+	// socket.emit('playQueue', Subsonic.getCurrentSong());
+
 	socket.on('disconnect', () => {
 		console.log('a user disconnected');
-		Subsonic.subscribers = Subsonic.subscribers.filter((subscriber) => subscriber !== socket);
 	});
 
 	socket.on('ping', () => {
@@ -140,10 +139,12 @@ io.on('connection', (socket) => {
 	Chromecast.newChromecast(socket);
 
 	socket.on('queuePlaylist', (id: string, chromecastName: string) => {
-		Subsonic.queuePlaylist(id).then((_: string) => {
-			Chromecast.playQueue(chromecastName, socket);
-			socket.emit('queuePlaylist', _);
-		});
+			Chromecast.playQueue(chromecastName, id, socket);
+			socket.emit('queuePlaylist', 'ok');
+	});
+
+	socket.on('getCurrentSong', (chromecastName: string) => {
+		Chromecast.getCurrentSong(chromecastName, socket);
 	});
 });
 

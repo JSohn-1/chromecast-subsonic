@@ -4,6 +4,7 @@ import { getPlaylist } from './getPlaylist';
 import { getSong } from './getSong';
 import { getSongInfo } from './getSongInfo';
 import { EventEmitter } from 'events';
+import type Device = require('chromecast-api/lib/device');
 
 export class Subsonic {
 	static ping = ping;
@@ -12,58 +13,62 @@ export class Subsonic {
 	static getSong = getSong;
 	static getSongInfo = getSongInfo;
 
-	static queue: string[] = [];
+	static serverQueue: { [deviceName: string]: {index: number, queue: string[]} } = {};
 	static index: number = 0;
-	static subscribers: EventEmitter[] = [];
-
-	static queuePlaylist(id: string) {
-		Subsonic.queue = [];
-
+	static queuePlaylist(id: string, device: Device) {
 		return new Promise<string>((resolve) => {
 			getPlaylist(id).then((_: string) => {
 				const playlist = JSON.parse(_);
-				Subsonic.queue = playlist.response.entry.map((song: { id: string }) => song.id);
+				const queue = playlist.response.entry.map((song: { id: string }) => song.id);
+
+				Subsonic.serverQueue[device.name]['queue'] = queue;
+
 				resolve('ok');
 			});
 		});
 	}
 
-	static startNextSong() {
-		if (Subsonic.index < Subsonic.queue.length) {
-			Subsonic.index++;
-			this.subscribers.forEach((socket) => {
-				socket.emit('playQueue', {id: Subsonic.queue[Subsonic.index - 1], index: Subsonic.index - 1 });
-			});
-			return { id: Subsonic.queue[Subsonic.index - 1], index: Subsonic.index - 1 };
+	static startNextSong(device: Device) {
+		const name = device.name;
+		const queue = Subsonic.serverQueue[name].queue;
+		const index = Subsonic.serverQueue[name].index;
+
+		if (index < queue.length) {
+			Subsonic.serverQueue[name].index++;
+			return { id: queue[index], index: index };
 		}
 
-		if (Subsonic.index === Subsonic.queue.length) {
-			Subsonic.index = 0;
-			Subsonic.index++;
-			this.subscribers.forEach((socket) => {
-				socket.emit('playQueue', {id: Subsonic.queue[Subsonic.index - 1], index: Subsonic.index - 1 });
-			});
-			return { id: Subsonic.queue[Subsonic.index - 1], index: Subsonic.index - 1 };
+		if (index === queue.length) {
+			Subsonic.serverQueue[name].index = 0;
+			Subsonic.serverQueue[name].index++;
+			return { id: queue[0], index: 0 };
 		}
 
 
 		return { id: '', index: -1 };
 	}
 
-	static startSong(index: number) {
-		if (index < Subsonic.queue.length) {
-			Subsonic.index = index;
-			return { id: Subsonic.queue[Subsonic.index], index: Subsonic.index };
+	static startSong(index: number, device: Device) {
+		const name = device.name;
+		const queue = Subsonic.serverQueue[name].queue;
+
+		if (index < queue.length) {
+			Subsonic.serverQueue[name].index = index;
+			return { id: queue[index], index: index };
 		}
 
 		return { id: '', index: -1 };
 	}
 
-	static getCurrentSong() {
-		if (this.queue.length == 0){
+	static getCurrentSong(device: Device) {
+		const name = device.name;
+		const queue = Subsonic.serverQueue[name].queue;
+		const index = Subsonic.serverQueue[name].index;
+
+		if (queue.length == 0){
 			return { id: '', index: -1 };
 		}
 
-		return { id: Subsonic.queue[Subsonic.index - 1], index: Subsonic.index - 1 };
+		return { id: queue[index - 1], index: index - 1 };
 	}
 }
