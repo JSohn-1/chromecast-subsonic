@@ -19,10 +19,9 @@ export class Subsonic {
 		return new Promise<string>((resolve) => {
 			getPlaylist(id).then((_: string) => {
 				const playlist = JSON.parse(_);
-				const queue = playlist.response.entry.map((song: { id: string }) => song.id);
+				const queue = {index: 0, queue: playlist.response.entry.map((song: { id: string }) => song.id)};
 
-				Subsonic.serverQueue[device.name]['queue'] = queue;
-
+				Subsonic.serverQueue[device.name] = queue;
 				resolve('ok');
 			});
 		});

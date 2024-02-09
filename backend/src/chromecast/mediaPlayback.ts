@@ -123,7 +123,6 @@ export function unsubscribe(client: Client, chromecastName: string, uuid: string
 
 export function playQueue(client: Client, chromecastName: string, id: string, socket: eventEmitter) {
 	const device = getChromecast(client, chromecastName);
-
 	if (!device) {
 		socket.emit('playQueue', JSON.stringify({ status: 'error', response: 'device not found' }));
 		return;
@@ -131,6 +130,11 @@ export function playQueue(client: Client, chromecastName: string, id: string, so
 
 	Subsonic.queuePlaylist(id, device).then((_: string) => {
 		socket.emit('playQueue', _);
+
+		const song = Subsonic.startNextSong(device);
+		Chromecast.play(chromecastName, song.id).then(() => {
+			socket.emit('playQueue', song);
+		});
 	});
 
 
@@ -142,10 +146,7 @@ export function playQueue(client: Client, chromecastName: string, id: string, so
 		});
 	});
 
-	const song = Subsonic.startNextSong(device);
-	Chromecast.play(chromecastName, song.id).then(() => {
-		socket.emit('playQueue', song);
-	});
+
 }
 
 export function skip(client: Client, chromecastName: string, socket: eventEmitter) {
@@ -171,4 +172,33 @@ export function getCurrentSong(client: Client, chromecastName: string, socket: e
 	}
 
 	socket.emit('getCurrentSong', JSON.stringify({ status: 'ok', response: Subsonic.getCurrentSong(device) }));
+}
+
+export function selectChromecast(client: Client, chromecastName: string, uuid: string, socket: eventEmitter) {
+	const device = getChromecast(client, chromecastName);
+
+	if (!device) {
+		socket.emit('selectChromecast', { status: 'error', response: 'device not found' });
+		return;
+	}
+
+	if (uuid in listeners) {
+		device.removeListener('status', listeners[uuid]);
+		delete listeners[uuid];
+	}
+
+	const listener = (status: Device.DeviceStatus) => {
+		socket.emit('subscribe', { status: 'ok', response: {chromecastStatus: status, queue: Subsonic.getCurrentSong(device)} });
+	};
+
+	device.getStatus((err, status) => {
+		if (err) {
+			socket.emit('subscribe', { status: 'error', response: err });
+			return;
+		}
+		socket.emit('subscribe', { status: 'ok', response: {chromecastStatus: status, queue: Subsonic.getCurrentSong(device)} });
+	});
+
+	device.on('status', listener);
+	listeners[uuid] = listener;
 }

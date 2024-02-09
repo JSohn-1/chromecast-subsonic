@@ -17,6 +17,7 @@ class _MusicScreenState extends State<MusicScreen> {
   String songTitle = 'Song Title';
   String artist = 'Artist';
   String albumArt = 'https://via.placeholder.com/250';
+  String songId = '';
   bool songPlaying = false;
 
   @override
@@ -29,41 +30,38 @@ class _MusicScreenState extends State<MusicScreen> {
     "transports": ["websocket"],
 });
     socket!.onConnect((_) {
-      socket!.emit('subscribe', 'Master Bedroom speaker');
+      // socket!.emit('subscribe', 'Master Bedroom speaker');
+      socket!.emit('selectChromecast', 'Master Bedroom speaker');
     });
 
     socket!.onConnectError((data) => showErrorDialog(context, data.toString()));
 
     socket!.on('subscribe', (data) {
-      data = json.decode(data);
 
-      if ((data['response']['chromecastStatus']['playerState'] == 'PLAYING') == songPlaying) {
-        return;
+      if ((data['response']['chromecastStatus']['playerState'] == 'PLAYING') != songPlaying) {
+        setState(() {
+          songPlaying = data['response']['chromecastStatus']['playerState'] == 'PLAYING';
+        });
       }
 
-      setState(() {
-        songPlaying = data['response']['chromecastStatus']['playerState'] == 'PLAYING';
-      });
+      String id = data['response']['queue']['id'];
+      if (id == songId) {
+        return;
+      }
+      socket!.emit('getSongInfo', id);
     });
 
     socket!.on('playQueue', (data) {
       String id = data['id'];
       
+      if (id == songId) {
+        return;
+      }
       socket!.emit('getSongInfo', id);
     });
 
     socket!.on('getSongInfo', (data) {
         data = json.decode(data);
-        
-        if (data['response']['title'] == songTitle) {
-          return;
-        }
-        if(data['response']['artist'] == artist){
-          return;
-        }
-        if(data['response']['coverURL'] == albumArt){
-          return;
-        }
 
         setState(() {
           songTitle = data['response']['title'];

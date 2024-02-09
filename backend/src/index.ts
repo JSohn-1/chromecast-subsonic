@@ -21,6 +21,7 @@ io.on('connection', (socket) => {
 	// socket.emit('playQueue', Subsonic.getCurrentSong());
 
 	socket.on('disconnect', () => {
+
 		console.log('a user disconnected');
 	});
 
@@ -145,6 +146,10 @@ io.on('connection', (socket) => {
 
 	socket.on('getCurrentSong', (chromecastName: string) => {
 		Chromecast.getCurrentSong(chromecastName, socket);
+	});
+	
+	socket.on('selectChromecast', (chromecastName: string) => {
+		Chromecast.selectChromecast(chromecastName, uuid, socket);
 	});
 });
 
