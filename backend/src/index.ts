@@ -32,7 +32,7 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('getPlaylists', () => {
-		Subsonic.getPlaylists().then((_: string) => {
+		Subsonic.getPlaylists().then((_) => {
 			socket.emit('getPlaylists', _);
 		});
 	});
@@ -91,32 +91,20 @@ io.on('connection', (socket) => {
 		});
 	});
 
-	socket.on('pause', (chromecastName: string) => {
-		if (!chromecastName) {
-			socket.emit(JSON.stringify({ status: 'error', response: 'no chromecast provided' }));
-			return;
-		}
-		Chromecast.pause(chromecastName).then((_: string) => {
+	socket.on('pause', () => {
+		Chromecast.pause(uuid).then((_) => {
 			socket.emit('pause', _);
 		});
 	});
 
-	socket.on('resume', (chromecastName: string) => {
-		if (!chromecastName) {
-			socket.emit(JSON.stringify({ status: 'error', response: 'no chromecast provided' }));
-			return;
-		}
-		Chromecast.resume(chromecastName).then((_: string) => {
+	socket.on('resume', () => {
+		Chromecast.resume(uuid).then((_) => {
 			socket.emit('resume', _);
 		});
 	});
 
-	socket.on('skip', (chromecastName: string) => {
-		if (!chromecastName) {
-			socket.emit(JSON.stringify({ status: 'error', response: 'no chromecast provided' }));
-			return;
-		}
-		Chromecast.skip(chromecastName, socket)?.then((_: string) => {
+	socket.on('skip', () => {
+		Chromecast.skip(uuid, socket)?.then((_) => {
 			socket.emit('skip', _);
 		});
 	});
@@ -139,13 +127,12 @@ io.on('connection', (socket) => {
 
 	Chromecast.newChromecast(socket);
 
-	socket.on('queuePlaylist', (id: string, chromecastName: string) => {
-			Chromecast.playQueue(chromecastName, id, socket);
-			socket.emit('queuePlaylist', 'ok');
+	socket.on('queuePlaylist', (id: string) => {
+			Chromecast.playQueue(uuid, id, socket);
 	});
 
-	socket.on('getCurrentSong', (chromecastName: string) => {
-		Chromecast.getCurrentSong(chromecastName, socket);
+	socket.on('getCurrentSong', () => {
+		Chromecast.getCurrentSong(uuid, socket);
 	});
 	
 	socket.on('selectChromecast', (chromecastName: string) => {

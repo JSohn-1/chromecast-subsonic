@@ -13,7 +13,7 @@ class playlistSelect extends StatefulWidget {
 
 class _playlistSelectState extends State<playlistSelect> {
   IO.Socket? socket; 
-  Map<String, dynamic> playlists = {};
+  List<dynamic> playlists = [];
 
   @override
   void initState() {
@@ -24,7 +24,7 @@ class _playlistSelectState extends State<playlistSelect> {
 
     socket!.on('getPlaylists', (data) {
       setState(() {
-        playlists = data;
+        playlists = data['response'];
       });
     });
   }
@@ -39,13 +39,15 @@ class _playlistSelectState extends State<playlistSelect> {
 
   @override
   Widget build(BuildContext context) {
-    return const PlaylistOpener();
+    return PlaylistOpener(playlists: playlists,);
   }
 }
 
 class PlaylistOpener extends StatelessWidget {
-  const PlaylistOpener({super.key});
-
+  PlaylistOpener({super.key, required this.playlists});
+  
+  List<dynamic> playlists = [];
+  
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -53,7 +55,7 @@ class PlaylistOpener extends StatelessWidget {
       height: 50,
       decoration: const BoxDecoration(
         shape: BoxShape.circle,
-        color: Constants.secondaryColor,
+        color: Constants.primaryColor,
       ),
       child: IconButton(
         iconSize: 50,
@@ -62,7 +64,23 @@ class PlaylistOpener extends StatelessWidget {
           showModalBottomSheet<void>(
             context: context,
             builder: (BuildContext context) {
-              return Container();
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const Text('Select a playlist'),
+                    for (var playlist in playlists) 
+                      PlaylistItem(
+                        name: playlist['name'],
+                        coverURL: "https://via.placeholder.com/50/", //"playlist['coverURL']" 
+                        onPressed: () {
+                          print('pressed ${playlist['name']}');
+                          // selectPlaylist(playlists[playlist]['id']);
+                          // Navigator.pop(context);
+                        },
+                      ),
+                  ],
+                ),
+              );
             },
           );
         }
@@ -80,13 +98,14 @@ class PlaylistItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: context.size!.width - 20,
+      width: 300,
       height: 100,
+      color: Constants.backgroundColor,
       child: Row(
         children: [
           Container(
-            width: 100,
-            height: 100,
+            width: 50,
+            height: 50,
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: NetworkImage(coverURL),
@@ -95,11 +114,11 @@ class PlaylistItem extends StatelessWidget {
             ),
           ),
           Container(
-            width: context.size!.width - 120,
+            width: 100,
             height: 100,
             child: Column(
               children: [
-                Text(name),
+                Text(name, style: TextStyle(color: Constants.primaryTextColor)),
                 ElevatedButton(
                   onPressed: onPressed,
                   child: const Text('Select'),

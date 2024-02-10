@@ -17,7 +17,7 @@ export class Subsonic {
 	static index: number = 0;
 	static queuePlaylist(id: string, device: Device) {
 		return new Promise<string>((resolve) => {
-			getPlaylist(id).then((_: string) => {
+			getPlaylist(id).then((_) => {
 				const playlist = JSON.parse(_);
 				const queue = {index: 0, queue: playlist.response.entry.map((song: { id: string }) => song.id)};
 
@@ -29,6 +29,11 @@ export class Subsonic {
 
 	static startNextSong(device: Device) {
 		const name = device.name;
+
+		if (!Subsonic.serverQueue[name]) {
+			return { id: '', index: -1 };
+		}
+
 		const queue = Subsonic.serverQueue[name].queue;
 		const index = Subsonic.serverQueue[name].index;
 
@@ -61,6 +66,11 @@ export class Subsonic {
 
 	static getCurrentSong(device: Device) {
 		const name = device.name;
+
+		if (!Subsonic.serverQueue[name]) {
+			return { id: '', index: -1 };
+		}
+
 		const queue = Subsonic.serverQueue[name].queue;
 		const index = Subsonic.serverQueue[name].index;
 

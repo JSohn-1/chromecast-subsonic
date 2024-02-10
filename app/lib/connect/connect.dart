@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'config.dart';
 import 'musicPlayer.dart';
+import 'playlistSelect.dart';
 
 class MusicScreen extends StatefulWidget {
   const MusicScreen({super.key});
@@ -31,6 +32,8 @@ class _MusicScreenState extends State<MusicScreen> {
 });
     socket!.onConnect((_) {
       socket!.emit('selectChromecast', 'Master Bedroom speaker');
+      socket!.emit('getCurrentSong');
+      socket!.emit('getPlaylists');
     });
 
     socket!.onConnectError((data) => showErrorDialog(context, data.toString()));
@@ -59,6 +62,11 @@ class _MusicScreenState extends State<MusicScreen> {
       socket!.emit('getSongInfo', id);
     });
 
+    socket!.on('getCurrentSong', (data) {
+      String id = data['response']['id'];
+      socket!.emit('getSongInfo', id);
+    });
+
     socket!.on('getSongInfo', (data) {
         data = json.decode(data);
 
@@ -72,21 +80,26 @@ class _MusicScreenState extends State<MusicScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: MusicPlayer(
-        title: songTitle,
-        artist: artist,
-        albumArt: albumArt,
-        isPlaying: songPlaying,
-        onPressedPlay: () {
-          if (songPlaying) {
-            socket!.emit('pause', 'Master Bedroom speaker');
-          } else {
-            socket!.emit('resume', 'Master Bedroom speaker');
-          }
-        },
-        onPressedSkip: () {
-          socket!.emit('skip', 'Master Bedroom speaker');
-        },
+      body: Stack(
+        children: [
+          MusicPlayer(
+            title: songTitle,
+            artist: artist,
+            albumArt: albumArt,
+            isPlaying: songPlaying,
+            onPressedPlay: () {
+              if (songPlaying) {
+                socket!.emit('pause', 'Master Bedroom speaker');
+              } else {
+                socket!.emit('resume', 'Master Bedroom speaker');
+              }
+            },
+            onPressedSkip: () {
+              socket!.emit('skip', 'Master Bedroom speaker');
+            },
+          ),
+          Positioned(top: 0, right: 0, child: playlistSelect(socket: socket!)),
+        ],
       ),
     );
   }
