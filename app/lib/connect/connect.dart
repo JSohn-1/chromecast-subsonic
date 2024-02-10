@@ -30,7 +30,6 @@ class _MusicScreenState extends State<MusicScreen> {
     "transports": ["websocket"],
 });
     socket!.onConnect((_) {
-      // socket!.emit('subscribe', 'Master Bedroom speaker');
       socket!.emit('selectChromecast', 'Master Bedroom speaker');
     });
 
@@ -73,7 +72,6 @@ class _MusicScreenState extends State<MusicScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(),
       body: MusicPlayer(
         title: songTitle,
         artist: artist,
