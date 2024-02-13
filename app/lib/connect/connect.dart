@@ -33,6 +33,7 @@ class _MusicScreenState extends State<MusicScreen> {
     socket!.onConnect((_) {
       socket!.emit('selectChromecast', 'Master Bedroom speaker');
       socket!.emit('getCurrentSong');
+      socket!.emit('getStatus');
       socket!.emit('getPlaylists');
     });
 
@@ -76,6 +77,16 @@ class _MusicScreenState extends State<MusicScreen> {
           albumArt = data['response']['coverURL'];
         });
       });
+
+    socket!.on('getStatus', (data) {
+      if (data['status'] == 'error') {
+        return;
+      }
+
+      setState(() {
+        songPlaying = data['response']['playerState'] == 'PLAYING';
+      });
+    });
   }
   @override
   Widget build(BuildContext context) {

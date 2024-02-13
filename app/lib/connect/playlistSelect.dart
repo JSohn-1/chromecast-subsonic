@@ -39,27 +39,23 @@ class _playlistSelectState extends State<playlistSelect> {
 
   @override
   Widget build(BuildContext context) {
-    return PlaylistOpener(playlists: playlists,);
+    return PlaylistOpener(playlists: playlists, onPressedPlay: selectPlaylist, onPressedShuffle: () {}, onPressedRefresh: refreshPlaylists);
   }
 }
 
 class PlaylistOpener extends StatelessWidget {
-  PlaylistOpener({super.key, required this.playlists});
+  PlaylistOpener({super.key, required this.playlists, required this.onPressedPlay, required this.onPressedShuffle, required this.onPressedRefresh});
   
   List<dynamic> playlists = [];
+  final VoidCallback onPressedPlay;
+  final VoidCallback onPressedShuffle;
+  final VoidCallback onPressedRefresh;
   
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 50,
-      height: 50,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        color: Constants.primaryColor,
-      ),
-      child: IconButton(
+    return IconButton(
         iconSize: 50,
-        icon: const Icon(Icons.list, color: Constants.backgroundColor, size: 30),
+        icon: const Icon(Icons.list, color: Constants.secondaryColor, size: 30),
         onPressed: () {
           showModalBottomSheet<void>(
             context: context,
@@ -72,10 +68,21 @@ class PlaylistOpener extends StatelessWidget {
                       PlaylistItem(
                         name: playlist['name'],
                         coverURL: "https://via.placeholder.com/50/", //"playlist['coverURL']" 
-                        onPressed: () {
+                        onPressedPlay: () {
                           print('pressed ${playlist['name']}');
+                          onPressedPlay(playlist['id']);
                           // selectPlaylist(playlists[playlist]['id']);
                           // Navigator.pop(context);
+                        },
+                        onPressedShuffle: () {
+                          print('shuffled ${playlist['name']}');
+                          onPressedShuffle();
+                          // selectPlaylist(playlists[playlist]['id']);
+                          // Navigator.pop(context);
+                        },
+                        onPressedRefresh: () {
+                          print('refreshed ${playlist['name']}');
+                          onPressedRefresh();
                         },
                       ),
                   ],
@@ -84,16 +91,17 @@ class PlaylistOpener extends StatelessWidget {
             },
           );
         }
-      ),
-    );
+      );
   }
 }
 
 class PlaylistItem extends StatelessWidget {
-  const PlaylistItem({super.key, required this.name, required this.coverURL, required this.onPressed});
+  const PlaylistItem({super.key, required this.name, required this.coverURL, required this.onPressedPlay, required this.onPressedShuffle, required this.onPressedRefresh});
   final String name;
   final String coverURL;
-  final VoidCallback onPressed;
+  final VoidCallback onPressedPlay;
+  final VoidCallback onPressedShuffle;
+  final VoidCallback onPressedRefresh;
 
   @override
   Widget build(BuildContext context) {
@@ -103,6 +111,7 @@ class PlaylistItem extends StatelessWidget {
       color: Constants.backgroundColor,
       child: Row(
         children: [
+          const Padding(padding: EdgeInsets.all(5)),
           Container(
             width: 50,
             height: 50,
@@ -113,22 +122,57 @@ class PlaylistItem extends StatelessWidget {
               ),
             ),
           ),
-          Container(
-            width: 100,
-            height: 100,
-            child: Column(
-              children: [
-                Text(name, style: TextStyle(color: Constants.primaryTextColor)),
-                ElevatedButton(
-                  onPressed: onPressed,
-                  child: const Text('Select'),
-                ),
-              ],
-            ),
-          ),
+          const Padding(padding: EdgeInsets.all(5)),
+          Text(name, style: const TextStyle(color: Constants.primaryTextColor)),
+          const Spacer(flex: 1),
+          PlaylistShuffleButton(onPressed: onPressedShuffle),
+          PlaylistPlayButton(onPressed: onPressedPlay),
+          const Padding(padding: EdgeInsets.all(5),)
         ],
       )
     );
+  }
+}
+
+class PlaylistPlayButton extends StatelessWidget {
+  const PlaylistPlayButton({super.key, required this.onPressed});
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+        iconSize: 50,
+        icon: const Icon(Icons.play_arrow_rounded, color: Constants.secondaryColor, size: 30),
+        onPressed: onPressed,
+      );
+  }
+}
+
+class PlaylistShuffleButton extends StatelessWidget {
+  const PlaylistShuffleButton({super.key, required this.onPressed});
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+        iconSize: 50,
+        icon: const Icon(Icons.shuffle, color: Constants.secondaryColor, size: 30),
+        onPressed: onPressed,
+      );
+  }
+}
+
+class RefreshPlaylistsButton extends StatelessWidget {
+  const RefreshPlaylistsButton({super.key, required this.onPressed});
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+        iconSize: 50,
+        icon: const Icon(Icons.refresh, color: Constants.secondaryColor, size: 30),
+        onPressed: onPressed,
+      );
   }
 }
 

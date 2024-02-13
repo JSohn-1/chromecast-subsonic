@@ -199,18 +199,26 @@ export function selectChromecast(client: Client, chromecastName: string, uuid: s
 		socket.emit('subscribe', { status: 'ok', response: {chromecastStatus: status, queue: Subsonic.getCurrentSong(device)} });
 	};
 
-	// device.getStatus((err, status) => {
-	// 	if (err) {
-	// 		console.log(err);
-	// 		socket.emit('subscribe', { status: 'error', response: err });
-	// 		return;
-	// 	}
-	// 	socket.emit('subscribe', { status: 'ok', response: {chromecastStatus: status, queue: Subsonic.getCurrentSong(device)} });
-	// });
-
 	device.on('status', listener);
 	listeners[uuid] = listener;
 
 	selectedChromecasts[uuid] = device;
 	socket.emit('selectChromecast', { status: 'ok', response: 'selected' });
+}
+
+export function getStatus(client: Client, uuid: string, socket: eventEmitter) {
+	const device = selectedChromecasts[uuid];
+
+	if (!device) {
+		socket.emit('getStatus', { status: 'error', response: 'chromecast not selected' });
+		return;
+	}
+
+	device.getStatus((err, status) => {
+		if (err) {
+			socket.emit('getStatus', { status: 'error', response: `${err.name}: ${err.message}` });
+			return;
+		}
+		socket.emit('getStatus', { status: 'ok', response: status });
+	});
 }

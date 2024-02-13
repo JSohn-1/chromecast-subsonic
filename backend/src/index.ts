@@ -138,6 +138,10 @@ io.on('connection', (socket) => {
 	socket.on('selectChromecast', (chromecastName: string) => {
 		Chromecast.selectChromecast(chromecastName, uuid, socket);
 	});
+	
+	socket.on('getStatus', () => {
+		Chromecast.getStatus(uuid, socket);
+	});
 });
 
 httpServer.listen(port, () => {
