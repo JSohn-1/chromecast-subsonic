@@ -222,3 +222,13 @@ export function getStatus(client: Client, uuid: string, socket: eventEmitter) {
 		socket.emit('getStatus', { status: 'ok', response: status });
 	});
 }
+
+export function clearListener(uuid: string) {
+	if (uuid in listeners) {
+		selectedChromecasts[uuid].removeListener('status', listeners[uuid]);
+		delete listeners[uuid];
+	}
+	if (uuid in selectedChromecasts) {
+		delete selectedChromecasts[uuid];
+	}
+}

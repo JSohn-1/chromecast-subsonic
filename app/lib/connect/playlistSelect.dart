@@ -39,7 +39,7 @@ class _playlistSelectState extends State<playlistSelect> {
 
   @override
   Widget build(BuildContext context) {
-    return PlaylistOpener(playlists: playlists, onPressedPlay: selectPlaylist, onPressedShuffle: () {}, onPressedRefresh: refreshPlaylists);
+    return PlaylistOpener(playlists: playlists, onPressedPlay: selectPlaylist, onPressedShuffle: (String) {}, onPressedRefresh: refreshPlaylists);
   }
 }
 
@@ -47,8 +47,8 @@ class PlaylistOpener extends StatelessWidget {
   PlaylistOpener({super.key, required this.playlists, required this.onPressedPlay, required this.onPressedShuffle, required this.onPressedRefresh});
   
   List<dynamic> playlists = [];
-  final VoidCallback onPressedPlay;
-  final VoidCallback onPressedShuffle;
+  final Function(String) onPressedPlay;
+  final Function(String) onPressedShuffle;
   final VoidCallback onPressedRefresh;
   
   @override
@@ -76,7 +76,7 @@ class PlaylistOpener extends StatelessWidget {
                         },
                         onPressedShuffle: () {
                           print('shuffled ${playlist['name']}');
-                          onPressedShuffle();
+                          onPressedShuffle(playlist['id']);
                           // selectPlaylist(playlists[playlist]['id']);
                           // Navigator.pop(context);
                         },

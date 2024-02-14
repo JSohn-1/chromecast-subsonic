@@ -21,7 +21,7 @@ io.on('connection', (socket) => {
 	// socket.emit('playQueue', Subsonic.getCurrentSong());
 
 	socket.on('disconnect', () => {
-
+		Chromecast.clearListener(uuid);
 		console.log('a user disconnected');
 	});
 
