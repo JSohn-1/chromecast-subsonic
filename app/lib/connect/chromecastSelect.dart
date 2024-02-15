@@ -65,40 +65,32 @@ class ChromecastOpener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 50,
-      height: 50,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        color: Constants.primaryColor,
-      ),
-      child: IconButton(
-          iconSize: 50,
-          icon: const Icon(Icons.cast,
-              color: Constants.backgroundColor, size: 30),
-          onPressed: () {
-            showModalBottomSheet<void>(
-              context: context,
-              builder: (BuildContext context) {
-                return SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const Text('Select a playlist'),
-                      for (var chromecast in chromecasts)
-                        ChromecastItem(
-                          name: chromecast,
-                          onPressed: () {
-                            selectChromecast(chromecast);
-                            print('pressed $chromecast');
-                          },
-                        ),
-                    ],
-                  ),
-                );
-              },
+    return IconButton(
+      iconSize: 50,
+      icon: const Icon(Icons.cast,
+          color: Constants.secondaryColor, size: 30),
+      onPressed: () {
+        showModalBottomSheet<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  const Text('Select a cast device'),
+                  for (var chromecast in chromecasts)
+                    ChromecastItem(
+                      name: chromecast,
+                      onPressed: () {
+                        selectChromecast(chromecast);
+                        print('pressed $chromecast');
+                      },
+                    ),
+                ],
+              ),
             );
-          }),
-    );
+          },
+        );
+      });
   }
 }
 

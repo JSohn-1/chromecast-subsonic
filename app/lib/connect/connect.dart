@@ -32,9 +32,9 @@ class _MusicScreenState extends State<MusicScreen> {
     "transports": ["websocket"],
 });
     socket!.onConnect((_) {
-      socket!.emit('selectChromecast', 'Master Bedroom speaker');
-      socket!.emit('getCurrentSong');
-      socket!.emit('getStatus');
+      // socket!.emit('selectChromecast', 'Master Bedroom speaker');
+      // socket!.emit('getCurrentSong');
+      // socket!.emit('getStatus');
       socket!.emit('getPlaylists');
     });
 
