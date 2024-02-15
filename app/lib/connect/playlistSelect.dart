@@ -37,9 +37,13 @@ class _playlistSelectState extends State<playlistSelect> {
     socket!.emit('queuePlaylist', id);
   }
 
+  void selectPlaylistShuffle(String id) {
+    socket!.emit('queuePlaylistShuffle', id);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return PlaylistOpener(playlists: playlists, onPressedPlay: selectPlaylist, onPressedShuffle: (String) {}, onPressedRefresh: refreshPlaylists);
+    return PlaylistOpener(playlists: playlists, onPressedPlay: selectPlaylist, onPressedShuffle: selectPlaylistShuffle, onPressedRefresh: refreshPlaylists);
   }
 }
 

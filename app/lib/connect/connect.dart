@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'config.dart';
 import 'musicPlayer.dart';
 import 'playlistSelect.dart';
+import 'chromecastSelect.dart';
 
 class MusicScreen extends StatefulWidget {
   const MusicScreen({super.key});
@@ -55,6 +56,7 @@ class _MusicScreenState extends State<MusicScreen> {
     });
 
     socket!.on('playQueue', (data) {
+      print(data);
       String id = data['id'];
       
       if (id == songId) {
@@ -110,6 +112,7 @@ class _MusicScreenState extends State<MusicScreen> {
             },
           ),
           Positioned(top: 0, right: 0, child: playlistSelect(socket: socket!)),
+          Positioned(bottom: 0, left: 0, child: ChromecastSelect(socket: socket!)),
         ],
       ),
     );

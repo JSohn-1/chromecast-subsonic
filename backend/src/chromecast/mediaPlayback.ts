@@ -132,8 +132,34 @@ export function playQueue(client: Client, uuid: string, id: string, socket: even
 		return;
 	}
 
-	Subsonic.queuePlaylist(id, device).then((_: string) => {
-		socket.emit('playQueue', _);
+	Subsonic.queuePlaylist(id, device).then((_) => {
+		// socket.emit('playQueue', _);
+
+		const song = Subsonic.startNextSong(device);
+		Chromecast.play(device.friendlyName, song.id).then(() => {
+			socket.emit('playQueue', song);
+		});
+	});
+
+	device.on('finished', () => {
+		const song = Subsonic.startNextSong(device);
+		socket.emit('playQueue', song);
+		Chromecast.play(device.friendlyName, song.id).then(() => {
+			socket.emit('playQueue', song);
+		});
+	});
+}
+
+export function playQueueShuffle(client: Client, uuid: string, id: string, socket: eventEmitter) {
+	const device = selectedChromecasts[uuid];
+
+	if (!device) {
+		socket.emit('playQueue', { status: 'error', response: 'device not selected' });
+		return;
+	}
+
+	Subsonic.queuePlaylistShuffle(id, device).then((_) => {
+		// socket.emit('playQueueShuffle', _);
 
 		const song = Subsonic.startNextSong(device);
 		Chromecast.play(device.friendlyName, song.id).then(() => {

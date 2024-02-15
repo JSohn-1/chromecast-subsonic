@@ -2,7 +2,7 @@ import ChromecastAPI from 'chromecast-api';
 
 import { EventEmitter } from 'events';
 import { getChromecasts } from './utilChromecast';
-import { play, pause, resume, subscribe, unsubscribe, playQueue, skip, getCurrentSong, selectChromecast, getStatus, clearListener } from './mediaPlayback';
+import { play, pause, resume, subscribe, unsubscribe, playQueue, playQueueShuffle, skip, getCurrentSong, selectChromecast, getStatus, clearListener } from './mediaPlayback';
 
 export class Chromecast {
 	static client = new ChromecastAPI();
@@ -15,6 +15,7 @@ export class Chromecast {
 	static subscribe(chromecastName: string, uuid: string, socket: EventEmitter) { return subscribe(this.client, chromecastName, uuid, socket); }
 	static unsubscribe(chromecastName: string, uuid: string, socket: EventEmitter) { return unsubscribe(this.client, chromecastName, uuid, socket); }
 	static playQueue(uuid: string, id: string, socket: EventEmitter) { return playQueue(this.client, uuid, id, socket); }
+	static playQueueShuffle(uuid: string, id: string, socket: EventEmitter) { return playQueueShuffle(this.client, uuid, id, socket); }
 	static skip(uuid: string, socket: EventEmitter) { return skip(this.client, uuid, socket); }
 	static getCurrentSong(uuid: string, socket: EventEmitter) { return getCurrentSong(this.client, uuid, socket); }
 	static selectChromecast(chromecastName: string, uuid: string, socket: EventEmitter) { return selectChromecast(this.client, chromecastName, uuid, socket); }

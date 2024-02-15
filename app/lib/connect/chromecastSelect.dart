@@ -33,6 +33,13 @@ class _ChromecastSelectState extends State<ChromecastSelect> {
         chromecasts.add(data);
       });
     });
+
+    socket!.on('selectChromecast', (data) {
+      if (data['status'] == 'ok'){
+        socket!.emit('getCurrentSong');
+        socket!.emit('getStatus');
+      }
+    });
   }
 
   void refreshChromecasts() {
@@ -79,10 +86,10 @@ class ChromecastOpener extends StatelessWidget {
                       const Text('Select a playlist'),
                       for (var chromecast in chromecasts)
                         ChromecastItem(
-                          name: chromecast['friendlyName'],
+                          name: chromecast,
                           onPressed: () {
-                            selectChromecast(chromecast['friendlyName']);
-                            print('pressed ${chromecast['friendlyName']}');
+                            selectChromecast(chromecast);
+                            print('pressed $chromecast');
                           },
                         ),
                     ],

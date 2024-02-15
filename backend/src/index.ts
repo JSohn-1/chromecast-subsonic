@@ -131,6 +131,10 @@ io.on('connection', (socket) => {
 			Chromecast.playQueue(uuid, id, socket);
 	});
 
+	socket.on('queuePlaylistShuffle', (id: string) => {
+		Chromecast.playQueueShuffle(uuid, id, socket);
+	});
+
 	socket.on('getCurrentSong', () => {
 		Chromecast.getCurrentSong(uuid, socket);
 	});

@@ -3,7 +3,7 @@ import type Client = require('chromecast-api');
 
 export function getChromecasts(client: Client) {
 	const chromecasts = client.devices.map((device) => device.friendlyName);
-	return { 'status': 'ok', 'response': chromecasts };
+	return { status: 'ok', response: chromecasts };
 }
 
 export function getChromecast(client: Client, chromecastName: string) {

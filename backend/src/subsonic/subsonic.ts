@@ -16,13 +16,25 @@ export class Subsonic {
 	static serverQueue: { [deviceName: string]: {index: number, queue: string[]} } = {};
 	static index: number = 0;
 	static queuePlaylist(id: string, device: Device) {
-		return new Promise<string>((resolve) => {
+		return new Promise((resolve) => {
 			getPlaylist(id).then((_) => {
 				const playlist = JSON.parse(_);
 				const queue = {index: 0, queue: playlist.response.entry.map((song: { id: string }) => song.id)};
 
 				Subsonic.serverQueue[device.name] = queue;
-				resolve('ok');
+				resolve({status: 'ok', response: 'queued'});
+			});
+		});
+	}
+
+	static queuePlaylistShuffle(id: string, device: Device) {
+		return new Promise((resolve) => {
+			getPlaylist(id).then((_) => {
+				const playlist = JSON.parse(_);
+				const queue = {index: 0, queue: playlist.response.entry.map((song: { id: string }) => song.id).sort(() => Math.random() - 0.5)};
+
+				Subsonic.serverQueue[device.name] = queue;
+				resolve({status: 'ok', response: 'queued'});
 			});
 		});
 	}
