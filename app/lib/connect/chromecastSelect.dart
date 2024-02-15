@@ -40,7 +40,7 @@ class _ChromecastSelectState extends State<ChromecastSelect> {
   }
 
   void selectChromecast(String name) {
-    socket!.emit('queuePlaylist', name);
+    socket!.emit('selectChromecast', name);
   }
 
   @override
@@ -78,7 +78,7 @@ class ChromecastOpener extends StatelessWidget {
                     children: [
                       const Text('Select a playlist'),
                       for (var chromecast in chromecasts)
-                        PlaylistItem(
+                        ChromecastItem(
                           name: chromecast['friendlyName'],
                           onPressed: () {
                             selectChromecast(chromecast['friendlyName']);
@@ -95,8 +95,8 @@ class ChromecastOpener extends StatelessWidget {
   }
 }
 
-class PlaylistItem extends StatelessWidget {
-  const PlaylistItem({super.key, required this.name, required this.onPressed});
+class ChromecastItem extends StatelessWidget {
+  const ChromecastItem({super.key, required this.name, required this.onPressed});
   final String name;
   final VoidCallback onPressed;
 

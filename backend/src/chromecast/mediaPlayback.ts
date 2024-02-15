@@ -141,7 +141,6 @@ export function playQueue(client: Client, uuid: string, id: string, socket: even
 		});
 	});
 
-
 	device.on('finished', () => {
 		const song = Subsonic.startNextSong(device);
 		socket.emit('playQueue', song);
@@ -149,8 +148,6 @@ export function playQueue(client: Client, uuid: string, id: string, socket: even
 			socket.emit('playQueue', song);
 		});
 	});
-
-
 }
 
 export function skip(client: Client, uuid: string, socket: eventEmitter) {
