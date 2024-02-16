@@ -20,7 +20,6 @@ class _MusicScreenState extends State<MusicScreen> {
   String artist = 'Artist';
   String albumArt = 'https://via.placeholder.com/250';
   String songId = '';
-  bool songPlaying = false;
 
   @override
   void initState() {
@@ -40,23 +39,23 @@ class _MusicScreenState extends State<MusicScreen> {
 
     socket!.onConnectError((data) => showErrorDialog(context, data.toString()));
 
-    socket!.on('subscribe', (data) {
+    // socket!.on('subscribe', (data) {
 
-      if ((data['response']['chromecastStatus']['playerState'] == 'PLAYING') != songPlaying) {
-        setState(() {
-          songPlaying = data['response']['chromecastStatus']['playerState'] == 'PLAYING';
-        });
-      }
+    //   if ((data['response']['chromecastStatus']['playerState'] == 'PLAYING') != songPlaying) {
+    //     setState(() {
+    //       songPlaying = data['response']['chromecastStatus']['playerState'] == 'PLAYING';
+    //     });
+    //   }
 
-      String id = data['response']['queue']['id'];
-      if (id == songId) {
-        return;
-      }
-      socket!.emit('getSongInfo', id);
-    });
+    //   String id = data['response']['queue']['id'];
+    //   if (id == songId) {
+    //     return;
+    //   }
+    //   socket!.emit('getSongInfo', id);
+    // });
 
     socket!.on('playQueue', (data) {
-      print(data);
+      // print(data);
       String id = data['id'];
       
       if (id == songId) {
@@ -80,15 +79,15 @@ class _MusicScreenState extends State<MusicScreen> {
         });
       });
 
-    socket!.on('getStatus', (data) {
-      if (data['status'] == 'error') {
-        return;
-      }
+    // socket!.on('getStatus', (data) {
+    //   if (data['status'] == 'error') {
+    //     return;
+    //   }
 
-      setState(() {
-        songPlaying = data['response']['playerState'] == 'PLAYING';
-      });
-    });
+    //   setState(() {
+    //     songPlaying = data['response']['playerState'] == 'PLAYING';
+    //   });
+    // });
   }
   @override
   Widget build(BuildContext context) {
@@ -99,17 +98,17 @@ class _MusicScreenState extends State<MusicScreen> {
             title: songTitle,
             artist: artist,
             albumArt: albumArt,
-            isPlaying: songPlaying,
-            onPressedPlay: () {
-              if (songPlaying) {
-                socket!.emit('pause', 'Master Bedroom speaker');
-              } else {
-                socket!.emit('resume', 'Master Bedroom speaker');
-              }
-            },
+            // onPressedPlay: () {
+            //   if (songPlaying) {
+            //     socket!.emit('pause', 'Master Bedroom speaker');
+            //   } else {
+            //     socket!.emit('resume', 'Master Bedroom speaker');
+            //   }
+            // },
             onPressedSkip: () {
               socket!.emit('skip', 'Master Bedroom speaker');
             },
+            socket: socket!,
           ),
           Positioned(top: 0, right: 0, child: playlistSelect(socket: socket!)),
           Positioned(bottom: 0, left: 0, child: ChromecastSelect(socket: socket!)),

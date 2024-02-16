@@ -1,17 +1,18 @@
 // Create the music screen which will take in the parameters of the song title, artist, and album art. 
 import 'package:flutter/material.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../constants.dart';
 
 class MusicPlayer extends StatelessWidget {
-  const MusicPlayer({super.key, required this.title, required this.artist, required this.albumArt, required this.isPlaying, required this.onPressedPlay, required this.onPressedSkip});
+  const MusicPlayer({super.key, required this.title, required this.artist, required this.albumArt, required this.onPressedSkip, required this.socket});
+
+  final IO.Socket? socket;
 
   final String title;
   final String artist;
   final String albumArt;
-  final bool isPlaying;
 
-  final VoidCallback onPressedPlay;
   final VoidCallback onPressedSkip;
 
   @override
@@ -34,7 +35,7 @@ class MusicPlayer extends StatelessWidget {
               children: [
                 PreviousButton(onPressed: () {}),
                 const Padding(padding: EdgeInsets.all(5),),
-                PlayButton(isPlaying: isPlaying, onPressed: onPressedPlay),
+                PlayButton(socket: socket),
                 const Padding(padding: EdgeInsets.all(5),),
                 SkipButton(onPressed: onPressedSkip)
                 ]),
@@ -45,11 +46,93 @@ class MusicPlayer extends StatelessWidget {
   }
 }
 
-class PlayButton extends StatelessWidget {
-  const PlayButton({super.key, required this.isPlaying, required this.onPressed});
+class MusicInfo extends StatefulWidget {
+   final IO.Socket? socket;
 
-  final bool isPlaying;
-  final VoidCallback onPressed;
+  const MusicInfo({super.key, required this.socket});
+
+  @override
+  _MusicInfoState createState() => _MusicInfoState();
+
+
+}
+
+class _MusicInfoState extends State<MusicInfo> {
+  IO.Socket? socket;
+  String songTitle = '';
+  String artist = '';
+  String albumArt = '';
+
+  @override
+  void initState() {
+    super.initState();
+
+    socket!.on('playQueue', (data) {
+      print(data);
+      setState(() {
+        songTitle = data['response']['title'];
+        artist = data['response']['artist'];
+        albumArt = data['response']['albumArt'];
+      });
+    });
+
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Constants.backgroundColor,
+      width: double.infinity,
+      height: double.infinity,
+      child: Column(
+          children: <Widget>[
+            const Spacer( flex: 2),
+            Image.network(albumArt, width: 250, height: 250),
+            const Padding(padding: EdgeInsets.all(15)),
+            Text(songTitle, style: const TextStyle(color: Constants.primaryTextColor, fontSize: 15)),
+            const Padding(padding: EdgeInsets.all(2)),
+            Text(artist, style: const TextStyle(color: Constants.secondaryTextColor, fontSize: 12)),
+            const Padding(padding: EdgeInsets.all(5),),
+            const Spacer( flex: 3),
+          ],
+        ),
+    );
+  }
+}
+
+class PlayButton extends StatefulWidget {
+  const PlayButton({super.key, required this.socket});
+
+  final IO.Socket? socket;
+
+  @override
+  _PlayButtonState createState() => _PlayButtonState();
+}
+
+class _PlayButtonState extends State<PlayButton> {
+  IO.Socket? socket;
+  bool isPlaying = false;
+
+  @override
+  void initState() {
+    super.initState();
+    socket = widget.socket;
+
+    socket!.on('subscribe', (data) {
+      if ((data['response']['chromecastStatus']['playerState'] == 'PLAYING') != isPlaying) {
+        setState(() {
+          isPlaying = data['response']['chromecastStatus']['playerState'] == 'PLAYING';
+        });
+      }
+    });
+
+    socket!.on('getStatus', (data) {
+      if ((data['response']['chromecastStatus']['playerState'] == 'PLAYING') != isPlaying) {
+        setState(() {
+          isPlaying = data['response']['chromecastStatus']['playerState'] == 'PLAYING';
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +146,13 @@ class PlayButton extends StatelessWidget {
       child: IconButton(
         iconSize: 50,
         icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow, color: Constants.backgroundColor, size: 30),
-        onPressed: onPressed,
+        onPressed: () {
+          if (isPlaying) {
+            socket!.emit('pause');
+          } else {
+            socket!.emit('resume');
+          }
+        },
       ),
     );
   }

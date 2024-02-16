@@ -77,13 +77,22 @@ export function resume(client: Client, uuid: string) {
 		});
 	}
 
-	return new Promise<string>((resolve) => {
+	return new Promise((resolve) => {
 		device.resume((err?: Error) => {
 			if (err) {
+
+				if (err.message === 'no session started' && Subsonic.getCurrentSong(device).index !== -1) {
+					const song = Subsonic.getCurrentSong(device);
+
+					Chromecast.play(device.friendlyName, song.id).then(() => {
+						resolve({ status: 'ok', response: 'resumed' });
+					});
+				}
 				console.error(err);
-				resolve(JSON.stringify(errorMessage(err)));
+
+				resolve(errorMessage(err));
 			}
-			resolve(JSON.stringify({ status: 'ok', response: 'resumed' }));
+			resolve({ status: 'ok', response: 'resumed' });
 		});
 	});
 }
