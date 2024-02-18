@@ -24,6 +24,8 @@ class MusicPlayer extends StatelessWidget {
       child: Column(
           children: <Widget>[
             const Spacer( flex: 2),
+            ChromecastSelected(socket: socket),
+            const Padding(padding: EdgeInsets.all(5)),
             Image.network(albumArt, width: 250, height: 250),
             const Padding(padding: EdgeInsets.all(15)),
             Text(title, style: const TextStyle(color: Constants.primaryTextColor, fontSize: 15)),
@@ -76,6 +78,10 @@ class _MusicInfoState extends State<MusicInfo> {
       });
     });
 
+    socket!.on('selectChromecast', (data) {
+      print('selectChromecast');
+      socket!.emit('getCurrentSong');
+    });
   }
   @override
   Widget build(BuildContext context) {
@@ -126,9 +132,14 @@ class _PlayButtonState extends State<PlayButton> {
     });
 
     socket!.on('getStatus', (data) {
-      if ((data['response']['chromecastStatus']['playerState'] == 'PLAYING') != isPlaying) {
+      if(data['status'] == 'error'){
+        isPlaying = false;
+        return;
+      }
+
+      if ((data['response']['playerState'] == 'PLAYING') != isPlaying) {
         setState(() {
-          isPlaying = data['response']['chromecastStatus']['playerState'] == 'PLAYING';
+          isPlaying = data['response']['playerState'] == 'PLAYING';
         });
       }
     });
@@ -185,5 +196,36 @@ class PreviousButton extends StatelessWidget {
         icon: const Icon(Icons.skip_previous, color: Constants.secondaryColor, size: 30),
         onPressed: onPressed,
       );
+  }
+}
+
+class ChromecastSelected extends StatefulWidget {
+  const ChromecastSelected({super.key, required this.socket});
+
+  final IO.Socket? socket;
+
+  @override
+  _ChromecastSelectedState createState() => _ChromecastSelectedState();
+}
+
+class _ChromecastSelectedState extends State<ChromecastSelected> {
+  IO.Socket? socket;
+  String chromecastSelected = '_';
+
+  @override
+  void initState() {
+    super.initState();
+    socket = widget.socket;
+
+    socket!.on('selectChromecast', (data) {
+      setState(() {
+        chromecastSelected = data['response'];
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(chromecastSelected, style: const TextStyle(color: Constants.primaryTextColor, fontSize: 15));
   }
 }

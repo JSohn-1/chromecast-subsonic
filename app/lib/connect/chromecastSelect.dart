@@ -82,7 +82,6 @@ class ChromecastOpener extends StatelessWidget {
                       name: chromecast,
                       onPressed: () {
                         selectChromecast(chromecast);
-                        print('pressed $chromecast');
                       },
                     ),
                 ],
