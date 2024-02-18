@@ -110,7 +110,7 @@ class _MusicScreenState extends State<MusicScreen> {
             },
             socket: socket!,
           ),
-          Positioned(top: 0, right: 0, child: playlistSelect(socket: socket!)),
+          Positioned(top: 40, right: 0, child: playlistSelect(socket: socket!)),
           Positioned(bottom: 0, left: 0, child: ChromecastSelect(socket: socket!)),
         ],
       ),

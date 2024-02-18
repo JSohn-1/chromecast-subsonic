@@ -26,7 +26,7 @@ class MusicPlayer extends StatelessWidget {
             const Spacer( flex: 2),
             ChromecastSelected(socket: socket),
             const Padding(padding: EdgeInsets.all(5)),
-            Image.network(albumArt, width: 250, height: 250),
+            Image.network(albumArt, width: 350, height: 350),
             const Padding(padding: EdgeInsets.all(15)),
             Text(title, style: const TextStyle(color: Constants.primaryTextColor, fontSize: 15)),
             const Padding(padding: EdgeInsets.all(2)),
