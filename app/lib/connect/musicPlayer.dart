@@ -51,7 +51,7 @@ class _MusicInfoState extends State<MusicInfo> {
   IO.Socket? socket;
   String songTitle = 'Song Title';
   String artist = 'Artist';
-  String albumArt = 'https://via.placeholder.com/250';
+  String albumArt = 'https://via.placeholder.com/350';
   String songId = '';
 
   @override
@@ -105,11 +105,11 @@ class _MusicInfoState extends State<MusicInfo> {
       // height: double.infinity,
       child: Column(
           children: <Widget>[
-            Image.network(albumArt, width: 250, height: 250),
-            const Padding(padding: EdgeInsets.all(15)),
-            Text(songTitle, style: const TextStyle(color: Constants.primaryTextColor, fontSize: 15)),
+            Image.network(albumArt, width: 350, height: 350),
+            const Padding(padding: EdgeInsets.all(10)),
+            Text(songTitle, style: const TextStyle(color: Constants.primaryTextColor, fontSize: 20, fontWeight: FontWeight.bold)),
             const Padding(padding: EdgeInsets.all(2)),
-            Text(artist, style: const TextStyle(color: Constants.secondaryTextColor, fontSize: 12)),
+            Text(artist, style: const TextStyle(color: Constants.secondaryTextColor, fontSize: 14)),
             const Padding(padding: EdgeInsets.all(5),),
           ],
         ),
@@ -160,15 +160,15 @@ class _PlayButtonState extends State<PlayButton> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 50,
-      height: 50,
+      width: 75,
+      height: 75,
       decoration: const BoxDecoration(
         shape: BoxShape.circle,
         color: Constants.secondaryColor,
       ),
       child: IconButton(
-        iconSize: 50,
-        icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow, color: Constants.backgroundColor, size: 30),
+        // iconSize: 75,
+        icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow, color: Constants.backgroundColor, size: 50),
         onPressed: () {
           if (isPlaying) {
             socket!.emit('pause');
@@ -195,8 +195,8 @@ class SkipButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-        iconSize: 50,
-        icon: const Icon(Icons.skip_next, color: Constants.secondaryColor, size: 30),
+        // iconSize: 50,
+        icon: const Icon(Icons.skip_next, color: Constants.secondaryColor, size: 50),
         onPressed: onPressed,
       );
   }
@@ -210,8 +210,8 @@ class PreviousButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-        iconSize: 50,
-        icon: const Icon(Icons.skip_previous, color: Constants.secondaryColor, size: 30),
+        // iconSize: 50,
+        icon: const Icon(Icons.skip_previous, color: Constants.secondaryColor, size: 50),
         onPressed: onPressed,
       );
   }
@@ -244,6 +244,6 @@ class _ChromecastSelectedState extends State<ChromecastSelected> {
 
   @override
   Widget build(BuildContext context) {
-    return Text(chromecastSelected, style: const TextStyle(color: Constants.primaryTextColor, fontSize: 15));
+    return Text(chromecastSelected, style: const TextStyle(color: Constants.primaryTextColor, fontSize: 18));
   }
 }

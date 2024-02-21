@@ -67,8 +67,8 @@ class ChromecastOpener extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       iconSize: 50,
-      icon: const Icon(Icons.cast,
-          color: Constants.secondaryColor, size: 30),
+      icon: const Icon(Icons.speaker_group,
+          color: Constants.secondaryColor, size: 40),
       onPressed: () {
         showModalBottomSheet<void>(
           context: context,
