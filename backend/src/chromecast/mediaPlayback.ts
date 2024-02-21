@@ -75,8 +75,6 @@ export function pause(client: Client, uuid: string) {
 }
 
 export function resume(client: Client, uuid: string) {
-	console.log(selectedChromecasts);
-	console.log(uuid);
 	if (!selectedChromecasts[uuid]) {
 		return new Promise((resolve) => {
 			resolve({ status: 'error', response: 'device not selected' });
