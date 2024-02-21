@@ -59,10 +59,10 @@ io.on('connection', (socket) => {
 
 	socket.on('getSongInfo', (id: string) => {
 		if (!id) {
-			socket.emit(JSON.stringify({ status: 'error', response: 'no id provided' }));
+			socket.emit('getSongInfo', { status: 'error', response: 'no id provided' });
 			return;
 		}
-		Subsonic.getSongInfo(id).then((_: string) => {
+		Subsonic.getSongInfo(id).then((_) => {
 			socket.emit('getSongInfo', _);
 		});
 	});

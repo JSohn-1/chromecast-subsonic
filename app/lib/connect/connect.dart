@@ -29,87 +29,19 @@ class _MusicScreenState extends State<MusicScreen> {
   void connectToServer() {
     socket = IO.io(Config.BASE_URL, <String, dynamic>{
     "transports": ["websocket"],
-});
+  });
     socket!.onConnect((_) {
-      // socket!.emit('selectChromecast', 'Master Bedroom speaker');
-      // socket!.emit('getCurrentSong');
-      // socket!.emit('getStatus');
       socket!.emit('getPlaylists');
     });
 
     socket!.onConnectError((data) => showErrorDialog(context, data.toString()));
-
-    // socket!.on('subscribe', (data) {
-
-    //   if ((data['response']['chromecastStatus']['playerState'] == 'PLAYING') != songPlaying) {
-    //     setState(() {
-    //       songPlaying = data['response']['chromecastStatus']['playerState'] == 'PLAYING';
-    //     });
-    //   }
-
-    //   String id = data['response']['queue']['id'];
-    //   if (id == songId) {
-    //     return;
-    //   }
-    //   socket!.emit('getSongInfo', id);
-    // });
-
-    socket!.on('playQueue', (data) {
-      // print(data);
-      String id = data['id'];
-      
-      if (id == songId) {
-        return;
-      }
-      socket!.emit('getSongInfo', id);
-    });
-
-    socket!.on('getCurrentSong', (data) {
-      String id = data['response']['id'];
-      socket!.emit('getSongInfo', id);
-    });
-
-    socket!.on('getSongInfo', (data) {
-        data = json.decode(data);
-
-        setState(() {
-          songTitle = data['response']['title'];
-          artist = data['response']['artist'];
-          albumArt = data['response']['coverURL'];
-        });
-      });
-
-    // socket!.on('getStatus', (data) {
-    //   if (data['status'] == 'error') {
-    //     return;
-    //   }
-
-    //   setState(() {
-    //     songPlaying = data['response']['playerState'] == 'PLAYING';
-    //   });
-    // });
   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          MusicPlayer(
-            title: songTitle,
-            artist: artist,
-            albumArt: albumArt,
-            // onPressedPlay: () {
-            //   if (songPlaying) {
-            //     socket!.emit('pause', 'Master Bedroom speaker');
-            //   } else {
-            //     socket!.emit('resume', 'Master Bedroom speaker');
-            //   }
-            // },
-            onPressedSkip: () {
-              socket!.emit('skip', 'Master Bedroom speaker');
-            },
-            socket: socket!,
-          ),
+          MusicPlayer(socket: socket!),
           Positioned(top: 40, right: 0, child: playlistSelect(socket: socket!)),
           Positioned(bottom: 0, left: 0, child: ChromecastSelect(socket: socket!)),
         ],

@@ -15,11 +15,11 @@ export function getSongInfo(id: string) {
 				artist: data.artist,
 				coverURL: generateURL('getCoverArt', new Map([['id', id]])),
 			}
-			return JSON.stringify({ status: 'ok', response: songInfo });
+			return { status: 'ok', response: songInfo };
 		}
-		return JSON.stringify({ status: 'error', response: __['response'] });
+		return { status: 'error', response: __['response'] };
 	}).catch((err: string) => {
-		return JSON.stringify({ status: 'error', response: err });
+		return { status: 'error', response: err };
 	});
 }
 

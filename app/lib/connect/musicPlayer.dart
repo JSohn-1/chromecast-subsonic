@@ -5,32 +5,22 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../constants.dart';
 
 class MusicPlayer extends StatelessWidget {
-  const MusicPlayer({super.key, required this.title, required this.artist, required this.albumArt, required this.onPressedSkip, required this.socket});
+  const MusicPlayer({super.key, /*required this.title, required this.artist, required this.albumArt, required this.onPressedSkip,*/ required this.socket});
 
   final IO.Socket? socket;
-
-  final String title;
-  final String artist;
-  final String albumArt;
-
-  final VoidCallback onPressedSkip;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Constants.backgroundColor,
-      width: double.infinity,
-      height: double.infinity,
+      // width: double.infinity,
+      // height: double.infinity,
       child: Column(
           children: <Widget>[
             const Spacer( flex: 2),
             ChromecastSelected(socket: socket),
             const Padding(padding: EdgeInsets.all(5)),
-            Image.network(albumArt, width: 350, height: 350),
-            const Padding(padding: EdgeInsets.all(15)),
-            Text(title, style: const TextStyle(color: Constants.primaryTextColor, fontSize: 15)),
-            const Padding(padding: EdgeInsets.all(2)),
-            Text(artist, style: const TextStyle(color: Constants.secondaryTextColor, fontSize: 12)),
+            MusicInfo(socket: socket),
             const Padding(padding: EdgeInsets.all(5),),
             Row(
               mainAxisAlignment: MainAxisAlignment.center, 
@@ -39,7 +29,7 @@ class MusicPlayer extends StatelessWidget {
                 const Padding(padding: EdgeInsets.all(5),),
                 PlayButton(socket: socket),
                 const Padding(padding: EdgeInsets.all(5),),
-                SkipButton(onPressed: onPressedSkip)
+                SkipButton(socket: socket)
                 ]),
             const Spacer( flex: 3),
           ],
@@ -55,28 +45,52 @@ class MusicInfo extends StatefulWidget {
 
   @override
   _MusicInfoState createState() => _MusicInfoState();
-
-
 }
 
 class _MusicInfoState extends State<MusicInfo> {
   IO.Socket? socket;
-  String songTitle = '';
-  String artist = '';
-  String albumArt = '';
+  String songTitle = 'Song Title';
+  String artist = 'Artist';
+  String albumArt = 'https://via.placeholder.com/250';
+  String songId = '';
 
   @override
   void initState() {
     super.initState();
+    socket = widget.socket;
 
     socket!.on('playQueue', (data) {
-      print(data);
-      setState(() {
-        songTitle = data['response']['title'];
-        artist = data['response']['artist'];
-        albumArt = data['response']['albumArt'];
-      });
+      if(data['response']['index'] == -1) {
+        setState(() {
+          songTitle = 'Song Title';
+          artist = 'Artist';
+          albumArt = 'https://via.placeholder.com/250';
+          songId = '';
+        });
+
+        return;
+      }
+      String id = data['response']['id'];
+      
+      if (id == songId) {
+        return;
+      }
+      socket!.emit('getSongInfo', id);
     });
+
+    socket!.on('getCurrentSong', (data) {
+      String id = data['response']['id'];
+      socket!.emit('getSongInfo', id);
+    });
+
+    socket!.on('getSongInfo', (data) {
+      print(data);
+        setState(() {
+          songTitle = data['response']['title'];
+          artist = data['response']['artist'];
+          albumArt = data['response']['coverURL'];
+        });
+      });
 
     socket!.on('selectChromecast', (data) {
       print('selectChromecast');
@@ -85,20 +99,18 @@ class _MusicInfoState extends State<MusicInfo> {
   }
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Constants.backgroundColor,
-      width: double.infinity,
-      height: double.infinity,
+    return SizedBox(
+      // color: Constants.backgroundColor,
+      // width: double.infinity,
+      // height: double.infinity,
       child: Column(
           children: <Widget>[
-            const Spacer( flex: 2),
             Image.network(albumArt, width: 250, height: 250),
             const Padding(padding: EdgeInsets.all(15)),
             Text(songTitle, style: const TextStyle(color: Constants.primaryTextColor, fontSize: 15)),
             const Padding(padding: EdgeInsets.all(2)),
             Text(artist, style: const TextStyle(color: Constants.secondaryTextColor, fontSize: 12)),
             const Padding(padding: EdgeInsets.all(5),),
-            const Spacer( flex: 3),
           ],
         ),
     );
@@ -170,9 +182,15 @@ class _PlayButtonState extends State<PlayButton> {
 }
 
 class SkipButton extends StatelessWidget {
-  const SkipButton({super.key, required this.onPressed});
+  const SkipButton({super.key, required this.socket});
 
-  final VoidCallback onPressed;
+  final IO.Socket? socket;
+
+  // final VoidCallback onPressed;
+
+  void onPressed() {
+    socket!.emit('skip');
+  }
 
   @override
   Widget build(BuildContext context) {
