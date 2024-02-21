@@ -101,27 +101,28 @@ class ChromecastItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        width: 300,
+        width: MediaQuery.of(context).size.width*0.9,
         height: 100,
         color: Constants.backgroundColor,
         child: Row(
           children: [
-            const Icon(Icons.cast, color: Constants.primaryTextColor),
-            SizedBox(
-              width: 100,
-              height: 100,
-              child: Column(
-                children: [
-                  Text(name,
-                      style:
-                          const TextStyle(color: Constants.primaryTextColor)),
-                  ElevatedButton(
-                    onPressed: onPressed,
-                    child: const Text('Select'),
+            const Padding(padding: EdgeInsets.all(5)),
+            const Icon(Icons.speaker_rounded, color: Constants.primaryTextColor),
+          const Padding(padding: EdgeInsets.all(5)),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width*0.5,
+                    child: Text(name,
+                    overflow: TextOverflow.ellipsis,
+                        style:const TextStyle(color: Constants.primaryTextColor)),
                   ),
-                ],
-              ),
+                          const Spacer(flex: 1),
+            IconButton(
+              icon: const Icon(Icons.arrow_forward_ios, color: Constants.primaryTextColor),
+              onPressed: onPressed,
             ),
+                  const Padding(padding: EdgeInsets.all(5)),
+
+            
           ],
         ));
   }

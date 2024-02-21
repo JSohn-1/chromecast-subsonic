@@ -105,7 +105,10 @@ class _MusicInfoState extends State<MusicInfo> {
       // height: double.infinity,
       child: Column(
           children: <Widget>[
-            Image.network(albumArt, width: 350, height: 350),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.network(albumArt, width: 350, height: 350),
+            ),
             const Padding(padding: EdgeInsets.all(10)),
             Text(songTitle, style: const TextStyle(color: Constants.primaryTextColor, fontSize: 20, fontWeight: FontWeight.bold)),
             const Padding(padding: EdgeInsets.all(2)),
