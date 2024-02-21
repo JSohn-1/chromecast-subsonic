@@ -57,9 +57,9 @@ class _ChromecastSelectState extends State<ChromecastSelect> {
 }
 
 class ChromecastOpener extends StatelessWidget {
-  ChromecastOpener({super.key, required this.chromecasts, required this.getChromecasts, required this.selectChromecast});
+  const ChromecastOpener({super.key, required this.chromecasts, required this.getChromecasts, required this.selectChromecast});
 
-  List<dynamic> chromecasts = [];
+  final List<dynamic> chromecasts;
   final Function(String) selectChromecast;
   final Function getChromecasts;
 
