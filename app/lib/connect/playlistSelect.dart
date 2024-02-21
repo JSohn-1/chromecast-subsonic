@@ -3,17 +3,18 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../constants.dart';
 
-class playlistSelect extends StatefulWidget {
+class PlaylistSelect extends StatefulWidget {
   final IO.Socket? socket;
-  playlistSelect({super.key, required this.socket});
+  const PlaylistSelect({super.key, required this.socket});
 
   @override
   _playlistSelectState createState() => _playlistSelectState();
 }
 
-class _playlistSelectState extends State<playlistSelect> {
-  IO.Socket? socket; 
+class _playlistSelectState extends State<PlaylistSelect> {
+  IO.Socket? socket;
   List<dynamic> playlists = [];
+  Map<String, String> playlistCovers = {};
 
   @override
   void initState() {
@@ -23,9 +24,20 @@ class _playlistSelectState extends State<playlistSelect> {
     socket!.emit('getPlaylists');
 
     socket!.on('getPlaylists', (data) {
+      for (var playlist in data['response']) {
+        socket!.emit('getPlaylistCover', playlist['id']);
+      }
       setState(() {
         playlists = data['response'];
       });
+    });
+
+    socket!.on('getPlaylistCover', (data) {
+        playlistCovers[data['id']] = (data['response']);
+
+        if (playlistCovers.length == playlists.length) {
+          setState(() {});
+        }
     });
   }
 
@@ -43,18 +55,30 @@ class _playlistSelectState extends State<playlistSelect> {
 
   @override
   Widget build(BuildContext context) {
-    return PlaylistOpener(playlists: playlists, onPressedPlay: selectPlaylist, onPressedShuffle: selectPlaylistShuffle, onPressedRefresh: refreshPlaylists);
+    return PlaylistOpener(
+        playlists: playlists,
+        playlistsCovers: playlistCovers,
+        onPressedPlay: selectPlaylist,
+        onPressedShuffle: selectPlaylistShuffle,
+        onPressedRefresh: refreshPlaylists);
   }
 }
 
 class PlaylistOpener extends StatelessWidget {
-  PlaylistOpener({super.key, required this.playlists, required this.onPressedPlay, required this.onPressedShuffle, required this.onPressedRefresh});
-  
-  List<dynamic> playlists = [];
+  PlaylistOpener(
+      {super.key,
+      required this.playlists,
+      required this.playlistsCovers,
+      required this.onPressedPlay,
+      required this.onPressedShuffle,
+      required this.onPressedRefresh});
+
+  final List<dynamic> playlists;
+  final Map<String, String> playlistsCovers;
   final Function(String) onPressedPlay;
   final Function(String) onPressedShuffle;
   final VoidCallback onPressedRefresh;
-  
+
   @override
   Widget build(BuildContext context) {
     return IconButton(
@@ -68,10 +92,11 @@ class PlaylistOpener extends StatelessWidget {
                 child: Column(
                   children: [
                     const Text('Select a playlist'),
-                    for (var playlist in playlists) 
+                    for (var playlist in playlists)
                       PlaylistItem(
                         name: playlist['name'],
-                        coverURL: "https://via.placeholder.com/50/", //"playlist['coverURL']" 
+                        coverURL:
+                            playlistsCovers[playlist['id']]!, //"playlist['coverURL']"
                         onPressedPlay: () {
                           print('pressed ${playlist['name']}');
                           onPressedPlay(playlist['id']);
@@ -94,13 +119,18 @@ class PlaylistOpener extends StatelessWidget {
               );
             },
           );
-        }
-      );
+        });
   }
 }
 
 class PlaylistItem extends StatelessWidget {
-  const PlaylistItem({super.key, required this.name, required this.coverURL, required this.onPressedPlay, required this.onPressedShuffle, required this.onPressedRefresh});
+  const PlaylistItem(
+      {super.key,
+      required this.name,
+      required this.coverURL,
+      required this.onPressedPlay,
+      required this.onPressedShuffle,
+      required this.onPressedRefresh});
   final String name;
   final String coverURL;
   final VoidCallback onPressedPlay;
@@ -110,31 +140,33 @@ class PlaylistItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 300,
-      height: 100,
-      color: Constants.backgroundColor,
-      child: Row(
-        children: [
-          const Padding(padding: EdgeInsets.all(5)),
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: NetworkImage(coverURL),
-                fit: BoxFit.cover,
+        width: 300,
+        height: 100,
+        color: Constants.backgroundColor,
+        child: Row(
+          children: [
+            const Padding(padding: EdgeInsets.all(5)),
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(coverURL),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
-          const Padding(padding: EdgeInsets.all(5)),
-          Text(name, style: const TextStyle(color: Constants.primaryTextColor)),
-          const Spacer(flex: 1),
-          PlaylistShuffleButton(onPressed: onPressedShuffle),
-          PlaylistPlayButton(onPressed: onPressedPlay),
-          const Padding(padding: EdgeInsets.all(5),)
-        ],
-      )
-    );
+            const Padding(padding: EdgeInsets.all(5)),
+            Text(name,
+                style: const TextStyle(color: Constants.primaryTextColor)),
+            const Spacer(flex: 1),
+            PlaylistShuffleButton(onPressed: onPressedShuffle),
+            PlaylistPlayButton(onPressed: onPressedPlay),
+            const Padding(
+              padding: EdgeInsets.all(5),
+            )
+          ],
+        ));
   }
 }
 
@@ -145,10 +177,11 @@ class PlaylistPlayButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-        iconSize: 50,
-        icon: const Icon(Icons.play_arrow_rounded, color: Constants.secondaryColor, size: 30),
-        onPressed: onPressed,
-      );
+      iconSize: 50,
+      icon: const Icon(Icons.play_arrow_rounded,
+          color: Constants.secondaryColor, size: 30),
+      onPressed: onPressed,
+    );
   }
 }
 
@@ -159,10 +192,11 @@ class PlaylistShuffleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-        iconSize: 50,
-        icon: const Icon(Icons.shuffle, color: Constants.secondaryColor, size: 30),
-        onPressed: onPressed,
-      );
+      iconSize: 50,
+      icon:
+          const Icon(Icons.shuffle, color: Constants.secondaryColor, size: 30),
+      onPressed: onPressed,
+    );
   }
 }
 
@@ -173,10 +207,11 @@ class RefreshPlaylistsButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-        iconSize: 50,
-        icon: const Icon(Icons.refresh, color: Constants.secondaryColor, size: 30),
-        onPressed: onPressed,
-      );
+      iconSize: 50,
+      icon:
+          const Icon(Icons.refresh, color: Constants.secondaryColor, size: 30),
+      onPressed: onPressed,
+    );
   }
 }
 

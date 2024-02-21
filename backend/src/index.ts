@@ -42,7 +42,7 @@ io.on('connection', (socket) => {
 			socket.emit(JSON.stringify({ status: 'error', response: 'no id provided' }));
 			return;
 		}
-		Subsonic.getPlaylist(id).then((_: string) => {
+		Subsonic.getPlaylist(id).then((_) => {
 			socket.emit('getPlaylist', _);
 		});
 	});
@@ -145,6 +145,12 @@ io.on('connection', (socket) => {
 	
 	socket.on('getStatus', () => {
 		Chromecast.getStatus(uuid, socket);
+	});
+
+	socket.on('getPlaylistCoverURL', (id: string) => {
+		Subsonic.getPlaylistCoverURL(id).then((_) => {
+			socket.emit('getPlaylistCoverURL', _);
+		});
 	});
 });
 

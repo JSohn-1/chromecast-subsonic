@@ -7,10 +7,10 @@ export function getPlaylist(id: string) {
 	return _requestHandler('getPlaylist', map).then((_) => {
 		const __ = JSON.parse(_);
 		if (__['subsonic-response']['status'] === 'ok') {
-			return JSON.stringify({ status: 'ok', response: __['subsonic-response']['playlist'] });
+			return { status: 'ok', response: __['subsonic-response']['playlist'] };
 		}
-		return JSON.stringify({ status: 'error', response: __['subsonic-response']['error']['message'] });
+		return { status: 'error', response: __['subsonic-response']['error']['message'] };
 	}).catch((err: string) => {
-		return JSON.stringify({ status: 'error', response: err });
+		return { status: 'error', response: err };
 	});
 }
