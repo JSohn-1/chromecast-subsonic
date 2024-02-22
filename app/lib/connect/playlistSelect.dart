@@ -25,16 +25,17 @@ class _playlistSelectState extends State<PlaylistSelect> {
 
     socket!.on('getPlaylists', (data) {
       for (var playlist in data['response']) {
-        socket!.emit('getPlaylistCover', playlist['id']);
+        socket!.emit('getPlaylistCoverURL', playlist['id']);
       }
       setState(() {
         playlists = data['response'];
       });
     });
 
-    socket!.on('getPlaylistCover', (data) {
-        playlistCovers[data['id']] = (data['response']);
+    socket!.on('getPlaylistCoverURL', (data) {
+        print(data);
 
+        playlistCovers[data['id']] = (data['response']['url']);
         if (playlistCovers.length == playlists.length) {
           setState(() {});
         }
@@ -96,7 +97,7 @@ class PlaylistOpener extends StatelessWidget {
                       PlaylistItem(
                         name: playlist['name'],
                         coverURL:
-                            playlistsCovers[playlist['id']]!, //"playlist['coverURL']"
+                            playlistsCovers[playlist['id']], //"playlist['coverURL']"
                         onPressedPlay: () {
                           print('pressed ${playlist['name']}');
                           onPressedPlay(playlist['id']);
@@ -132,7 +133,7 @@ class PlaylistItem extends StatelessWidget {
       required this.onPressedShuffle,
       required this.onPressedRefresh});
   final String name;
-  final String coverURL;
+  final String? coverURL;
   final VoidCallback onPressedPlay;
   final VoidCallback onPressedShuffle;
   final VoidCallback onPressedRefresh;
@@ -151,7 +152,7 @@ class PlaylistItem extends StatelessWidget {
               height: 50,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: NetworkImage(coverURL),
+                  image: NetworkImage(coverURL ?? 'http://via.placeholder.com/50'),
                   fit: BoxFit.cover,
                 ),
               ),
