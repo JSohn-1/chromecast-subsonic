@@ -60,6 +60,12 @@ const getChromecasts = (socket: Socket) => {
 	});
 }
 
+const close = (socket: Socket, uuid: string) => {
+	socket.on('close', () => {
+		Chromecast.close(uuid, socket);
+	});
+}
+
 export const chromecastRoutes = (socket: Socket, uuid: string) => {
 	queuePlaylist(socket, uuid);
 	queuePlaylistShuffle(socket, uuid);
@@ -67,6 +73,7 @@ export const chromecastRoutes = (socket: Socket, uuid: string) => {
 	resume(socket, uuid);
 	pause(socket, uuid);
 	skip(socket, uuid);
+	close(socket, uuid);
 
 	getCurrentSong(socket, uuid);
 	getStatus(socket, uuid);

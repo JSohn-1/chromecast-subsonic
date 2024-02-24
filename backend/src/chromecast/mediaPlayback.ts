@@ -94,7 +94,6 @@ export function resume(client: Client, uuid: string) {
 		try{
 		device.resume((err?: Error) => {
 			if (err) {
-
 				if (err.message === 'no session started' && Subsonic.getCurrentSong(device).index !== -1) {
 					const song = Subsonic.getCurrentSong(device);
 
@@ -234,6 +233,13 @@ export function skip(client: Client, uuid: string, socket: eventEmitter) {
 	}
 
 	const song = Subsonic.startNextSong(device);
+
+	if (song.index === -1) {
+		return new Promise((resolve) => {
+			resolve({ status: 'error', response: 'queue empty' });
+		});
+	}
+
 	Chromecast.play(device.friendlyName, song.id);
 
 	// Notify all UUIDs that selected this Chromecast that the song was skipped
@@ -314,9 +320,25 @@ export function getStatus(client: Client, uuid: string, socket: eventEmitter) {
 export function clearListener(uuid: string) {
 	if (uuid in listeners) {
 		selectedChromecasts[uuid].device.removeListener('status', listeners[uuid]);
+		const device = selectedChromecasts[uuid].device;
+
 		delete listeners[uuid];
 	}
 	if (uuid in selectedChromecasts) {
 		delete selectedChromecasts[uuid];
 	}
+}
+
+export function close(uuid: string, socket: eventEmitter) {
+	if (!selectedChromecasts[uuid]) {
+		socket.emit('playQueue', { status: 'error', response: 'device not selected' });
+		return;
+	}
+
+	const device = selectedChromecasts[uuid].device;
+
+	device.close(() => {
+
+		socket.emit('close', { status: 'ok', response: 'closed' });
+	});
 }
