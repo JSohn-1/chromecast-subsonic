@@ -96,23 +96,17 @@ class PlaylistOpener extends StatelessWidget {
                     for (var playlist in playlists)
                       PlaylistItem(
                         name: playlist['name'],
-                        coverURL:
-                            playlistsCovers[playlist['id']], //"playlist['coverURL']"
                         onPressedPlay: () {
-                          print('pressed ${playlist['name']}');
                           onPressedPlay(playlist['id']);
-                          // selectPlaylist(playlists[playlist]['id']);
-                          // Navigator.pop(context);
+                          Navigator.pop(context);
                         },
                         onPressedShuffle: () {
-                          print('shuffled ${playlist['name']}');
                           onPressedShuffle(playlist['id']);
-                          // selectPlaylist(playlists[playlist]['id']);
-                          // Navigator.pop(context);
+                          Navigator.pop(context);
                         },
                         onPressedRefresh: () {
-                          print('refreshed ${playlist['name']}');
                           onPressedRefresh();
+                          Navigator.pop(context);
                         },
                       ),
                   ],
@@ -128,12 +122,10 @@ class PlaylistItem extends StatelessWidget {
   const PlaylistItem(
       {super.key,
       required this.name,
-      required this.coverURL,
       required this.onPressedPlay,
       required this.onPressedShuffle,
       required this.onPressedRefresh});
   final String name;
-  final String? coverURL;
   final VoidCallback onPressedPlay;
   final VoidCallback onPressedShuffle;
   final VoidCallback onPressedRefresh;
@@ -146,17 +138,6 @@ class PlaylistItem extends StatelessWidget {
         color: Constants.backgroundColor,
         child: Row(
           children: [
-            const Padding(padding: EdgeInsets.all(5)),
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage(coverURL ?? 'http://via.placeholder.com/50'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
             const Padding(padding: EdgeInsets.all(5)),
             Text(name,
                 style: const TextStyle(color: Constants.primaryTextColor)),

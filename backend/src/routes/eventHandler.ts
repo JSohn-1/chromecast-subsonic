@@ -1,5 +1,3 @@
-// Perform initial setup when a user connects to the socket.io server
-
 import { v4 as uuidv4 } from 'uuid';
 import { Socket } from 'socket.io';
 import { Chromecast } from '../chromecast/chromecast';

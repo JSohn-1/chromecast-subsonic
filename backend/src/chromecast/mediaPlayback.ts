@@ -153,7 +153,7 @@ export function unsubscribe(client: Client, chromecastName: string, uuid: string
 
 export function playQueue(client: Client, uuid: string, id: string, socket: eventEmitter) {
 	if (!selectedChromecasts[uuid]) {
-		socket.emit('playQueueShuffle', { status: 'error', response: 'device not selected' });
+		socket.emit('playQueue', { status: 'error', response: 'device not selected' });
 		return;
 	}
 
@@ -187,7 +187,7 @@ export function playQueue(client: Client, uuid: string, id: string, socket: even
 
 export function playQueueShuffle(client: Client, uuid: string, id: string, socket: eventEmitter) {
 	if (!selectedChromecasts[uuid]) {
-		socket.emit('playQueueShuffle', { status: 'error', response: 'device not selected' });
+		socket.emit('playQueue', { status: 'error', response: 'device not selected' });
 		return;
 	}
 
@@ -251,6 +251,11 @@ export function skip(client: Client, uuid: string, socket: eventEmitter) {
 }
 
 export function getCurrentSong(client: Client, uuid: string, socket: eventEmitter) {
+	if (!selectedChromecasts[uuid]) {
+		socket.emit('playQueue', { status: 'error', response: 'device not selected' });
+		return;
+	}
+
 	const device = selectedChromecasts[uuid].device;
 
 	if (!device) {

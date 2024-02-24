@@ -101,7 +101,7 @@ class ChromecastItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        width: MediaQuery.of(context).size.width*0.9,
+        width: MediaQuery.of(context).size.width * 0.9,
         height: 100,
         color: Constants.backgroundColor,
         child: Row(
@@ -118,11 +118,12 @@ class ChromecastItem extends StatelessWidget {
                           const Spacer(flex: 1),
             IconButton(
               icon: const Icon(Icons.arrow_forward_ios, color: Constants.primaryTextColor),
-              onPressed: onPressed,
+              onPressed: () {
+                onPressed();
+                Navigator.pop(context);
+              },
             ),
                   const Padding(padding: EdgeInsets.all(5)),
-
-            
           ],
         ));
   }
