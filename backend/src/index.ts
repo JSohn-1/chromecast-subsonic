@@ -2,6 +2,8 @@ import { Subsonic } from './subsonic/subsonic';
 import { getPlaylistInfo } from './download/helper';
 import { Chromecast } from './chromecast/chromecast';
 
+import { eventHandler } from './routes/eventHandler';
+
 import express from 'express';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
@@ -14,6 +16,8 @@ const httpServer = createServer(app);
 const io = new Server(httpServer);
 
 io.on('connection', (socket) => {
+	eventHandler(socket);
+	/*
 	const uuid = uuidv4();
 
 	console.log('a user connected: ' + uuid);
@@ -152,6 +156,8 @@ io.on('connection', (socket) => {
 			socket.emit('getPlaylistCoverURL', _);
 		});
 	});
+	*/
+
 });
 
 httpServer.listen(port, () => {

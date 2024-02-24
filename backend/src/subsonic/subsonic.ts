@@ -95,4 +95,17 @@ export class Subsonic {
 
 		return { id: queue[index - 1], index: index - 1 };
 	}
+
+	static getQueue(device: Device) {
+		const name = device.name;
+
+		if (!Subsonic.serverQueue[name]) {
+			return { queue: [], index: -1 };
+		}
+
+		const queue = Subsonic.serverQueue[name].queue;
+		const index = Subsonic.serverQueue[name].index;
+
+		return { queue: queue, index: index };
+	}
 }
