@@ -72,11 +72,12 @@ class ChromecastOpener extends StatelessWidget {
       onPressed: () {
         showModalBottomSheet<void>(
           context: context,
+          backgroundColor: Constants.backgroundColor,
           builder: (BuildContext context) {
             return SingleChildScrollView(
               child: Column(
                 children: [
-                  const Text('Select a cast device'),
+                  const Text('Select a Chromecast', style: TextStyle(color: Constants.primaryTextColor, fontSize: 20)),
                   for (var chromecast in chromecasts)
                     ChromecastItem(
                       name: chromecast,
@@ -107,13 +108,13 @@ class ChromecastItem extends StatelessWidget {
         child: Row(
           children: [
             const Padding(padding: EdgeInsets.all(5)),
-            const Icon(Icons.speaker_rounded, color: Constants.primaryTextColor),
-          const Padding(padding: EdgeInsets.all(5)),
+            const Icon(Icons.speaker_rounded, color: Constants.primaryTextColor, size: 50),
+            const Padding(padding: EdgeInsets.all(5)),
                   SizedBox(
                     width: MediaQuery.of(context).size.width*0.5,
                     child: Text(name,
                     overflow: TextOverflow.ellipsis,
-                        style:const TextStyle(color: Constants.primaryTextColor)),
+                        style:const TextStyle(color: Constants.primaryTextColor, fontSize: 15)),
                   ),
                           const Spacer(flex: 1),
             IconButton(
