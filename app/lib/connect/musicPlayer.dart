@@ -25,7 +25,7 @@ class MusicPlayer extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center, 
               children: [
-                PreviousButton(onPressed: () {}),
+                PreviousButton(socket: socket),
                 const Padding(padding: EdgeInsets.all(5),),
                 PlayButton(socket: socket),
                 const Padding(padding: EdgeInsets.all(5),),
@@ -84,7 +84,6 @@ class _MusicInfoState extends State<MusicInfo> {
     });
 
     socket!.on('getSongInfo', (data) {
-      print(data);
         setState(() {
           songTitle = data['response']['title'];
           artist = data['response']['artist'];
@@ -93,7 +92,6 @@ class _MusicInfoState extends State<MusicInfo> {
       });
 
     socket!.on('selectChromecast', (data) {
-      print('selectChromecast');
       socket!.emit('getCurrentSong');
     });
   }
@@ -206,9 +204,13 @@ class SkipButton extends StatelessWidget {
 }
 
 class PreviousButton extends StatelessWidget {
-  const PreviousButton({super.key, required this.onPressed});
+  const PreviousButton({super.key, required this.socket});
 
-  final VoidCallback onPressed;
+  final IO.Socket? socket;
+
+  void onPressed() {
+    socket!.emit('previous');
+  }
 
   @override
   Widget build(BuildContext context) {

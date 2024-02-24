@@ -17,13 +17,13 @@ export class Subsonic {
 	static getPlaylistCoverURL = getPlaylistCoverURL;
 
 	static serverQueue: { [deviceName: string]: {index: number, queue: string[]} } = {};
-	static index: number = 0;
+
 	static queuePlaylist(id: string, device: Device) {
 		return new Promise((resolve) => {
 			getPlaylist(id).then((_) => {
 				const playlist = _
 				const queue = {index: 0, queue: playlist.response.entry.map((song: { id: string }) => song.id)};
-
+				console.log(queue);
 				Subsonic.serverQueue[device.name] = queue;
 				resolve({status: 'ok', response: 'queued'});
 			});
@@ -54,15 +54,37 @@ export class Subsonic {
 
 		if (index < queue.length) {
 			Subsonic.serverQueue[name].index++;
+			console.log(`index2: ${index}`);
 			return { id: queue[index], index: index };
 		}
 
 		if (index === queue.length) {
 			Subsonic.serverQueue[name].index = 0;
-			Subsonic.serverQueue[name].index++;
 			return { id: queue[0], index: 0 };
 		}
 
+
+		return { id: '', index: -1 };
+	}
+
+	static startPreviousSong(device: Device) {
+		const name = device.name;
+		if (!Subsonic.serverQueue[name]) {
+			return { id: '', index: -1 };
+		}
+
+		const queue = Subsonic.serverQueue[name].queue;
+		const index = Subsonic.serverQueue[name].index;
+
+		if (index > 0) {
+			Subsonic.serverQueue[name].index--;
+			return { id: queue[index - 2], index: index - 2 };
+		}
+
+		if (index === 0) {
+			Subsonic.serverQueue[name].index = queue.length - 1;
+			return { id: queue[queue.length - 1], index: queue.length - 1 };
+		}
 
 		return { id: '', index: -1 };
 	}
@@ -88,12 +110,12 @@ export class Subsonic {
 
 		const queue = Subsonic.serverQueue[name].queue;
 		const index = Subsonic.serverQueue[name].index;
-
+		console.log(`index: ${index}`);
 		if (queue.length == 0){
 			return { id: '', index: -1 };
 		}
 
-		return { id: queue[index - 1], index: index - 1 };
+		return { id: queue[index], index: index };
 	}
 
 	static getQueue(device: Device) {

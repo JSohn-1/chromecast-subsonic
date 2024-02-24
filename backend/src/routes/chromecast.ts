@@ -32,6 +32,12 @@ const skip = (socket: Socket, uuid: string) => {
 	});
 };
 
+const previous = (socket: Socket, uuid: string) => {
+	socket.on('previous', () => {
+		Chromecast.previous(uuid, socket);
+	});
+}
+
 const getCurrentSong = (socket: Socket, uuid: string) => {
 	socket.on('getCurrentSong', () => {
 		Chromecast.getCurrentSong(uuid, socket);
@@ -73,6 +79,7 @@ export const chromecastRoutes = (socket: Socket, uuid: string) => {
 	resume(socket, uuid);
 	pause(socket, uuid);
 	skip(socket, uuid);
+	previous(socket, uuid);
 	close(socket, uuid);
 
 	getCurrentSong(socket, uuid);

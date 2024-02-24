@@ -164,12 +164,11 @@ export function playQueue(client: Client, uuid: string, id: string, socket: even
 	}
 
 	Subsonic.queuePlaylist(id, device).then((_) => {
-		const song = Subsonic.startNextSong(device);
+		const song = Subsonic.getCurrentSong(device);
 		Chromecast.play(device.friendlyName, song.id).then(() => {
 			socket.emit('playQueue', { status: 'ok', response: song });
 		});
-	});
-
+	})
 	device.on('finished', () => {
 		const song = Subsonic.startNextSong(device);
 		socket.emit('playQueue', song);
@@ -198,9 +197,7 @@ export function playQueueShuffle(client: Client, uuid: string, id: string, socke
 	}
 
 	Subsonic.queuePlaylistShuffle(id, device).then((_) => {
-		// socket.emit('playQueueShuffle', _);
-
-		const song = Subsonic.startNextSong(device);
+		const song = Subsonic.getCurrentSong(device);
 		Chromecast.play(device.friendlyName, song.id).then(() => {
 			for (const key in selectedChromecasts) {
 				if(selectedChromecasts[key].device === device) {
@@ -233,7 +230,7 @@ export function skip(client: Client, uuid: string, socket: eventEmitter) {
 	}
 
 	const song = Subsonic.startNextSong(device);
-
+	console.log(song.index);
 	if (song.index === -1) {
 		return new Promise((resolve) => {
 			resolve({ status: 'error', response: 'queue empty' });
@@ -253,6 +250,20 @@ export function skip(client: Client, uuid: string, socket: eventEmitter) {
 
 	return new Promise<string>((resolve) => {
 		resolve(JSON.stringify({ status: 'ok', response: { status: 'ok', response: song } }));
+	});
+}
+
+export function previous(client: Client, uuid: string, socket: eventEmitter) {
+	const device = selectedChromecasts[uuid].device;
+
+	if (!device) {
+		socket.emit('playQueue', { status: 'error', response: 'device not selected' });
+		return;
+	}
+
+	const song = Subsonic.startPreviousSong(device);
+	Chromecast.play(device.friendlyName, song.id).then(() => {
+		socket.emit('playQueue', { status: 'ok', response: song });
 	});
 }
 
