@@ -23,7 +23,6 @@ export class Subsonic {
 			getPlaylist(id).then((_) => {
 				const playlist = _
 				const queue = {index: 0, queue: playlist.response.entry.map((song: { id: string }) => song.id)};
-				console.log(queue);
 				Subsonic.serverQueue[device.name] = queue;
 				resolve({status: 'ok', response: 'queued'});
 			});
@@ -52,13 +51,12 @@ export class Subsonic {
 		const queue = Subsonic.serverQueue[name].queue;
 		const index = Subsonic.serverQueue[name].index;
 
-		if (index < queue.length) {
+		if (index < queue.length - 1) {
 			Subsonic.serverQueue[name].index++;
-			console.log(`index2: ${index}`);
-			return { id: queue[index], index: index };
+			return { id: queue[Subsonic.serverQueue[name].index++], index: Subsonic.serverQueue[name].index++ };
 		}
 
-		if (index === queue.length) {
+		if (index === queue.length - 1) {
 			Subsonic.serverQueue[name].index = 0;
 			return { id: queue[0], index: 0 };
 		}
@@ -78,7 +76,7 @@ export class Subsonic {
 
 		if (index > 0) {
 			Subsonic.serverQueue[name].index--;
-			return { id: queue[index - 2], index: index - 2 };
+			return { id: queue[Subsonic.serverQueue[name].index - 2], index: Subsonic.serverQueue[name].index - 2 };
 		}
 
 		if (index === 0) {
@@ -110,7 +108,6 @@ export class Subsonic {
 
 		const queue = Subsonic.serverQueue[name].queue;
 		const index = Subsonic.serverQueue[name].index;
-		console.log(`index: ${index}`);
 		if (queue.length == 0){
 			return { id: '', index: -1 };
 		}

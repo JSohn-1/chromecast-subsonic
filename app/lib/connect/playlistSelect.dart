@@ -133,14 +133,20 @@ class PlaylistItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        width: 300,
+        width: MediaQuery.of(context).size.width * 0.9,
         height: 100,
         color: Constants.backgroundColor,
         child: Row(
           children: [
             const Padding(padding: EdgeInsets.all(5)),
-            Text(name,
-                style: const TextStyle(color: Constants.primaryTextColor)),
+            const Icon(Icons.list, color: Constants.secondaryColor, size: 50),
+            const Padding(padding: EdgeInsets.all(5)),
+            SizedBox(
+              width: MediaQuery.of(context).size.width > 400 ? 100 : MediaQuery.of(context).size.width * 0.4,
+              child: Text(name,
+              overflow: TextOverflow.ellipsis,
+                  style:const TextStyle(color: Constants.primaryTextColor, fontSize: 15)),
+            ),
             const Spacer(flex: 1),
             PlaylistShuffleButton(onPressed: onPressedShuffle),
             PlaylistPlayButton(onPressed: onPressedPlay),
@@ -159,9 +165,8 @@ class PlaylistPlayButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      iconSize: 50,
       icon: const Icon(Icons.play_arrow_rounded,
-          color: Constants.secondaryColor, size: 30),
+          color: Constants.secondaryColor, size: 35),
       onPressed: onPressed,
     );
   }
@@ -174,9 +179,8 @@ class PlaylistShuffleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      iconSize: 50,
       icon:
-          const Icon(Icons.shuffle, color: Constants.secondaryColor, size: 30),
+          const Icon(Icons.shuffle, color: Constants.secondaryColor, size: 35),
       onPressed: onPressed,
     );
   }

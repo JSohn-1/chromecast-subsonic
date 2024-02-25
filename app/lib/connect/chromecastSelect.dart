@@ -110,13 +110,13 @@ class ChromecastItem extends StatelessWidget {
             const Padding(padding: EdgeInsets.all(5)),
             const Icon(Icons.speaker_rounded, color: Constants.primaryTextColor, size: 50),
             const Padding(padding: EdgeInsets.all(5)),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width*0.5,
-                    child: Text(name,
-                    overflow: TextOverflow.ellipsis,
-                        style:const TextStyle(color: Constants.primaryTextColor, fontSize: 15)),
-                  ),
-                          const Spacer(flex: 1),
+            SizedBox(
+              width: MediaQuery.of(context).size.width > 400 ? 200 : MediaQuery.of(context).size.width * 0.4,
+              child: Text(name,
+              overflow: TextOverflow.ellipsis,
+                  style:const TextStyle(color: Constants.primaryTextColor, fontSize: 15)),
+            ),
+            const Spacer(flex: 1),
             IconButton(
               icon: const Icon(Icons.arrow_forward_ios, color: Constants.primaryTextColor),
               onPressed: () {

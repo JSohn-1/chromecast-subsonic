@@ -230,7 +230,6 @@ export function skip(client: Client, uuid: string, socket: eventEmitter) {
 	}
 
 	const song = Subsonic.startNextSong(device);
-	console.log(song.index);
 	if (song.index === -1) {
 		return new Promise((resolve) => {
 			resolve({ status: 'error', response: 'queue empty' });
