@@ -92,25 +92,25 @@ export function resume(client: Client, uuid: string) {
 
 	return new Promise((resolve) => {
 		try{
-		device.resume((err?: Error) => {
-			if (err) {
-				if (err.message === 'no session started' && Subsonic.getCurrentSong(device).index !== -1) {
-					const song = Subsonic.getCurrentSong(device);
+			device.resume((err?: Error) => {
+				if (err) {
+					if (err.message === 'no session started' && Subsonic.getCurrentSong(device).index !== -1) {
+						const song = Subsonic.getCurrentSong(device);
 
-					Chromecast.play(device.friendlyName, song.id).then(() => {
-						resolve({ status: 'ok', response: 'resumed' });
-					});
+						Chromecast.play(device.friendlyName, song.id).then(() => {
+							resolve({ status: 'ok', response: 'resumed' });
+						});
+					}
+					console.error(err);
+
+					resolve(errorMessage(err));
 				}
-				console.error(err);
-
-				resolve(errorMessage(err));
-			}
-			resolve({ status: 'ok', response: 'resumed' });
-		});
-	} catch (err) {
-		console.error(err);
-		resolve(errorMessage(err as Error));
-	}
+				resolve({ status: 'ok', response: 'resumed' });
+			});
+		} catch (err) {
+			console.error(err);
+			resolve(errorMessage(err as Error));
+		}
 	});
 }
 
@@ -163,12 +163,13 @@ export function playQueue(client: Client, uuid: string, id: string, socket: even
 		return;
 	}
 
-	Subsonic.queuePlaylist(id, device).then((_) => {
+	Subsonic.queuePlaylist(id, device).then(() => {
 		const song = Subsonic.getCurrentSong(device);
 		Chromecast.play(device.friendlyName, song.id).then(() => {
 			socket.emit('playQueue', { status: 'ok', response: song });
 		});
-	})
+	});
+
 	device.on('finished', () => {
 		const song = Subsonic.startNextSong(device);
 		socket.emit('playQueue', song);
@@ -196,7 +197,7 @@ export function playQueueShuffle(client: Client, uuid: string, id: string, socke
 		return;
 	}
 
-	Subsonic.queuePlaylistShuffle(id, device).then((_) => {
+	Subsonic.queuePlaylistShuffle(id, device).then(() => {
 		const song = Subsonic.getCurrentSong(device);
 		Chromecast.play(device.friendlyName, song.id).then(() => {
 			for (const key in selectedChromecasts) {
@@ -220,7 +221,7 @@ export function playQueueShuffle(client: Client, uuid: string, id: string, socke
 	});
 }
 
-export function skip(client: Client, uuid: string, socket: eventEmitter) {
+export function skip(client: Client, uuid: string) {
 	const device = selectedChromecasts[uuid].device;
 
 	if (!device) {
@@ -330,7 +331,6 @@ export function getStatus(client: Client, uuid: string, socket: eventEmitter) {
 export function clearListener(uuid: string) {
 	if (uuid in listeners) {
 		selectedChromecasts[uuid].device.removeListener('status', listeners[uuid]);
-		const device = selectedChromecasts[uuid].device;
 
 		delete listeners[uuid];
 	}

@@ -1,11 +1,11 @@
-import { Socket } from "socket.io";
+import { Socket } from 'socket.io';
 
-import { Chromecast } from "../chromecast/chromecast"
+import { Chromecast } from '../chromecast/chromecast';
 
 const queuePlaylist = (socket: Socket, uuid: string) => {
 	socket.on('queuePlaylist', (id: string) => {
 		Chromecast.playQueue(uuid, id, socket);
-});
+	});
 };
 
 const queuePlaylistShuffle = (socket: Socket, uuid: string) => {
@@ -28,7 +28,7 @@ const pause = (socket: Socket, uuid: string) => {
 
 const skip = (socket: Socket, uuid: string) => {
 	socket.on('skip', () => {
-		Chromecast.skip(uuid, socket);
+		Chromecast.skip(uuid);
 	});
 };
 
@@ -36,7 +36,7 @@ const previous = (socket: Socket, uuid: string) => {
 	socket.on('previous', () => {
 		Chromecast.previous(uuid, socket);
 	});
-}
+};
 
 const getCurrentSong = (socket: Socket, uuid: string) => {
 	socket.on('getCurrentSong', () => {
@@ -64,13 +64,13 @@ const getChromecasts = (socket: Socket) => {
 	socket.on('getChromecasts', () => {
 		socket.emit('getChromecasts', Chromecast.getChromecasts());
 	});
-}
+};
 
 const close = (socket: Socket, uuid: string) => {
 	socket.on('close', () => {
 		Chromecast.close(uuid, socket);
 	});
-}
+};
 
 export const chromecastRoutes = (socket: Socket, uuid: string) => {
 	queuePlaylist(socket, uuid);

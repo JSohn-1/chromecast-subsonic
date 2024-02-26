@@ -1,6 +1,6 @@
-import { Socket } from "socket.io";
+import { Socket } from 'socket.io';
 
-import { Subsonic } from "../../subsonic/subsonic";
+import { Subsonic } from '../../subsonic/subsonic';
 
 const getPlaylists = (socket: Socket) => {
 	socket.on('getPlaylists', () => {
@@ -8,7 +8,7 @@ const getPlaylists = (socket: Socket) => {
 			socket.emit('getPlaylists', _);
 		});
 	});
-}
+};
 
 const getPlaylist = (socket: Socket) => {
 	socket.on('getPlaylist', (id: string) => {
@@ -20,9 +20,9 @@ const getPlaylist = (socket: Socket) => {
 			socket.emit('getPlaylist', _);
 		});
 	});
-}
+};
 
 export const playlists = (socket: Socket) => {
 	getPlaylists(socket);
 	getPlaylist(socket);
-}
+};

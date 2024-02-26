@@ -6,14 +6,14 @@ import { subsonicWrapper } from './subsonic/wrapper';
 import { chromecastRoutes } from './chromecast';
 
 export const eventHandler = (socket: Socket) => {
-  const uuid = uuidv4();
-  console.log('a user connected: ' + uuid);
+	const uuid = uuidv4();
+	console.log('a user connected: ' + uuid);
 
-  socket.on('disconnect', () => {
-	Chromecast.clearListener(uuid);
-	console.log('a user disconnected');
-  });
+	socket.on('disconnect', () => {
+		Chromecast.clearListener(uuid);
+		console.log('a user disconnected');
+	});
 
-  subsonicWrapper(socket, uuid);
-  chromecastRoutes(socket, uuid);
+	subsonicWrapper(socket);
+	chromecastRoutes(socket, uuid);
 };

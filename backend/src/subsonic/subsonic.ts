@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 import { ping } from './ping';
 import { getPlaylists } from './getPlaylists';
 import { getPlaylist } from './getPlaylist';
@@ -5,7 +6,6 @@ import { getSong } from './getSong';
 import { getSongInfo } from './getSongInfo';
 import { getPlaylistCoverURL } from './getPlaylistCoverURL';
 
-import { EventEmitter } from 'events';
 import type Device = require('chromecast-api/lib/device');
 
 export class Subsonic {
@@ -21,7 +21,7 @@ export class Subsonic {
 	static queuePlaylist(id: string, device: Device) {
 		return new Promise((resolve) => {
 			getPlaylist(id).then((_) => {
-				const playlist = _
+				const playlist = _;
 				const queue = {index: 0, queue: playlist.response.entry.map((song: { id: string }) => song.id)};
 				Subsonic.serverQueue[device.name] = queue;
 				resolve({status: 'ok', response: 'queued'});
@@ -32,7 +32,7 @@ export class Subsonic {
 	static queuePlaylistShuffle(id: string, device: Device) {
 		return new Promise((resolve) => {
 			getPlaylist(id).then((_) => {
-				const playlist = _
+				const playlist = _;
 				const queue = {index: 0, queue: playlist.response.entry.map((song: { id: string }) => song.id).sort(() => Math.random() - 0.5)};
 
 				Subsonic.serverQueue[device.name] = queue;
@@ -60,7 +60,6 @@ export class Subsonic {
 			Subsonic.serverQueue[name].index = 0;
 			return { id: queue[0], index: 0 };
 		}
-
 
 		return { id: '', index: -1 };
 	}
