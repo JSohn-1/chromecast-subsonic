@@ -8,10 +8,10 @@ class PlaylistSelect extends StatefulWidget {
   const PlaylistSelect({super.key, required this.socket});
 
   @override
-  _playlistSelectState createState() => _playlistSelectState();
+  State<PlaylistSelect> createState() => _PlaylistSelectState();
 }
 
-class _playlistSelectState extends State<PlaylistSelect> {
+class _PlaylistSelectState extends State<PlaylistSelect> {
   IO.Socket? socket;
   List<dynamic> playlists = [];
   Map<String, String> playlistCovers = {};
@@ -124,7 +124,9 @@ class PlaylistItem extends StatelessWidget {
       required this.name,
       required this.onPressedPlay,
       required this.onPressedShuffle,
-      required this.onPressedRefresh});
+      required this.onPressedRefresh
+  });
+
   final String name;
   final VoidCallback onPressedPlay;
   final VoidCallback onPressedShuffle;
@@ -142,10 +144,14 @@ class PlaylistItem extends StatelessWidget {
             const Icon(Icons.list, color: Constants.secondaryColor, size: 50),
             const Padding(padding: EdgeInsets.all(5)),
             SizedBox(
-              width: MediaQuery.of(context).size.width > 400 ? 100 : MediaQuery.of(context).size.width * 0.4,
+              width: MediaQuery.of(context).size.width > 400 ? 
+                100 : MediaQuery.of(context).size.width * 0.4,
               child: Text(name,
               overflow: TextOverflow.ellipsis,
-                  style:const TextStyle(color: Constants.primaryTextColor, fontSize: 15)),
+                  style: const TextStyle(
+                    color: Constants.primaryTextColor, 
+                    fontSize: 15
+                  )),
             ),
             const Spacer(flex: 1),
             PlaylistShuffleButton(onPressed: onPressedShuffle),
@@ -200,5 +206,3 @@ class RefreshPlaylistsButton extends StatelessWidget {
     );
   }
 }
-
-// https://api.flutter.dev/flutter/material/showModalBottomSheet.html

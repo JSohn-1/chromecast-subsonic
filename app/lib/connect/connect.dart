@@ -10,7 +10,7 @@ class MusicScreen extends StatefulWidget {
   const MusicScreen({super.key});
 
   @override
-  _MusicScreenState createState() => _MusicScreenState();
+  State<MusicScreen> createState() => _MusicScreenState();
 }
 
 class _MusicScreenState extends State<MusicScreen> {

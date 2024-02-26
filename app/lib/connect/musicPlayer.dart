@@ -1,11 +1,10 @@
-// Create the music screen which will take in the parameters of the song title, artist, and album art. 
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../constants.dart';
 
 class MusicPlayer extends StatelessWidget {
-  const MusicPlayer({super.key, /*required this.title, required this.artist, required this.albumArt, required this.onPressedSkip,*/ required this.socket});
+  const MusicPlayer({super.key, required this.socket});
 
   final IO.Socket? socket;
 
@@ -13,8 +12,6 @@ class MusicPlayer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Constants.backgroundColor,
-      // width: double.infinity,
-      // height: double.infinity,
       child: Column(
           children: <Widget>[
             const Spacer( flex: 2),
@@ -44,7 +41,7 @@ class MusicInfo extends StatefulWidget {
   const MusicInfo({super.key, required this.socket});
 
   @override
-  _MusicInfoState createState() => _MusicInfoState();
+  State<MusicInfo> createState() => _MusicInfoState();
 }
 
 class _MusicInfoState extends State<MusicInfo> {
@@ -70,7 +67,7 @@ class _MusicInfoState extends State<MusicInfo> {
 
         return;
       }
-      String id = data['response']['id'];
+      final String id = data['response']['id'];
       
       if (id == songId) {
         return;
@@ -79,7 +76,7 @@ class _MusicInfoState extends State<MusicInfo> {
     });
 
     socket!.on('getCurrentSong', (data) {
-      String id = data['response']['id'];
+      final String id = data['response']['id'];
       socket!.emit('getSongInfo', id);
     });
 
@@ -98,9 +95,6 @@ class _MusicInfoState extends State<MusicInfo> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      // color: Constants.backgroundColor,
-      // width: double.infinity,
-      // height: double.infinity,
       child: Column(
           children: <Widget>[
             ClipRRect(
@@ -108,9 +102,20 @@ class _MusicInfoState extends State<MusicInfo> {
               child: Image.network(albumArt, width: 350, height: 350),
             ),
             const Padding(padding: EdgeInsets.all(10)),
-            Text(songTitle, style: const TextStyle(color: Constants.primaryTextColor, fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(
+              songTitle, 
+              style: const TextStyle(
+                color: Constants.primaryTextColor, 
+                fontSize: 20, 
+                fontWeight: FontWeight.bold
+              )),
             const Padding(padding: EdgeInsets.all(2)),
-            Text(artist, style: const TextStyle(color: Constants.secondaryTextColor, fontSize: 14)),
+            Text(
+              artist, 
+              style: const TextStyle(
+                color: Constants.secondaryTextColor, 
+                fontSize: 14
+              )),
             const Padding(padding: EdgeInsets.all(5),),
           ],
         ),
@@ -124,7 +129,7 @@ class PlayButton extends StatefulWidget {
   final IO.Socket? socket;
 
   @override
-  _PlayButtonState createState() => _PlayButtonState();
+  State<PlayButton> createState() => _PlayButtonState();
 }
 
 class _PlayButtonState extends State<PlayButton> {
@@ -137,9 +142,10 @@ class _PlayButtonState extends State<PlayButton> {
     socket = widget.socket;
 
     socket!.on('subscribe', (data) {
-      if ((data['response']['chromecastStatus']['playerState'] == 'PLAYING') != isPlaying) {
+      data = data['response']['chromecastStatus'];
+      if ((data['playerState'] == 'PLAYING') != isPlaying) {
         setState(() {
-          isPlaying = data['response']['chromecastStatus']['playerState'] == 'PLAYING';
+          isPlaying = data['playerState'] == 'PLAYING';
         });
       }
     });
@@ -168,8 +174,11 @@ class _PlayButtonState extends State<PlayButton> {
         color: Constants.secondaryColor,
       ),
       child: IconButton(
-        // iconSize: 75,
-        icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow, color: Constants.backgroundColor, size: 50),
+        icon: Icon(
+          isPlaying ? Icons.pause : Icons.play_arrow,
+          color: Constants.backgroundColor,
+          size: 50
+        ),
         onPressed: () {
           if (isPlaying) {
             socket!.emit('pause');
@@ -187,8 +196,6 @@ class SkipButton extends StatelessWidget {
 
   final IO.Socket? socket;
 
-  // final VoidCallback onPressed;
-
   void onPressed() {
     socket!.emit('skip');
   }
@@ -196,8 +203,11 @@ class SkipButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-        // iconSize: 50,
-        icon: const Icon(Icons.skip_next, color: Constants.secondaryColor, size: 50),
+        icon: const Icon(
+          Icons.skip_next, 
+          color: Constants.secondaryColor, 
+          size: 50
+        ),
         onPressed: onPressed,
       );
   }
@@ -215,8 +225,11 @@ class PreviousButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-        // iconSize: 50,
-        icon: const Icon(Icons.skip_previous, color: Constants.secondaryColor, size: 50),
+        icon: const Icon(
+          Icons.skip_previous, 
+          color: Constants.secondaryColor, 
+          size: 50
+        ),
         onPressed: onPressed,
       );
   }
@@ -228,7 +241,7 @@ class ChromecastSelected extends StatefulWidget {
   final IO.Socket? socket;
 
   @override
-  _ChromecastSelectedState createState() => _ChromecastSelectedState();
+  State<ChromecastSelected> createState() => _ChromecastSelectedState();
 }
 
 class _ChromecastSelectedState extends State<ChromecastSelected> {
@@ -249,6 +262,12 @@ class _ChromecastSelectedState extends State<ChromecastSelected> {
 
   @override
   Widget build(BuildContext context) {
-    return Text(chromecastSelected, style: const TextStyle(color: Constants.primaryTextColor, fontSize: 18));
+    return Text(
+      chromecastSelected, 
+      style: const TextStyle(
+        color: Constants.primaryTextColor, 
+        fontSize: 18
+      )
+    );
   }
 }

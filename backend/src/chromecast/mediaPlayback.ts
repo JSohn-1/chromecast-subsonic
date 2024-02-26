@@ -9,8 +9,8 @@ import { getChromecast, errorMessage } from './utilChromecast';
 import { Subsonic } from '../subsonic/subsonic';
 import { Chromecast } from './chromecast';
 
-const listeners = {} as { [uuid: string]: (status: Device.DeviceStatus) => void };
-const selectedChromecasts = {} as { [uuid: string]: {device: Device, socket: eventEmitter} };
+const listeners: { [uuid: string]: (status: Device.DeviceStatus) => void } = {};
+const selectedChromecasts: { [uuid: string]: {device: Device, socket: eventEmitter} } = {};
 
 export function play(client: Client, chromecastName: string, songId: string) {
 	const device = getChromecast(client, chromecastName);

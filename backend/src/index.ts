@@ -5,7 +5,7 @@ import { Server } from 'socket.io';
 import { createServer } from 'http';
 
 const app = express();
-const port = 3000;
+const port = 2001;
 
 const httpServer = createServer(app);
 const io = new Server(httpServer);

@@ -8,7 +8,7 @@ class ChromecastSelect extends StatefulWidget {
   const ChromecastSelect({super.key, required this.socket});
 
   @override
-  _ChromecastSelectState createState() => _ChromecastSelectState();
+  State<ChromecastSelect> createState() => _ChromecastSelectState();
 }
 
 class _ChromecastSelectState extends State<ChromecastSelect> {
@@ -28,10 +28,18 @@ class _ChromecastSelectState extends State<ChromecastSelect> {
       });
     });
 
-    socket!.on('newChromecast', (data) {
+    socket!.on('newChromecast', (data) {;
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ChromecastPopup(chromecastName: data);
+        }
+      );
       setState(() {
         chromecasts.add(data);
       });
+
+      
     });
 
     socket!.on('selectChromecast', (data) {
@@ -52,12 +60,21 @@ class _ChromecastSelectState extends State<ChromecastSelect> {
 
   @override
   Widget build(BuildContext context) {
-    return ChromecastOpener(chromecasts: chromecasts, getChromecasts: refreshChromecasts, selectChromecast: selectChromecast);
+    return ChromecastOpener(
+      chromecasts: chromecasts, 
+      getChromecasts: refreshChromecasts, 
+      selectChromecast: selectChromecast
+    );
   }
 }
 
 class ChromecastOpener extends StatelessWidget {
-  const ChromecastOpener({super.key, required this.chromecasts, required this.getChromecasts, required this.selectChromecast});
+  const ChromecastOpener({
+    super.key, 
+    required this.chromecasts, 
+    required this.getChromecasts, 
+    required this.selectChromecast
+  });
 
   final List<dynamic> chromecasts;
   final Function(String) selectChromecast;
@@ -77,7 +94,12 @@ class ChromecastOpener extends StatelessWidget {
             return SingleChildScrollView(
               child: Column(
                 children: [
-                  const Text('Select a Chromecast', style: TextStyle(color: Constants.primaryTextColor, fontSize: 20)),
+                  const Text(
+                    'Select a Chromecast', 
+                    style: TextStyle(
+                      color: Constants.primaryTextColor, 
+                      fontSize: 20
+                    )),
                   for (var chromecast in chromecasts)
                     ChromecastItem(
                       name: chromecast,
@@ -95,7 +117,12 @@ class ChromecastOpener extends StatelessWidget {
 }
 
 class ChromecastItem extends StatelessWidget {
-  const ChromecastItem({super.key, required this.name, required this.onPressed});
+  const ChromecastItem({
+    super.key, 
+    required this.name, 
+    required this.onPressed
+  });
+
   final String name;
   final VoidCallback onPressed;
 
@@ -108,17 +135,28 @@ class ChromecastItem extends StatelessWidget {
         child: Row(
           children: [
             const Padding(padding: EdgeInsets.all(5)),
-            const Icon(Icons.speaker_rounded, color: Constants.primaryTextColor, size: 50),
+            const Icon(
+              Icons.speaker_rounded, 
+              color: Constants.primaryTextColor, 
+              size: 50
+            ),
             const Padding(padding: EdgeInsets.all(5)),
             SizedBox(
-              width: MediaQuery.of(context).size.width > 400 ? 200 : MediaQuery.of(context).size.width * 0.4,
+              width: MediaQuery.of(context).size.width > 400 ? 
+                200 : MediaQuery.of(context).size.width * 0.4,
               child: Text(name,
               overflow: TextOverflow.ellipsis,
-                  style:const TextStyle(color: Constants.primaryTextColor, fontSize: 15)),
+                  style: const TextStyle(
+                    color: Constants.primaryTextColor, 
+                    fontSize: 15
+                  )),
             ),
             const Spacer(flex: 1),
             IconButton(
-              icon: const Icon(Icons.arrow_forward_ios, color: Constants.primaryTextColor),
+              icon: const Icon(
+                Icons.arrow_forward_ios, 
+                color: Constants.primaryTextColor
+              ),
               onPressed: () {
                 onPressed();
                 Navigator.pop(context);
@@ -130,4 +168,20 @@ class ChromecastItem extends StatelessWidget {
   }
 }
 
-// https://api.flutter.dev/flutter/material/showModalBottomSheet.html
+class ChromecastPopup extends StatelessWidget {
+  const ChromecastPopup({super.key, required this.chromecastName});
+
+  final String chromecastName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 50,
+      width: 200,
+      color: Constants.primaryColor,
+      child: Center(
+        child: Text(chromecastName),
+      ),
+    );
+  }
+}
