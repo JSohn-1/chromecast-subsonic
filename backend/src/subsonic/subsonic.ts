@@ -53,7 +53,7 @@ export class Subsonic {
 
 		if (index < queue.length - 1) {
 			Subsonic.serverQueue[name].index++;
-			return { id: queue[Subsonic.serverQueue[name].index++], index: Subsonic.serverQueue[name].index++ };
+			return { id: queue[Subsonic.serverQueue[name].index], index: Subsonic.serverQueue[name].index};
 		}
 
 		if (index === queue.length - 1) {
@@ -75,7 +75,7 @@ export class Subsonic {
 
 		if (index > 0) {
 			Subsonic.serverQueue[name].index--;
-			return { id: queue[Subsonic.serverQueue[name].index - 2], index: Subsonic.serverQueue[name].index - 2 };
+			return { id: queue[Subsonic.serverQueue[name].index], index: Subsonic.serverQueue[name].index};
 		}
 
 		if (index === 0) {
