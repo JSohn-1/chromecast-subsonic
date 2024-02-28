@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import './connect/connect.dart';
+import 'package:audio_service/audio_service.dart';
+
+import 'globals.dart' as globals;
 
 void main() {
+  globals._audioHandler = await AudioService.init();
   runApp(const MyApp());
 }
 
@@ -18,7 +22,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: //const MyHomePage(title: 'Flutter Demo Home Page'),
-        const MusicScreen(),
+          const MusicScreen(),
     );
   }
 }
