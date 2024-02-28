@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:rxdart/rxdart.dart';
 
-
 import '../constants.dart';
 import '../audio_local.dart';
 
@@ -75,7 +74,6 @@ class _MusicInfoState extends State<MusicInfo> {
           artist = 'Artist';
           albumArt = 'https://via.placeholder.com/350';
           songId = '';
-
         });
 
         return;
@@ -99,13 +97,11 @@ class _MusicInfoState extends State<MusicInfo> {
         artist = data['response']['artist'];
         albumArt = data['response']['coverURL'];
         mediaItem = MediaItem(
-          id: songId, 
-          title: songTitle, 
-          artist: artist, 
-          album: albumArt,
-          duration: Duration(seconds: data['response']['duration'])
-        );
-
+            id: songId,
+            title: songTitle,
+            artist: artist,
+            album: albumArt,
+            duration: Duration(seconds: data['response']['duration']));
       });
     });
 
@@ -141,8 +137,6 @@ class _MusicInfoState extends State<MusicInfo> {
     );
   }
 }
-
-
 
 class PlayButton extends StatefulWidget {
   const PlayButton({super.key, required this.socket});
@@ -316,7 +310,8 @@ class _SeekBarState extends State<SeekBar> {
 
       if (data['response']['playerState'] == 'PLAYING') {
         setState(() {
-          position = data['response']['currentTime'] / data['response']['duration'];
+          position =
+              data['response']['currentTime'] / data['response']['duration'];
           max = data['response']['duration'];
         });
       }
@@ -339,40 +334,4 @@ class _SeekBarState extends State<SeekBar> {
       },
     );
   }
-
-  Stream<Duration> _songLength() async* {
-    socket!.on('songInfo', (data) async* {
-      yield Duration(seconds: data['response']['duration']);
-    });
-  }
-
-  Stream<Duration> _serverUpdate() async* {
-    socket!.on('subscribe', (data) async* {
-      data = data['response']['chromecastStatus'];
-      if (data['playerState'] == 'PLAYING') {
-        yield Duration(seconds: data['currentTime']);
-      }
-    });
-  }
-
-  Stream<Duration> _progression() async* {
-    await for (final _ in Stream.periodic(const Duration(milliseconds: 100))) {
-      yield Duration(seconds: position.toInt());
-    }
-
-  }
-
-  Stream<MediaState> get _mediaStateStream => 
-  // Combine the serverupdate, progression, and mediaItem streams
-  Rx.combineLatest3<Duration, Duration, Duration, Map<String, Duration>(
-    _songLength(),
-    _serverUpdate(),
-    _progression(),
-    (songLength, position, serverPosition, progressionPosition) {
-
-      return {};
-    }
-    
-    
-  )
 }

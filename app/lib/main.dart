@@ -5,7 +5,6 @@ import 'package:audio_service/audio_service.dart';
 import 'globals.dart' as globals;
 
 void main() {
-  globals._audioHandler = await AudioService.init();
   runApp(const MyApp());
 }
 
