@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:toastification/toastification.dart';
 
 import '../constants.dart';
 
@@ -28,13 +29,18 @@ class _ChromecastSelectState extends State<ChromecastSelect> {
       });
     });
 
-    socket!.on('newChromecast', (data) {;
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return ChromecastPopup(chromecastName: data);
-        }
-      );
+    socket!.on('newChromecast', (data) {
+      toastification.show(
+          context: context,
+          type: ToastificationType.info,
+          style: ToastificationStyle.fillColored,
+          title: const Text('New Chromecast found'),
+          description: Text('Found: $data'),
+          alignment: Alignment.topCenter,
+          autoCloseDuration: const Duration(seconds: 4),
+          boxShadow: lowModeShadow,
+          dragToClose: true,
+        );
       setState(() {
         chromecasts.add(data);
       });

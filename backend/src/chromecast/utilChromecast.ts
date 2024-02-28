@@ -19,7 +19,7 @@ export function errorMessage(err: Error) {
 export function newChromecast(client: Client, socket: EventEmitter) {
 	const callback = (device: Device) => {
 		socket.emit('newChromecast', device.friendlyName);
-	}
+	};
 
 	client.on('device', callback);
 

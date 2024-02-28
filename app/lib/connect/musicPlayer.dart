@@ -61,7 +61,7 @@ class _MusicInfoState extends State<MusicInfo> {
         setState(() {
           songTitle = 'Song Title';
           artist = 'Artist';
-          albumArt = 'https://via.placeholder.com/250';
+          albumArt = 'https://via.placeholder.com/350';
           songId = '';
         });
 
