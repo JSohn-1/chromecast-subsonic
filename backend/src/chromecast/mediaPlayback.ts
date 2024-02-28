@@ -337,7 +337,7 @@ export function getStatus(client: Client, uuid: string, socket: eventEmitter) {
 	}
 }
 
-export function clearListener(client: Client, uuid: string) {
+export function clearListener(uuid: string) {
 	if (uuid in listeners) {
 		selectedChromecasts[uuid].device.removeListener('status', listeners[uuid]);
 
