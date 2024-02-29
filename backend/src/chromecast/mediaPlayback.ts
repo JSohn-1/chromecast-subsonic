@@ -276,6 +276,28 @@ export function previous(client: Client, uuid: string, socket: eventEmitter) {
 	});
 }
 
+export function seek(uuid: string, position: number, socket: eventEmitter) {
+	if (!selectedChromecasts[uuid]) {
+		socket.emit('playQueue', { status: 'error', response: 'device not selected' });
+		return;
+	}
+
+	const device = selectedChromecasts[uuid].device;
+
+	if (!device) {
+		socket.emit('playQueue', { status: 'error', response: 'device not selected' });
+		return;
+	}
+
+	device.seek(position, (err) => {
+		if (err) {
+			console.error(err);
+			socket.emit('seek', { status: 'error', response: err });
+		}
+		socket.emit('seek', { status: 'ok', response: 'seeked' });
+	});
+}
+
 export function getCurrentSong(client: Client, uuid: string, socket: eventEmitter) {
 	if (!selectedChromecasts[uuid]) {
 		socket.emit('playQueue', { status: 'error', response: 'device not selected' });

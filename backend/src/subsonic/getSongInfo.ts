@@ -11,6 +11,7 @@ export function getSongInfo(id: string) {
 				title: data.title,
 				artist: data.artist,
 				coverURL: generateURL('getCoverArt', new Map([['id', id]])),
+				duration: data.duration,
 			};
 			return { status: 'ok', response: songInfo };
 		}

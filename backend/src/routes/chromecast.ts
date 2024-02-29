@@ -38,6 +38,12 @@ const previous = (socket: Socket, uuid: string) => {
 	});
 };
 
+const seek = (socket: Socket, uuid: string) => {
+	socket.on('seek', (time: number) => {
+		Chromecast.seek(uuid, time, socket);
+	});
+};
+
 const getCurrentSong = (socket: Socket, uuid: string) => {
 	socket.on('getCurrentSong', () => {
 		Chromecast.getCurrentSong(uuid, socket);
@@ -80,6 +86,7 @@ export const chromecastRoutes = (socket: Socket, uuid: string) => {
 	pause(socket, uuid);
 	skip(socket, uuid);
 	previous(socket, uuid);
+	seek(socket, uuid);
 	close(socket, uuid);
 
 	getCurrentSong(socket, uuid);
