@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:core';
 
 import 'package:audio_service/audio_service.dart';
@@ -23,6 +24,10 @@ class MusicPlayer extends StatelessWidget {
           ChromecastSelected(socket: socket),
           const Padding(padding: EdgeInsets.all(5)),
           MusicInfo(socket: socket),
+          const Padding(
+            padding: EdgeInsets.all(5),
+          ),
+          SeekBar(socket: socket),
           const Padding(
             padding: EdgeInsets.all(5),
           ),
@@ -55,7 +60,6 @@ class MusicInfo extends StatefulWidget {
 
 class _MusicInfoState extends State<MusicInfo> {
   IO.Socket? socket;
-  MediaItem? mediaItem;
 
   String songTitle = 'Song Title';
   String artist = 'Artist';
@@ -96,12 +100,6 @@ class _MusicInfoState extends State<MusicInfo> {
         songTitle = data['response']['title'];
         artist = data['response']['artist'];
         albumArt = data['response']['coverURL'];
-        mediaItem = MediaItem(
-            id: songId,
-            title: songTitle,
-            artist: artist,
-            album: albumArt,
-            duration: Duration(seconds: data['response']['duration']));
       });
     });
 
@@ -285,53 +283,102 @@ class SeekBar extends StatefulWidget {
 
 class _SeekBarState extends State<SeekBar> {
   IO.Socket? socket;
-  double position = 0;
-  double max = 100;
 
   @override
   void initState() {
     super.initState();
     socket = widget.socket;
 
-    socket!.on('subscribe', (data) {
+    // socket!.on('subscribe', (data) {
+    //   data = data['response']['chromecastStatus'];
+    //   if (data['playerState'] == 'PLAYING') {
+    //     setState(() {
+    //       position = data['currentTime'] / data['mediaInfo']['duration'];
+    //       max = data['mediaInfo']['duration'];
+    //     });
+    //   }
+    // });
+
+    // socket!.on('getStatus', (data) {
+    //   if (data['status'] == 'error') {
+    //     return;
+    //   }
+
+    //   if (data['response']['playerState'] == 'PLAYING') {
+    //     setState(() {
+    //       position =
+    //           data['response']['currentTime'] / data['response']['duration'];
+    //       max = data['response']['duration'];
+    //     });
+    //   }
+    // });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: createPositionStream(socket!), 
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const CircularProgressIndicator();
+        }
+
+        final position = snapshot.data!['position'] ?? Duration.zero;
+        final mediaLength = snapshot.data!['mediaLength'] ?? Duration.zero;
+
+        return Slider(
+          value: position.inMilliseconds.toDouble(),
+          max: mediaLength.inMilliseconds.toDouble(),
+          onChanged: (value) {
+            print(value);
+            // socket!.emit('seek', value);
+          },
+          onChangeEnd: (value) => socket!.emit('seek', value),
+        );
+    });
+  }
+
+  Stream<Map<String, Duration>> createPositionStream(IO.Socket socket) {
+    StreamController<Map<String, Duration>> controller = StreamController<Map<String, Duration>>();
+    Duration position = Duration.zero;
+    Duration mediaLength = Duration.zero;
+    bool isPlaying = false;
+
+    socket.on('subscribe', (data) {
       data = data['response']['chromecastStatus'];
       if (data['playerState'] == 'PLAYING') {
-        setState(() {
-          position = data['currentTime'] / data['mediaInfo']['duration'];
-          max = data['mediaInfo']['duration'];
-        });
+        isPlaying = true;
+        position = Duration(milliseconds: (data['currentTime'] * 1000).toInt());
+        controller.add({'position': position, 'mediaLength': mediaLength});
+      }else{
+        isPlaying = false;
       }
     });
 
-    socket!.on('getStatus', (data) {
+    socket.on('getStatus', (data) {
       if (data['status'] == 'error') {
         return;
       }
 
       if (data['response']['playerState'] == 'PLAYING') {
-        setState(() {
-          position =
-              data['response']['currentTime'] / data['response']['duration'];
-          max = data['response']['duration'];
-        });
+        position = Duration(milliseconds: (data['response']['currentTime'] * 1000).toInt());
+        controller.add({'position': position, 'mediaLength': mediaLength});
       }
     });
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Slider(
-      value: position,
-      max: max,
-      onChanged: (double newValue) {
-        setState(() {
-          position = newValue;
-          socket!.emit('seek', newValue);
-        });
-      },
-      onChangeEnd: (double newValue) {
-        socket!.emit('seek', newValue);
-      },
-    );
+    socket.on('getSongInfo', (song){
+      print(song);
+      mediaLength = Duration(seconds: song['response']['duration'].toInt());
+      controller.add({'position': position, 'mediaLength': mediaLength});
+    });
+
+    Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      if (isPlaying && position + const Duration(milliseconds: 100) < mediaLength) {
+        position += const Duration(milliseconds: 100);
+        controller.add({'position': position, 'mediaLength': mediaLength});
+      }
+    });
+
+    return controller.stream;
   }
 }
