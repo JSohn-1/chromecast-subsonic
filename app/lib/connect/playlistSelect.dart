@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:toastification/toastification.dart';
 
 import '../constants.dart';
 
@@ -32,13 +33,21 @@ class _PlaylistSelectState extends State<PlaylistSelect> {
       });
     });
 
-    socket!.on('getPlaylistCoverURL', (data) {
-        print(data);
-
-        playlistCovers[data['id']] = (data['response']['url']);
-        if (playlistCovers.length == playlists.length) {
-          setState(() {});
-        }
+    socket!.on('playQueue', (data) {
+      if (data['status'] == 'error'){
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.fillColored,
+          title: const Text('Error selecting playlist'),
+          description: Text(data['response']),
+          alignment: Alignment.topCenter,
+          autoCloseDuration: const Duration(seconds: 4),
+          boxShadow: lowModeShadow,
+          showProgressBar: true,
+          dragToClose: true,
+        );
+      }
     });
   }
 
@@ -66,7 +75,7 @@ class _PlaylistSelectState extends State<PlaylistSelect> {
 }
 
 class PlaylistOpener extends StatelessWidget {
-  PlaylistOpener(
+  const PlaylistOpener(
       {super.key,
       required this.playlists,
       required this.playlistsCovers,
@@ -114,7 +123,7 @@ class PlaylistOpener extends StatelessWidget {
               );
             },
           );
-        });
+    });
   }
 }
 
@@ -124,8 +133,7 @@ class PlaylistItem extends StatelessWidget {
       required this.name,
       required this.onPressedPlay,
       required this.onPressedShuffle,
-      required this.onPressedRefresh
-  });
+      required this.onPressedRefresh});
 
   final String name;
   final VoidCallback onPressedPlay;
@@ -144,14 +152,13 @@ class PlaylistItem extends StatelessWidget {
             const Icon(Icons.list, color: Constants.secondaryColor, size: 50),
             const Padding(padding: EdgeInsets.all(5)),
             SizedBox(
-              width: MediaQuery.of(context).size.width > 400 ? 
-                100 : MediaQuery.of(context).size.width * 0.4,
+              width: MediaQuery.of(context).size.width > 400
+                  ? 100
+                  : MediaQuery.of(context).size.width * 0.4,
               child: Text(name,
-              overflow: TextOverflow.ellipsis,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    color: Constants.primaryTextColor, 
-                    fontSize: 15
-                  )),
+                      color: Constants.primaryTextColor, fontSize: 15)),
             ),
             const Spacer(flex: 1),
             PlaylistShuffleButton(onPressed: onPressedShuffle),

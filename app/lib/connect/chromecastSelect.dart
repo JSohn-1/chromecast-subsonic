@@ -41,11 +41,10 @@ class _ChromecastSelectState extends State<ChromecastSelect> {
           boxShadow: lowModeShadow,
           dragToClose: true,
         );
+        
       setState(() {
         chromecasts.add(data);
       });
-
-      
     });
 
     socket!.on('selectChromecast', (data) {

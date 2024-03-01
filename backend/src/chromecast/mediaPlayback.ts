@@ -292,9 +292,9 @@ export function seek(uuid: string, position: number, socket: eventEmitter) {
 	device.seek(position, (err) => {
 		if (err) {
 			console.error(err);
-			socket.emit('seek', { status: 'error', response: err });
+			socket.emit('seekTo', { status: 'error', response: err });
 		}
-		socket.emit('seek', { status: 'ok', response: 'seeked' });
+		socket.emit('seekTo', { status: 'ok', response: 'seeked' });
 	});
 }
 
