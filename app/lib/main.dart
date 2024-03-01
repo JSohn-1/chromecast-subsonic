@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import './connect/connect.dart';
-import 'package:audio_service/audio_service.dart';
-
-import 'globals.dart' as globals;
 
 void main() {
   runApp(const MyApp());
