@@ -35,7 +35,6 @@ export function play(client: Client, chromecastName: string, songId: string) {
 			.then((media: { url: string; cover: { title: string; url: string; }; }) => {
 				device.play(media, (err?: Error) => {
 					if (err) {
-						console.log(media.url);
 						console.error(err);
 						resolve(JSON.stringify(errorMessage(err)));
 					}
@@ -165,9 +164,6 @@ export function playQueueShuffle(client: Client, uuid: string, id: string, socke
 	Subsonic.queuePlaylistShuffle(id, device).then(() => {
 		const song = Subsonic.getCurrentSong(device);
 		Chromecast.play(device.friendlyName, song.id).then(() => {
-			if (song.id === '') {
-				console.log(song);
-			}
 			for (const key in selectedChromecasts) {
 				if(selectedChromecasts[key].device === device) {
 					selectedChromecasts[key].socket.emit('playQueue', { status: 'ok', response: song });
@@ -318,7 +314,6 @@ export function getStatus(client: Client, uuid: string, socket: eventEmitter) {
 				socket.emit('getStatus', { status: 'error', response: `${err.name}: ${err.message}` });
 				return;
 			}
-			console.log('time: ' + status?.currentTime?? 0 + ' duration: ' + status!.media?.duration?? 0);
 
 			const song = Subsonic.getCurrentSong(device);
 
