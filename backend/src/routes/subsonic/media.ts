@@ -21,6 +21,7 @@ const getSongInfo = (socket: Socket) => {
 			return;
 		}
 		Subsonic.getSongInfo(id).then((_) => {
+			console.log('total length: ' + _.response.duration);
 			socket.emit('getSongInfo', _);
 		});
 	});

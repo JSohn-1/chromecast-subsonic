@@ -151,24 +151,16 @@ class _PlayButtonState extends State<PlayButton> {
     super.initState();
     socket = widget.socket;
 
-    socket!.on('subscribe', (data) {
-      data = data['response']['chromecastStatus'];
-      if ((data['playerState'] == 'PLAYING') != isPlaying) {
-        setState(() {
-          isPlaying = data['playerState'] == 'PLAYING';
-        });
-      }
-    });
-
     socket!.on('getStatus', (data) {
       if (data['status'] == 'error') {
         isPlaying = false;
         return;
       }
-
-      if ((data['response']['playerState'] == 'PLAYING') != isPlaying) {
+      if ((data['response']['chromecastStatus']['playerState'] == 'PLAYING') != 
+        isPlaying) {
         setState(() {
-          isPlaying = data['response']['playerState'] == 'PLAYING';
+          isPlaying = 
+            data['response']['chromecastStatus']['playerState'] == 'PLAYING';
         });
       }
     });
@@ -280,69 +272,87 @@ class SeekBar extends StatefulWidget {
 
 class _SeekBarState extends State<SeekBar> {
   IO.Socket? socket;
+  
+  late StreamController<Map<String, Duration>> positionstream;
 
   @override
   void initState() {
     super.initState();
     socket = widget.socket;
+    positionstream = createPositionStream;
   }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-        stream: createPositionStream(socket!),
+        stream: positionstream.stream,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const CircularProgressIndicator();
+            return SizedBox(
+              width: MediaQuery.of(context).size.width * 0.9,
+              child: Slider(
+                activeColor: Constants.primaryColor, 
+                value: 0, 
+                max: 0, 
+                onChanged: (_) {}
+              ),
+            );
           }
 
-          final position = snapshot.data!['position'] ?? Duration.zero;
+          final Duration position = snapshot.data!['position'] ?? Duration.zero;
           final mediaLength = snapshot.data!['mediaLength'] ?? Duration.zero;
 
-          return Slider(
-            value: position.inMilliseconds.toDouble(),
-            max: mediaLength.inMilliseconds.toDouble(),
-            onChanged: (value) {
-              print(value);
-              // socket!.emit('seek', value);
-            },
-            onChangeEnd: (value) => socket!.emit('seek', value ~/ 1000),
+          return SizedBox(
+            width: MediaQuery.of(context).size.width * 0.9,
+            child: Slider(
+              activeColor: Constants.primaryColor,
+              value: position.inMilliseconds.toDouble(),
+              max: mediaLength.inMilliseconds.toDouble(),
+              onChanged: (value) {                
+                positionstream.add({
+                  'position': Duration(milliseconds: value.toInt()), 
+                  'mediaLength': mediaLength
+                });},
+              onChangeEnd: (value) {
+                socket!.emit('seek', value ~/ 1000);
+                positionstream.add({
+                  'position': Duration(milliseconds: value.toInt()), 
+                  'mediaLength': mediaLength
+                });
+              },
+            ),
           );
         });
   }
 
-  Stream<Map<String, Duration>> createPositionStream(IO.Socket socket) {
+  StreamController<Map<String, Duration>> get createPositionStream {
     final StreamController<Map<String, Duration>> controller =
         StreamController<Map<String, Duration>>();
     Duration position = Duration.zero;
     Duration mediaLength = Duration.zero;
     bool isPlaying = false;
 
-    socket.on('subscribe', (data) {
-      data = data['response']['chromecastStatus'];
-      isPlaying = data['playerState'] == 'PLAYING';
+    socket!.on('getSongInfo', (song) {
+      mediaLength = Duration(seconds: song['response']['duration'].toInt());
 
-      if (data['playerState'] == 'PLAYING') {
-        position = Duration(milliseconds: (data['currentTime'] * 1000).toInt());
-        controller.add({'position': position, 'mediaLength': mediaLength});
-      }
+      controller.add({'position': position, 'mediaLength': mediaLength});
     });
 
-    socket.on('getStatus', (data) {
+    socket!.on('getStatus', (data) {
       if (data['status'] == 'error') {
         return;
       }
+      isPlaying = 
+        data['response']['chromecastStatus']['playerState'] == 'PLAYING';
 
-      if (data['response']['playerState'] == 'PLAYING') {
+      if (isPlaying) {
         position = Duration(
-            milliseconds: (data['response']['currentTime'] * 1000).toInt());
+            milliseconds: 
+              (data['response']['chromecastStatus']['currentTime'] * 1000)
+              .toInt());
+
         controller.add({'position': position, 'mediaLength': mediaLength});
       }
-    });
-
-    socket.on('getSongInfo', (song) {
-      mediaLength = Duration(seconds: song['response']['duration'].toInt());
-      controller.add({'position': position, 'mediaLength': mediaLength});
     });
 
     Timer.periodic(const Duration(milliseconds: 100), (timer) {
@@ -353,6 +363,6 @@ class _SeekBarState extends State<SeekBar> {
       }
     });
 
-    return controller.stream;
+    return controller;
   }
 }
