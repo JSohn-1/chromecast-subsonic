@@ -28,7 +28,7 @@ const pause = (socket: Socket, uuid: string) => {
 
 const skip = (socket: Socket, uuid: string) => {
 	socket.on('skip', () => {
-		Chromecast.skip(uuid);
+		Chromecast.skip(uuid, socket);
 	});
 };
 

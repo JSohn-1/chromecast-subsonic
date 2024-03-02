@@ -14,7 +14,7 @@ export class Chromecast {
 	static resume(uuid: string) { return resume(this.client, uuid); }
 	static playQueue(uuid: string, id: string, socket: EventEmitter) { return playQueue(this.client, uuid, id, socket); }
 	static playQueueShuffle(uuid: string, id: string, socket: EventEmitter) { return playQueueShuffle(this.client, uuid, id, socket); }
-	static skip(uuid: string) { return skip(this.client, uuid); }
+	static skip(uuid: string, socket: EventEmitter) { return skip(this.client, uuid, socket); }
 	static previous(uuid: string, socket: EventEmitter) { return previous(this.client, uuid, socket); }
 	static getCurrentSong(uuid: string, socket: EventEmitter) { return getCurrentSong(this.client, uuid, socket); }
 	static selectChromecast(chromecastName: string, uuid: string, socket: EventEmitter) { return selectChromecast(this.client, chromecastName, uuid, socket); }

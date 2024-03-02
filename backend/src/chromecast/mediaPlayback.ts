@@ -185,14 +185,13 @@ export function playQueueShuffle(client: Client, uuid: string, id: string, socke
 	});
 }
 
-export function skip(client: Client, uuid: string) {
-	const device = selectedChromecasts[uuid].device;
-
-	if (!device) {
-		return new Promise((resolve) => {
-			resolve({ status: 'error', response: 'device not selected' });
-		});
+export function skip(client: Client, uuid: string, socket: eventEmitter) {
+	if (!selectedChromecasts[uuid]) {
+		socket.emit('playQueue', { status: 'error', response: 'device not selected' });
+		return;
 	}
+
+	const device = selectedChromecasts[uuid].device;
 
 	const song = Subsonic.startNextSong(device);
 	if (song.index === -1) {
@@ -209,21 +208,18 @@ export function skip(client: Client, uuid: string) {
 			selectedChromecasts[key].socket.emit('playQueue', { status: 'ok', response: song });
 		}
 	}
-
-	// socket.emit('playQueue', song);
-
 	return new Promise<string>((resolve) => {
 		resolve(JSON.stringify({ status: 'ok', response: { status: 'ok', response: song } }));
 	});
 }
 
 export function previous(client: Client, uuid: string, socket: eventEmitter) {
-	const device = selectedChromecasts[uuid].device;
-
-	if (!device) {
+	if (!selectedChromecasts[uuid]) {
 		socket.emit('playQueue', { status: 'error', response: 'device not selected' });
 		return;
 	}
+
+	const device = selectedChromecasts[uuid].device;
 
 	const song = Subsonic.startPreviousSong(device);
 
