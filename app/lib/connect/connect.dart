@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import 'config.dart';
@@ -19,11 +20,18 @@ class _MusicScreenState extends State<MusicScreen> {
   String artist = 'Artist';
   String albumArt = 'https://via.placeholder.com/250';
   String songId = '';
+  
+  String? chromecastName;
+
+  late final AppLifecycleListener _listener;
+  late AppLifecycleState? _state;
 
   @override
   void initState() {
     super.initState();
+    _state = SchedulerBinding.instance.lifecycleState;
     connectToServer();
+
   }
 
   void connectToServer() {
@@ -34,7 +42,22 @@ class _MusicScreenState extends State<MusicScreen> {
     socket!.connect();
     socket!.onConnect((_) {
       socket!.emit('getPlaylists');
+
+      _listener = AppLifecycleListener(
+        onResume: () {
+          if (chromecastName != null){
+            socket!.emit('selectChromecast', {'name': chromecastName});
+          }
+        },
+      );
+
     });
+
+      socket!.on('selectChromecast', (data) {
+        if (data['status'] == 'ok'){
+          chromecastName = data['name'];
+        }
+      });
 
     socket!.onConnectError(
         (data) => showErrorDialog(context, data.toString(), socket!));

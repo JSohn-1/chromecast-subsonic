@@ -51,6 +51,18 @@ class _ChromecastSelectState extends State<ChromecastSelect> {
       if (data['status'] == 'ok'){
         socket!.emit('getCurrentSong');
         socket!.emit('getStatus');
+      }else{
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.fillColored,
+          title: const Text('Error'),
+          description: Text('Error selecting Chromecast: ${data['response']}'),
+          alignment: Alignment.topCenter,
+          autoCloseDuration: const Duration(seconds: 4),
+          boxShadow: lowModeShadow,
+          dragToClose: true,
+        );
       }
     });
   }

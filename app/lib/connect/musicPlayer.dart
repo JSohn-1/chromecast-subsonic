@@ -308,11 +308,12 @@ class _SeekBarState extends State<SeekBar> {
               activeColor: Constants.primaryColor,
               value: position.inMilliseconds.toDouble(),
               max: mediaLength.inMilliseconds.toDouble(),
-              onChanged: (value) {                
+              onChanged: (value) {
                 positionstream.add({
                   'position': Duration(milliseconds: value.toInt()), 
                   'mediaLength': mediaLength
-                });},
+                });
+              },
               onChangeEnd: (value) {
                 socket!.emit('seek', value ~/ 1000);
                 positionstream.add({
