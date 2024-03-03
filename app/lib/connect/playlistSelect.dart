@@ -25,9 +25,6 @@ class _PlaylistSelectState extends State<PlaylistSelect> {
     socket!.emit('getPlaylists');
 
     socket!.on('getPlaylists', (data) {
-      for (var playlist in data['response']) {
-        socket!.emit('getPlaylistCoverURL', playlist['id']);
-      }
       setState(() {
         playlists = data['response'];
       });
