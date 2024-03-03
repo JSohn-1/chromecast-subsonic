@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import 'config.dart';
@@ -23,13 +22,9 @@ class _MusicScreenState extends State<MusicScreen> {
   
   String? chromecastName;
 
-  late final AppLifecycleListener _listener;
-  late AppLifecycleState? _state;
-
   @override
   void initState() {
     super.initState();
-    _state = SchedulerBinding.instance.lifecycleState;
     connectToServer();
 
   }
@@ -39,29 +34,18 @@ class _MusicScreenState extends State<MusicScreen> {
       'transports': ['websocket'],
       'autoConnect': false,
     });
+
     socket!.connect();
     socket!.onConnect((_) {
       socket!.emit('getPlaylists');
-
-      _listener = AppLifecycleListener(
-        onResume: () {
-          if (chromecastName != null){
-            socket!.emit('selectChromecast', chromecastName);
-          }
-        },
-        onStateChange: (state) {
-          _state = state;
-          
-          showErrorDialog(context, state.name, socket!);
-
-        },
-      );
-
+        if (chromecastName != null){
+          socket!.emit('selectChromecast', chromecastName);
+        }
     });
 
       socket!.on('selectChromecast', (data) {
         if (data['status'] == 'ok'){
-          chromecastName = data['name'];
+          chromecastName = data['response'];
         }
       });
 
@@ -95,6 +79,26 @@ void showErrorDialog(BuildContext context, String message, IO.Socket socket) {
           TextButton(
             onPressed: () {
               socket.connect();
+              Navigator.of(context).pop();
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void showState(BuildContext context, AppLifecycleState state, String text) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(state.name),
+        content: Text(text),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
               Navigator.of(context).pop();
             },
             child: const Text('OK'),
