@@ -44,12 +44,17 @@ class _MusicScreenState extends State<MusicScreen> {
       socket!.emit('getPlaylists');
 
       _listener = AppLifecycleListener(
-        onShow: () {
+        onResume: () {
           if (chromecastName != null){
             socket!.emit('selectChromecast', chromecastName);
           }
         },
-        onStateChange: (value) => _state = value,
+        onStateChange: (state) {
+          _state = state;
+          
+          showErrorDialog(context, state.name, socket!);
+
+        },
       );
 
     });

@@ -334,7 +334,9 @@ class _SeekBarState extends State<SeekBar> {
     bool isPlaying = false;
 
     socket!.on('getSongInfo', (song) {
+      position = Duration.zero;
       mediaLength = Duration(seconds: song['response']['duration'].toInt());
+      isPlaying = false;
 
       controller.add({'position': position, 'mediaLength': mediaLength});
     });
