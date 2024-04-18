@@ -275,6 +275,9 @@ class _SeekBarState extends State<SeekBar> {
   
   late StreamController<Map<String, Duration>> positionstream;
 
+  bool isUserDragging = false;
+  double changingSlider = 0;
+
   @override
   void initState() {
     super.initState();
@@ -287,20 +290,31 @@ class _SeekBarState extends State<SeekBar> {
     return StreamBuilder(
         stream: positionstream.stream,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+          final Duration position = snapshot.data?['position'] ?? Duration.zero;
+          final mediaLength = snapshot.data?['mediaLength'] ?? Duration.zero;
+
+          if (!snapshot.hasData || isUserDragging) {
             return SizedBox(
               width: MediaQuery.of(context).size.width * 0.9,
               child: Slider(
                 activeColor: Constants.primaryColor, 
-                value: 0, 
-                max: 0, 
-                onChanged: (_) {}
+                value: changingSlider, 
+                max: mediaLength.inMilliseconds.toDouble(), 
+                onChanged: (_) {
+                  changingSlider = _;
+                  setState(() {});
+                },
+                onChangeEnd: (_) {                
+                  isUserDragging = false;
+                  socket!.emit('seek', _ ~/ 1000);
+                  positionstream.add({
+                    'position': Duration(milliseconds: _.toInt()), 
+                    'mediaLength': mediaLength
+                  });
+                },
               ),
             );
           }
-
-          final Duration position = snapshot.data!['position'] ?? Duration.zero;
-          final mediaLength = snapshot.data!['mediaLength'] ?? Duration.zero;
 
           return SizedBox(
             width: MediaQuery.of(context).size.width * 0.9,
@@ -309,13 +323,8 @@ class _SeekBarState extends State<SeekBar> {
               value: position.inMilliseconds.toDouble(),
               max: mediaLength.inMilliseconds.toDouble(),
               onChanged: (value) {
-                positionstream.add({
-                  'position': Duration(milliseconds: value.toInt()), 
-                  'mediaLength': mediaLength
-                });
-              },
-              onChangeEnd: (value) {
-                socket!.emit('seek', value ~/ 1000);
+                isUserDragging = true;
+                changingSlider = value;
                 positionstream.add({
                   'position': Duration(milliseconds: value.toInt()), 
                   'mediaLength': mediaLength
