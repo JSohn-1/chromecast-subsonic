@@ -290,8 +290,10 @@ class _SeekBarState extends State<SeekBar> {
     return StreamBuilder(
         stream: positionstream.stream,
         builder: (context, snapshot) {
-          final Duration position = snapshot.data?['position'] ?? Duration.zero;
-          final mediaLength = snapshot.data?['mediaLength'] ?? Duration.zero;
+          Duration position = snapshot.data?['position'] ?? Duration.zero;
+          Duration mediaLength = snapshot.data?['mediaLength'] ?? Duration.zero;
+
+
 
           if (!snapshot.hasData || isUserDragging) {
             return SizedBox(
@@ -314,6 +316,10 @@ class _SeekBarState extends State<SeekBar> {
                 },
               ),
             );
+          }
+
+          if (position > mediaLength) {
+            position = mediaLength;
           }
 
           return SizedBox(
