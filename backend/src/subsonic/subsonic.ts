@@ -4,6 +4,7 @@ import md5 from 'md5';
 
 import config from '../../config.json';
 import { subsonicError, subsonicSong } from './types';
+import { Params } from 'subsonic-api';
 
 export interface Credentials {
 	username: string;
@@ -26,7 +27,7 @@ export class Subsonic {
 		this.password = password;
 	}
 
-	static generateURL(credentials: Credentials, method: string, data: Map<string, string>): string {
+	static generateURL(credentials: Credentials, method: string, data?: Params): string {
 		const salt: string = cryptoRandomString({ length: 10 });
 		const params: Map<string, string> = new Map();
 		params.set('u', credentials.username);
@@ -36,9 +37,11 @@ export class Subsonic {
 		params.set('c', 'subsonic-restful-api');
 		params.set('f', 'json');
 	
-		data.forEach((value, key) => {
-			params.set(key, value);
-		});
+		if (data) {
+			for (const [key, value] of Object.entries(data)) {
+				params.set(key, value as string);
+			}
+		}
 	
 		let url: string = `${config.subsonic.url}/rest/${method}?`;
 		params.forEach((value, key) => {
@@ -49,13 +52,11 @@ export class Subsonic {
 		return url;
 	}
 
-	async getSong(id: string) {
-		const data = new Map<string, string>();
-		data.set('id', id);
-		return this._requestHandler<subsonicError & {song: subsonicSong}>('getSong', data);
+	async getSong(args: { id: string }) {
+		return this._requestHandler<subsonicError & {song: subsonicSong}>('getSong', args);
 	}
 
-	async _requestHandler<T>(method: string, data: Map<string, string>): Promise<T> {
+	async _requestHandler<T>(method: string, data?: Params): Promise<T> {
 		const url: string = Subsonic.generateURL({username: this.username, password: this.password}, method, data);
 
 		const response = await fetch(url);
@@ -69,7 +70,7 @@ export class Subsonic {
 			return { success: false, error: 'already signed in' };
 		}
 
-		const response = await fetch(Subsonic.generateURL({ username, password }, 'ping', new Map()));
+		const response = await fetch(Subsonic.generateURL({ username, password }, 'ping'));
 		
 		try {
 			const data = await response.json();

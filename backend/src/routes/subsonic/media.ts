@@ -6,7 +6,7 @@ import { getMediaInfo } from '../../media/mediaInfo';
 
 const getSong = (socket: Socket, uuid: string) => {
 	socket.on('getSong', (id: string) => {
-		Subsonic.apis[uuid].getSong(id).then((_) => {
+		Subsonic.apis[uuid].getSong({id}).then((_) => {
 			socket.emit('getSong', _);
 		});
 	});

@@ -12,7 +12,7 @@ export async function getMediaInfo(uuid: string, id: string): Promise<Issue | Mu
 	if (!Subsonic.signedIn(uuid)) {
 		return ({ success: false, error: 'not signed in' } as Issue);
 	}
-	const response = await Subsonic.apis[uuid].getSong(id);
+	const response = await Subsonic.apis[uuid].getSong({id});
 	if (response.code !== undefined){
 		return ({ success: false, error: (response as subsonicError).message } as Issue);
 	}
