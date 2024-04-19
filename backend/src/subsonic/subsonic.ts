@@ -1,129 +1,101 @@
-/* eslint-disable no-magic-numbers */
-import { ping } from './ping';
-import { getPlaylists } from './getPlaylists';
-import { getPlaylist } from './getPlaylist';
-import { getSong } from './getSong';
-import { getSongInfo } from './getSongInfo';
-import { getPlaylistCoverURL } from './getPlaylistCoverURL';
+import fetch from 'node-fetch';
+import cryptoRandomString from 'crypto-random-string';
+import md5 from 'md5';
 
-import type Device = require('chromecast-api/lib/device');
+import config from '../../config.json';
+import { subsonicError, subsonicSong } from './types';
+
+export interface Credentials {
+	username: string;
+	password: string;
+}
+
+export interface Issue {
+	success: boolean;
+	error: string;
+}
 
 export class Subsonic {
-	static ping = ping;
-	static getPlaylists = getPlaylists;
-	static getPlaylist = getPlaylist;
-	static getSong = getSong;
-	static getSongInfo = getSongInfo;
-	static getPlaylistCoverURL = getPlaylistCoverURL;
+	static apis: { [uuid: string]: Subsonic } = {};
 
-	static serverQueue: { [deviceName: string]: {index: number, queue: string[]} } = {};
+	username: string;
+	password: string;
 
-	static queuePlaylist(id: string, device: Device) {
-		return new Promise((resolve) => {
-			getPlaylist(id).then((_) => {
-				const playlist = _;
-				const queue = {index: 0, queue: playlist.response.entry.map((song: { id: string }) => song.id)};
-				Subsonic.serverQueue[device.name] = queue;
-				resolve({status: 'ok', response: 'queued'});
-			});
+	constructor(username: string, password: string) {
+		this.username = username;
+		this.password = password;
+	}
+
+	static generateURL(credentials: Credentials, method: string, data: Map<string, string>): string {
+		const salt: string = cryptoRandomString({ length: 10 });
+		const params: Map<string, string> = new Map();
+		params.set('u', credentials.username);
+		params.set('t', md5(credentials.password + salt));
+		params.set('s', salt);
+		params.set('v', '1.16.1');
+		params.set('c', 'subsonic-restful-api');
+		params.set('f', 'json');
+	
+		data.forEach((value, key) => {
+			params.set(key, value);
 		});
-	}
-
-	static queuePlaylistShuffle(id: string, device: Device) {
-		return new Promise((resolve) => {
-			getPlaylist(id).then((_) => {
-				const playlist = _;
-				const queue = {index: 0, queue: playlist.response.entry.map((song: { id: string }) => song.id).sort(() => Math.random() - 0.5)};
-
-				Subsonic.serverQueue[device.name] = queue;
-				resolve({status: 'ok', response: 'queued'});
-			});
+	
+		let url: string = `${config.subsonic.url}/rest/${method}?`;
+		params.forEach((value, key) => {
+			url += key + '=' + value + '&';
 		});
+		url = url.slice(0, -1);
+	
+		return url;
 	}
 
-	static startNextSong(device: Device) {
-		const name = device.name;
-
-		if (!Subsonic.serverQueue[name]) {
-			return { id: '', index: -1 };
-		}
-
-		const queue = Subsonic.serverQueue[name].queue;
-		const index = Subsonic.serverQueue[name].index;
-
-		if (index < queue.length - 1) {
-			Subsonic.serverQueue[name].index++;
-			return { id: queue[Subsonic.serverQueue[name].index], index: Subsonic.serverQueue[name].index};
-		}
-
-		if (index === queue.length - 1) {
-			Subsonic.serverQueue[name].index = 0;
-			return { id: queue[0], index: 0 };
-		}
-
-		return { id: '', index: -1 };
+	async getSong(id: string) {
+		const data = new Map<string, string>();
+		data.set('id', id);
+		return this._requestHandler<subsonicError & {song: subsonicSong}>('getSong', data);
 	}
 
-	static startPreviousSong(device: Device) {
-		const name = device.name;
-		if (!Subsonic.serverQueue[name]) {
-			return { id: '', index: -1 };
-		}
+	async _requestHandler<T>(method: string, data: Map<string, string>): Promise<T> {
+		const url: string = Subsonic.generateURL({username: this.username, password: this.password}, method, data);
 
-		const queue = Subsonic.serverQueue[name].queue;
-		const index = Subsonic.serverQueue[name].index;
+		const response = await fetch(url);
+		const json = await response.json();
 
-		if (index > 0) {
-			Subsonic.serverQueue[name].index--;
-			return { id: queue[Subsonic.serverQueue[name].index], index: Subsonic.serverQueue[name].index};
-		}
-
-		if (index === 0) {
-			Subsonic.serverQueue[name].index = queue.length - 1;
-			return { id: queue[queue.length - 1], index: queue.length - 1 };
-		}
-
-		return { id: '', index: -1 };
+		return json['subsonic-response'];
 	}
 
-	static startSong(index: number, device: Device) {
-		const name = device.name;
-		const queue = Subsonic.serverQueue[name].queue;
-
-		if (index < queue.length) {
-			Subsonic.serverQueue[name].index = index;
-			return { id: queue[index], index: index };
+	static async login(uuid: string, username: string, password: string): Promise<Issue> {
+		if (this.apis[uuid] !== undefined) {
+			return { success: false, error: 'already signed in' };
 		}
 
-		return { id: '', index: -1 };
+		const response = await fetch(Subsonic.generateURL({ username, password }, 'ping', new Map()));
+		
+		try {
+			const data = await response.json();
+			if (data['subsonic-response'].status === 'ok') {
+				this.apis[uuid] = new Subsonic(username, password);
+				return { success: true, error: 'none' };
+			} else {
+				return { success: false, error: data.error?.message };
+			}
+		} catch (error: unknown) {
+			return { success: false, error: (error as Error ?? Error('unknown issue')).message };
+		}
 	}
 
-	static getCurrentSong(device: Device) {
-		const name = device.name;
-
-		if (!Subsonic.serverQueue[name]) {
-			return { id: '', index: -1 };
+	static logout(uuid: string): Issue {
+		if (this.apis[uuid] === undefined) {
+			return { success: false, error: 'not signed in' };
 		}
 
-		const queue = Subsonic.serverQueue[name].queue;
-		const index = Subsonic.serverQueue[name].index;
-		if (queue.length == 0){
-			return { id: '', index: -1 };
-		}
-
-		return { id: queue[index], index: index };
+		delete this.apis[uuid];
+		return { success: true, error: 'none'};
 	}
 
-	static getQueue(device: Device) {
-		const name = device.name;
+	// getSong(id: string){ return getSong({username: this.username, password: this.password}, id);}
 
-		if (!Subsonic.serverQueue[name]) {
-			return { queue: [], index: -1 };
-		}
-
-		const queue = Subsonic.serverQueue[name].queue;
-		const index = Subsonic.serverQueue[name].index;
-
-		return { queue: queue, index: index };
+	static signedIn(uuid: string): boolean {
+		return this.apis[uuid] !== undefined;
 	}
 }

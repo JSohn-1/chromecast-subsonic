@@ -1,16 +1,14 @@
-import { _requestHandler } from './entry';
+// import { generateURL } from './entry';
+// import { Credentials } from './subsonic';
 
-export function getPlaylist(id: string) {
-	const map = new Map<string, string>();
-	map.set('id', id);
+// import { subsonicError, subsonicSong } from './types';
 
-	return _requestHandler('getPlaylist', map).then((_) => {
-		const __ = JSON.parse(_);
-		if (__['subsonic-response']['status'] === 'ok') {
-			return { status: 'ok', response: __['subsonic-response']['playlist'] };
-		}
-		return { status: 'error', response: __['subsonic-response']['error']['message'] };
-	}).catch((err: string) => {
-		return { status: 'error', response: err };
-	});
-}
+// export async function getSong(credentials: Credentials, id: string): Promise<subsonicSong | subsonicError>{
+// 	const map = new Map<string, string>();
+// 	map.set('id', id);
+
+// 	const response = await fetch(generateURL(credentials, 'getPlaylist', map));
+// 	const json = await response.json();
+
+// 	return json;
+// }

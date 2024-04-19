@@ -1,16 +1,22 @@
-import { _requestHandler } from './entry';
+// import { generateURL } from './entry';
+// import { Credentials } from './subsonic';
 
-export function getSong(id: string) {
-	const map = new Map<string, string>();
-	map.set('id', id);
+// import { subsonicError, subsonicSong } from './types';
 
-	return _requestHandler('getSong', map).then((_) => {
-		const __ = JSON.parse(_);
-		if (__['subsonic-response'].status === 'ok') {
-			return JSON.stringify({ status: 'ok', response: __['subsonic-response']['song'] });
-		}
-		return JSON.stringify({ status: 'error', response: __['subsonic-response']['error']['message'] });
-	}).catch((err: string) => {
-		return JSON.stringify({ status: 'error', response: err });
-	});
-}
+// export async function getSong(credentials: Credentials, id: string): Promise<subsonicSong | subsonicError>{
+// 	const map = new Map<string, string>();
+// 	map.set('id', id);
+
+// 	const response = await fetch(generateURL(credentials, 'getSong', map));
+// 	const json = await response.json();
+
+// 	if ( json['subsonic-response'].status === 'ok') {
+// 		const data = await response.json();
+// 		return data;
+// 	}
+
+// 	return {
+// 		code: json['subsonic-response'].error.code,
+// 		message: json['subsonic-response'].error.message
+// 	};
+// }
