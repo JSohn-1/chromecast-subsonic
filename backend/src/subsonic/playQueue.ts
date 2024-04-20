@@ -4,10 +4,13 @@ import { Subsonic } from './subsonic';
 
 import { SubsonicPlaylistInfo, subsonicPlaylist, subsonicSong } from './types';
 
-export class playQueue{
+import { playbackMode } from './playback';
+
+export class PlayQueue{
 	
 	user: Subsonic;
 	userQueue: { index: number, queue: string[], playlist?: SubsonicPlaylistInfo };
+	mode: playbackMode = playbackMode.REPEAT;
 
 	constructor(user: Subsonic) {
 		this.user = user;
@@ -25,6 +28,10 @@ export class playQueue{
 		this.userQueue = {index: 0, queue: songs, playlist: {id: playlist.id, name: playlist.name}};
 	} 
 
+	addSong(songId: string) {
+		this.userQueue.queue.push(songId);
+	}
+
 	get nextSong() {
 		if (this.userQueue.index === -1) {
 			return { id: '', index: -1 };
@@ -38,7 +45,7 @@ export class playQueue{
 			return { id: queue[index + 1], index: index + 1};
 		}
 
-		if (index === queue.length - 1) {
+		if (index === queue.length - 1 && this.mode === playbackMode.LOOP) {
 			this.userQueue.index = 0;
 			return { id: queue[0], index: 0 };
 		}
