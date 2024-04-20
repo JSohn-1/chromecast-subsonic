@@ -3,7 +3,7 @@ export interface MusicInfo {
   artists: [string];
   album: string;
   year: number;
-  genre: [string];
+  genre: string;
   duration: number;
   id: string;
 }

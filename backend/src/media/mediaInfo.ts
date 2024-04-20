@@ -7,27 +7,31 @@ import config from '../../config.json';
 import { Subsonic, Issue } from '../subsonic/subsonic';
 
 import { subsonicError } from '../subsonic/types';
+import { SubsonicBaseResponse, Child } from 'subsonic-api';
+import { subsonicWrapper } from '../routes/subsonic/wrapper';
 
 export async function getMediaInfo(uuid: string, id: string): Promise<Issue | MusicInfo>{
 	if (!Subsonic.signedIn(uuid)) {
 		return ({ success: false, error: 'not signed in' } as Issue);
 	}
-	const response = await Subsonic.apis[uuid].getSong({id});
-	if (response.code !== undefined){
-		return ({ success: false, error: (response as subsonicError).message } as Issue);
+
+	const response = await Subsonic.apis[uuid].customJSON<SubsonicBaseResponse & {song: Child}>('getSong', {id});
+	if (response.status !== 'ok'){
+		return ({ success: false, error: "error retreiving file"});
 	}
 
-	const filePath = response.song.path;
+	// TODO: grab file location and find artists
+	// const filePath = response.song.path;
 
-	const musicFile = File.createFromPath(path.join(config.spotdl.directory, path.basename(filePath)));
+	// const musicFile = File.createFromPath(path.join(config.spotdl.directory, path.basename(filePath)));
 	
 	return { 
-		title: musicFile.tag.title,
-		artists: musicFile.tag.albumArtists,
-		album: musicFile.tag.album,
-		year: musicFile.tag.year,
-		genre: musicFile.tag.genres,
-		duration: musicFile.properties.durationMilliseconds,
+		title: response.song.title,
+		artists: [response.song.artist],
+		album: response.song.album,
+		year: response.song.year,
+		genre: response.song.genre,
+		duration: response.song.duration,
 		id: id
 	} as MusicInfo;
 }
