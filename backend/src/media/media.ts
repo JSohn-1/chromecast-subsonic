@@ -8,6 +8,10 @@ export interface MusicInfo {
   id: string;
 }
 
+export interface baseResponse {
+	success: boolean;
+}
+
 // class Media {
 
 // }

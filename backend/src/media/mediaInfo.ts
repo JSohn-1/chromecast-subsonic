@@ -1,23 +1,19 @@
-import { File } from 'node-taglib-sharp';
-import * as path from 'path';
+// import { File } from 'node-taglib-sharp';
+// import * as path from 'path';
 
-import { MusicInfo } from './media';
-import config from '../../config.json';
+// import { baseResponse, MusicInfo } from './media';
+// import config from '../../config.json';
 
-import { Subsonic, Issue } from '../subsonic/subsonic';
+import { Subsonic } from '../subsonic/subsonic';
 
-import { subsonicError } from '../subsonic/types';
-import { SubsonicBaseResponse, Child } from 'subsonic-api';
-import { subsonicWrapper } from '../routes/subsonic/wrapper';
-
-export async function getMediaInfo(uuid: string, id: string): Promise<Issue | MusicInfo>{
+export async function getMediaInfo(uuid: string, id: string) {
 	if (!Subsonic.signedIn(uuid)) {
-		return ({ success: false, error: 'not signed in' } as Issue);
+		return ({success: false, message: 'not signed in'});
 	}
 
-	const response = await Subsonic.apis[uuid].customJSON<SubsonicBaseResponse & {song: Child}>('getSong', {id});
-	if (response.status !== 'ok'){
-		return ({ success: false, error: "error retreiving file"});
+	const response = await Subsonic.apis[uuid].getSong({ id });
+	if (response.error){
+		return ({ success: false, message: response.error.message});
 	}
 
 	// TODO: grab file location and find artists
@@ -25,14 +21,19 @@ export async function getMediaInfo(uuid: string, id: string): Promise<Issue | Mu
 
 	// const musicFile = File.createFromPath(path.join(config.spotdl.directory, path.basename(filePath)));
 	
-	return { 
-		title: response.song.title,
-		artists: [response.song.artist],
-		album: response.song.album,
-		year: response.song.year,
-		genre: response.song.genre,
-		duration: response.song.duration,
-		id: id
-	} as MusicInfo;
+	const song = response.song!;
+
+	return {
+		success: true,
+		song: {
+			title: song.title,
+			artists: [song.artist],
+			album: song.album,
+			// year: response.song.year,
+			genre: song.genre,
+			duration: song.duration,
+			id: id
+		}
+	};
 }
 
