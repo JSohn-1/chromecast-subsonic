@@ -1,0 +1,23 @@
+import { EventEmitter } from 'events';
+
+export class Notify {
+	static users: { [username: string]: {uuid: string, socket: EventEmitter}[] } = {};
+
+	static newUser(username: string, uuid: string, socket: EventEmitter) {
+		if (this.users[username] === undefined) {
+			this.users[username] = [{ uuid, socket }];
+		} else {
+			this.users[username].push({ uuid, socket });
+		}
+
+		socket.on('disconnect', () => {
+			this.users[username] = this.users[username].filter((user) => user.uuid !== uuid);
+		});
+	}
+
+	static notifyUsers(user: string, event: string, message: object) {
+		for (const socket of this.users[user]) {
+			socket.socket.emit(event, message);
+		}
+	}
+}

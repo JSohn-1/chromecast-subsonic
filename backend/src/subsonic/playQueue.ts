@@ -28,7 +28,12 @@ export class PlayQueue{
 		this.userQueue = {index: 0, queue: songs, playlist: {id: playlist.id, name: playlist.name}};
 	} 
 
-	addSong(songId: string) {
+	addSong(songId: string, addToQueue?: boolean) {
+		if (!addToQueue) {
+			this.userQueue = {index: 0, queue: [songId]};
+			return;
+		}
+
 		this.userQueue.queue.push(songId);
 	}
 
