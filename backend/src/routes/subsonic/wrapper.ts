@@ -5,13 +5,16 @@ import { Socket } from 'socket.io';
 import { media } from './media';
 
 import { Subsonic } from '../../subsonic/subsonic';
+import { Notify } from '../../subsonic/notify';
 
 export const subsonicWrapper = (socket: Socket, uuid: string) => {
+	socket.on('login', async (username: string, password: string ) => {
+		const login = await Subsonic.login(uuid, username, password);
+		socket.emit('login', login);
 
-	socket.on('login', (username: string, password: string ) => {
-		Subsonic.login(uuid, username, password).then((_) => {
-			socket.emit('login', _);
-		});
+		if (login.success) {
+			Notify.newUser(username, uuid, socket);
+		}
 	});
 
 	socket.on('isSignedIn', () => {

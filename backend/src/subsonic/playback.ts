@@ -11,10 +11,19 @@ export enum playbackMode {
 }
 
 export class Playback {
+	static users: { [username: string]: {playback: Playback, api: Subsonic}} = {};
+
 	user: Subsonic;
 	playQueue: PlayQueue;
 	device?: Device;
 	mode: playbackMode = playbackMode.REPEAT;
+
+	static savePlayback(user: Subsonic) {
+		if (Playback.users[user.username]) {
+			return;
+		}
+		Playback.users[user.username] = { playback: new Playback(user), api: user };
+	}
 
 	constructor(user: Subsonic) {
 		this.user = user;

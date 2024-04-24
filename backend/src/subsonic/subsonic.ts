@@ -5,6 +5,7 @@ import md5 from 'md5';
 import config from '../../config.json';
 import { subsonicError, subsonicResponse, subsonicSong, subsonicPlaylist } from './types';
 import { Params } from 'subsonic-api';
+import { Playback } from './playback';
 
 // import { baseResponse } from '../media/media';
 
@@ -42,7 +43,10 @@ export class Subsonic {
 		try {
 			const data = await response.json();
 			if (data['subsonic-response'].status === 'ok') {
-				this.apis[uuid] = new Subsonic(username, password);
+				const api = new Subsonic(username, password);
+				this.apis[uuid] = api;
+				Playback.savePlayback(api);
+
 				return { success: true };
 			} else {
 				return { success: false, message: data.error?.message };
