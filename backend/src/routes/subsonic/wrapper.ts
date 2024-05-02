@@ -6,6 +6,7 @@ import { media } from './media';
 
 import { Subsonic } from '../../subsonic/subsonic';
 import { Notify } from '../../subsonic/notify';
+import { Playback } from '../../subsonic/playback';
 
 export const subsonicWrapper = (socket: Socket, uuid: string) => {
 	socket.on('login', async (username: string, password: string ) => {
@@ -14,6 +15,8 @@ export const subsonicWrapper = (socket: Socket, uuid: string) => {
 
 		if (login.success) {
 			Notify.newUser(username, uuid, socket);
+
+			Playback.savePlayback(Subsonic.apis[uuid]);
 		}
 	});
 

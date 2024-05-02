@@ -1,13 +1,7 @@
 import Device = require('chromecast-api/lib/device');
 
 export class chromecastDevice {
-	device: Device;
-
-	constructor(Device: Device) {
-		this.device = Device;
-	}
-
-	async play(title: string, mediaURL: string, coverURL: string) {
+	static async play(device: Device, title: string, mediaURL: string, coverURL: string) {
 		const media = {
 			url: mediaURL,
 			cover: {
@@ -16,7 +10,7 @@ export class chromecastDevice {
 			},
 		};
 		
-		this.device.play(media, (err?: Error) => {
+		device.play(media, (err?: Error) => {
 			if (err) {
 				return { status: 'error', response: `${err.name}: ${err.message}` };
 			}
@@ -24,13 +18,13 @@ export class chromecastDevice {
 		});
 	}
 
-	async pause() {
-		const response = await this.device.pause();
+	static async pause(device: Device) {
+		const response = await device.pause();
 		return response;
 	}
 
-	async resume(){
-		this.device.resume((err?: Error) => {
+	static async resume(device: Device){
+		device.resume((err?: Error) => {
 			if (!err) {
 				return { status: 'ok', response: 'resumed' };
 			}

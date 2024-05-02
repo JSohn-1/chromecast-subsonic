@@ -8,6 +8,7 @@ import { subsonicWrapper } from './subsonic/wrapper';
 
 export const eventHandler = (socket: Socket) => {
 	const uuid = uuidv4();
+	
 	console.log('a user connected: ' + uuid);
 
 	// socket.on('getMediaInfo', (id: string) => {
