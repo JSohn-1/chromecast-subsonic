@@ -1,7 +1,7 @@
 import { Subsonic } from './subsonic';
 import { PlayQueue } from './playQueue';
 import { Notify } from './notify';
-import { PlaybackLocation, playbackLocationType } from './playbackLocation';
+import { PlaybackLocation } from './playbackLocation';
 
 import Device from 'chromecast-api/lib/device';
 
@@ -40,67 +40,66 @@ export class Playback {
 
 		await this.playQueue.queuePlaylist(playlist, shuffle);
 
-		const song = await this.user.getSong({ id: this.playQueue.nextSong.id });
+		const song = this.playQueue.nextSong;
 
-		this.playbackLocation.play(song.song!.title, this.user.stream({ id: song.song!.id }).url, this.user.albumCover({ id: song.song!.id }).url);
+		this.playbackLocation.play(song.id);
 		
-		Notify.notifyUsers(this.user.username, 'playQueue',  song); 
+		Notify.notifyUsers(this.user.username, 'playQueue', { id: song.id });  
 
-		if (this.playbackLocation.type === playbackLocationType.CHROMECAST) {
-			const device = this.playbackLocation.device!;
+		// if (this.playbackLocation.type === playbackLocationType.CHROMECAST) {
+		// 	const device = this.playbackLocation.device!;
 			
-			device.on('finished', () => {
-				const song = this.playQueue.nextSong;
-				if(song.index === -1) {
-					device.removeAllListeners('finished');
-					Notify.notifyUsers(this.user.username, 'playQueue',  { id: '', index: -1 });
-					return;
-				}
-				device.play(this.user.stream({id: song.id }));
-				Notify.notifyUsers(this.user.username, 'playQueue',  song);
-			});
-		}
+		// 	device.on('finished', () => {
+		// 		const song = this.playQueue.nextSong;
+		// 		if(song.index === -1) {
+		// 			device.removeAllListeners('finished');
+		// 			Notify.notifyUsers(this.user.username, 'playQueue',  { id: '', index: -1 });
+		// 			return;
+		// 		}
+		// 		device.play(this.user.stream({id: song.id }));
+		// 		Notify.notifyUsers(this.user.username, 'playQueue',  song);
+		// 	});
+		// }
 	}
 
 	playSong(songId: string, addToQueue?: boolean) {
 		this.playQueue.addSong(songId, addToQueue);
 
 		const device = this.playbackLocation.device!;
+		const song = this.playQueue.nextSong;
 
-		if (device.listenerCount('finished') === 0) {
-			const song = this.playQueue.nextSong;
-			device.play(this.user.stream(song));
-			Notify.notifyUsers(this.user.username, 'playQueue',  song);
+		device.play(song.id);
+		Notify.notifyUsers(this.user.username, 'playQueue',  song);
 
-			device.on('finished', () => {
-				const song = this.playQueue.nextSong;
-				if(song.index === -1) {
-					device.removeAllListeners('finished');
-					Notify.notifyUsers(this.user.username, 'playQueue',  { id: '', index: -1 });
-					return;
-				}
-				device.play(this.user.stream({id: song.id }));
-				Notify.notifyUsers(this.user.username, 'playQueue',  song);
-			});
-		}
+		// device.on('finished', () => {
+		// 	const song = this.playQueue.nextSong;
+		// 	if(song.index === -1) {
+		// 		device.removeAllListeners('finished');
+		// 		Notify.notifyUsers(this.user.username, 'playQueue',  { id: '', index: -1 });
+		// 		return;
+		// 	}
+		// 	device.play(song.id);
+		// 	Notify.notifyUsers(this.user.username, 'playQueue',  song);
+		// });
+		
 	}
 
-	skip() {
+	next() {
 		const song = this.playQueue.nextSong;
 		const device = this.playbackLocation.device!;
 
 		if(song.index !== -1) {
-			device.play(this.user.stream(song));
+			device.play(song.id);
 			Notify.notifyUsers(this.user.username, 'playQueue',  song);
 		}
 	}
 
-	async previousSong() {
+	previous() {
 		const song = this.playQueue.previousSong;
 		const device = this.playbackLocation.device!;
 
 		if(song.index !== -1) {
-			device.play(this.user.stream(song));
+			device.play(song.id);
 			Notify.notifyUsers(this.user.username, 'playQueue',  song);
 		}
 	}

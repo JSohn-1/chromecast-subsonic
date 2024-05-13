@@ -9,17 +9,24 @@ export class chromecastDevice {
 				url: coverURL,
 			},
 		};
-		
-		device.play(media, (err?: Error) => {
+
+		let response: unknown = device.play(media, (err?: Error) => {
 			if (err) {
-				return { status: 'error', response: `${err.name}: ${err.message}` };
+				response = { status: 'error', response: `${err.name}: ${err.message}` };
 			}
-			return { status: 'ok', response: 'playing' };
+			response = { status: 'ok', response: 'playing' };
 		});
+
+		return response;
 	}
 
 	static async pause(device: Device) {
-		const response = await device.pause();
+		const response = device.pause((err?: Error) => {
+			if (err) {
+				return { status: 'error', response: `${err.name}: ${err.message}` };
+			}
+			return { status: 'ok', response: 'paused' };
+		});
 		return response;
 	}
 

@@ -3,6 +3,7 @@ import { Socket } from 'socket.io';
 import { Subsonic } from '../../subsonic/subsonic';
 
 import { getMediaInfo } from '../../media/mediaInfo';
+import { playlists } from './playlists';
 
 const getSong = (socket: Socket, uuid: string) => {
 	socket.on('getSong', (id: string) => {
@@ -35,5 +36,6 @@ const getSongInfo = (socket: Socket, uuid: string) => {
 export const media = (socket: Socket, uuid: string) => {
 	getSong(socket, uuid);
 	getSongInfo(socket, uuid);
+	playlists(uuid, socket);
 	// getSongInfo(socket);
 };

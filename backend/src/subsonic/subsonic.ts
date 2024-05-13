@@ -1,8 +1,10 @@
 import fetch from 'node-fetch';
 import cryptoRandomString from 'crypto-random-string';
 import md5 from 'md5';
+dotenv.config();
+import dotenv from 'dotenv';
 
-import config from '../../config.json';
+// import config from '../../config.json';
 import { subsonicError, subsonicResponse, subsonicSong, subsonicPlaylist } from './types';
 import { Params } from 'subsonic-api';
 import { Playback } from './playback';
@@ -108,7 +110,7 @@ export class Subsonic {
 			}
 		}
 		
-		let url: string = `${config.subsonic.url}/rest/${method}?`;
+		let url: string = `${process.env.SUBSONIC_URL}/rest/${method}?`;
 		params.forEach((value, key) => {
 			url += key + '=' + value + '&';
 		});
@@ -122,7 +124,7 @@ export class Subsonic {
 
 		const response = await fetch(url);
 		const json = await response.json();
-
+		
 		return json['subsonic-response'];
 	}
 }

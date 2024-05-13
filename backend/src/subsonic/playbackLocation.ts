@@ -1,5 +1,7 @@
 import Device = require('chromecast-api/lib/device');
-import { chromecastDevice } from './chromecastDevice';
+// import { chromecastDevice } from './chromecastDevice';
+import { Local } from './local';
+// import { playback } from '../routes/subsonic/playback';
 
 export enum playbackLocationType {
 	LOCAL = 'LOCAL',
@@ -7,11 +9,11 @@ export enum playbackLocationType {
 }
 
 export class PlaybackLocation {
-	type: playbackLocationType;
-	device: Device | undefined;
+	type: playbackLocationType | undefined;
+	device: Device | Local | undefined;
 
-	constructor(playbackLocation: Device | undefined) {
-		this.type = playbackLocation ? playbackLocationType.CHROMECAST : playbackLocationType.LOCAL;
+	constructor(playbackLocation: Device | Local  | undefined) {
+		this.type = playbackLocation instanceof Device ? playbackLocationType.CHROMECAST : playbackLocation instanceof Local ? playbackLocationType.LOCAL : undefined;
 		this.device = playbackLocation;
 
 		if (playbackLocation instanceof Device) {
@@ -22,27 +24,25 @@ export class PlaybackLocation {
 		}
 	}
 
-	async play(title: string, mediaURL: string, coverURL: string) {
+	async play(id: string) {
 		if (!this.device) {
 			throw new Error('No device connected');
 		}
 
-		return chromecastDevice.play(this.device, title, mediaURL, coverURL);
+		this.device.play(id);
 	}
 
 	async pause() {
 		if (!this.device) {
 			throw new Error('No device connected');
 		}
-
-		return chromecastDevice.pause(this.device);
+		this.device.pause();
 	}
 
 	async resume() {
 		if (!this.device) {
 			throw new Error('No device connected');
 		}
-
-		return chromecastDevice.resume(this.device);
+		this.device.resume();
 	}
 }
