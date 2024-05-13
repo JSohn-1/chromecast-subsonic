@@ -7,7 +7,7 @@ import { Subsonic } from '../subsonic/subsonic';
 const middleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
 	// Check if the uuid is authenticated.
 
-	if (typeof req.query.uuid == 'string' && !Subsonic.signedIn(req.query.uuid)) {
+	if (req.query.uuid && typeof req.query.uuid == 'string' && !Subsonic.signedIn(req.query.uuid)) {
 		// eslint-disable-next-line no-magic-numbers
 		res.status(401).send({ message: 'Unauthorized, uuid must be provided as a parameter and you must be signed in' });
 		return;
@@ -49,6 +49,12 @@ export const subsonicRoutes = (app: express.Application) => {
 	});
 
 	app.get('/subsonic/stream', (req, res) => {
+		if (!req.query.id) {
+			// eslint-disable-next-line no-magic-numbers
+			res.status(400).send({ message: 'id must be provided as a parameter' });
+			return;
+		}
+
 		const SubsonicClient = Subsonic.apis[req.query.uuid as string];
 		const streamURL = SubsonicClient.stream({ id: req.query.id as string }).url;	
 
@@ -56,6 +62,12 @@ export const subsonicRoutes = (app: express.Application) => {
 	});
 
 	app.get('/subsonic/cover', (req, res) => {
+		if (!req.query.id) {
+			// eslint-disable-next-line no-magic-numbers
+			res.status(400).send({ message: 'id must be provided as a parameter' });
+			return;
+		}
+		
 		const SubsonicClient = Subsonic.apis[req.query.uuid as string];
 		const coverURL = SubsonicClient.albumCover({ id: req.query.id as string }).url;
 

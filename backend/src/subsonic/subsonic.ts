@@ -1,8 +1,8 @@
 import fetch from 'node-fetch';
 import cryptoRandomString from 'crypto-random-string';
 import md5 from 'md5';
-dotenv.config();
 import dotenv from 'dotenv';
+dotenv.config();
 
 // import config from '../../config.json';
 import { subsonicError, subsonicResponse, subsonicSong, subsonicPlaylist } from './types';
