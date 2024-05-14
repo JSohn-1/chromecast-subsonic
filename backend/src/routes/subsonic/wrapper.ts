@@ -19,6 +19,11 @@ export const subsonicWrapper = (socket: Socket, uuid: string) => {
 			Notify.newUser(username, uuid, socket);
 
 			Playback.savePlayback(Subsonic.apis[uuid]);
+
+			socket.on('disconnect', () => {
+				Subsonic.logout(uuid);
+				Notify.removeUser(uuid);
+			});
 		}
 	});
 

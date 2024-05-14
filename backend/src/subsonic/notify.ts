@@ -15,6 +15,12 @@ export class Notify {
 		});
 	}
 
+	static removeUser(uuid: string) {
+		for (const user in this.users) {
+			this.users[user] = this.users[user].filter((user) => user.uuid !== uuid);
+		}
+	}
+
 	static notifyUsers(user: string, event: string, message: object) {
 		for (const socket of this.users[user]) {
 			socket.socket.emit(event, message);

@@ -17,6 +17,8 @@ export const eventHandler = (socket: Socket) => {
 	// 	});
 	// });
 
+	socket.emit('uuid', { uuid });
+
 	socket.on('disconnect', () => {
 		// Chromecast.clearListener(uuid);
 		console.log('a user disconnected');
