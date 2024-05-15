@@ -94,6 +94,10 @@ export class Subsonic {
 		return { url: Subsonic._generateURL({ username: this.username, password: this.password }, 'getCoverArt', args) };
 	}
 
+	_generateURL(method: string, data?: Params): string {
+		return Subsonic._generateURL({ username: this.username, password: this.password }, method, data);
+	}
+
 	static _generateURL(credentials: Credentials, method: string, data?: Params): string {
 		const salt: string = cryptoRandomString({ length: 10 });
 		const params: Map<string, string> = new Map();

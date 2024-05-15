@@ -18,19 +18,23 @@ class Login extends StatelessWidget {
 
     // Send domain, username, and password to the server
     void sendCredentials() async {
+      if (domainController.text.isEmpty || usernameController.text.isEmpty || passwordController.text.isEmpty) {
+        return;
+      }
+
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return const AlertDialog(
-        title: Text('Connecting'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Connecting to server...'),
-          ],
-        ),
+            title: Text('Connecting'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Connecting to server...'),
+              ],
+            ),
           );
         },
       );
@@ -44,16 +48,14 @@ class Login extends StatelessWidget {
       final socket = socketService.socket;
 
       socket.onConnect( (_) async {
-        print('Connected to server!');
         final result = await http.post(
           Uri.parse('$domain/subsonic/login?&uuid=${socket.id}&username=$username&password=$password'),
         );
 
-        print(result);
-
         Navigator.pop(context);
 
         if (result.statusCode != 200) {
+          socketService.disposeSocketConnection();
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -77,45 +79,7 @@ class Login extends StatelessWidget {
             MaterialPageRoute(builder: (context) => const Player()),
           );
         }
-    });
-
-      
-
-      // socket.on('connect', (_) {
-      //   socket.emit('login', [username, password]);
-      // });
-
-      // socket.on('login', (data) {
-      //   Navigator.pop(context);
-      //   if (data['success']) {
-      //     Navigator.push(
-      //       context,
-      //       MaterialPageRoute(builder: (context) => const Player()),
-      //     );
-      //   } else {
-      //     socketService.disposeSocketConnection();
-      //     socket.off('connect');
-      //     socket.off('login');
-
-      //     showDialog(
-      //       context: context,
-      //       builder: (BuildContext context) {
-      //         return AlertDialog(
-      //           title: const Text('Login Failed'),
-      //           content: const Text('Invalid username or password'),
-      //           actions: <Widget>[
-      //             TextButton(
-      //               onPressed: () {
-      //                 Navigator.of(context, rootNavigator: true).pop(true);
-      //               },
-      //               child: const Text('OK'),
-      //             ),
-      //           ],
-      //         );
-      //       },
-      //     );
-      //   }
-      // });
+      });
     }
 
     return Scaffold(

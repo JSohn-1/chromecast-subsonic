@@ -88,7 +88,6 @@ class SongSelectButton extends StatelessWidget {
             // Create the music player using the stream URL
             // TODO: Implement the music player
             await player.setUrl(streamUrl);
-            print(streamUrl);
             player.play();
           }
         });

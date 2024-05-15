@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class SocketService with ChangeNotifier {
   late IO.Socket _socket;
@@ -15,10 +16,6 @@ class SocketService with ChangeNotifier {
       'autoConnect': false,
     });
 
-    _socket.on('uuid', (_) {
-      _uuid = _['uuid'];
-    });
-
     _socket.connect();
 
     notifyListeners();
@@ -30,7 +27,7 @@ class SocketService with ChangeNotifier {
 }
 
 class PersistentData {
-  static Future<void> login() async {
+  static Future<bool> login() async {
     final prefs = await SharedPreferences.getInstance();
 
     final String? domain = prefs.getString('domain');
@@ -43,14 +40,29 @@ class PersistentData {
 
       final socket = socketService.socket;
 
-      socket.on('login', (_) {
-        
+      socket.onConnect((_) async {
+        final result = await http.post(
+          Uri.parse('$domain/subsonic/login?&uuid=${socket.id}&username=$username&password=$password'),
+        );
+
+        if (result.statusCode == 200) {
+          return true;
+        } else {
+          socketService.disposeSocketConnection();
+          return false;
+        }
       });
 
-      socket.emit('login', {
-        'username': username,
-        'password': password,
+      socket.onConnectError((_) {
+        socketService.disposeSocketConnection();
+        return false;
       });
+
+      await Future.delayed(const Duration(seconds: 5)); // Wait for 5 seconds
+
+      socketService.disposeSocketConnection();
+      return false;
     }
+    return false;
   }
 }

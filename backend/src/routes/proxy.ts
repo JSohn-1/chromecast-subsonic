@@ -17,7 +17,7 @@ const middleware = (req: express.Request, res: express.Response, next: express.N
 		return;
 	}
 
-	if (req.query.uuid && typeof req.query.uuid == 'string' && !Subsonic.signedIn(req.query.uuid)) {
+	if (typeof req.query.uuid == 'string' && !Subsonic.signedIn(req.query.uuid)) {
 		// eslint-disable-next-line no-magic-numbers
 		res.status(401).send({ message: 'Unauthorized, you must be signed in' });
 		return;
@@ -110,5 +110,15 @@ export const subsonicRoutes = (app: express.Application) => {
 		const coverURL = SubsonicClient.albumCover({ id: req.query.id as string }).url;
 
 		proxy(res, coverURL);
+	});
+
+	app.get('/subsonic', (req, res) => {
+		const SubsonicClient = Subsonic.apis[req.query.uuid as string];
+		const method = req.query.method as string;
+		const args = { ...req.query as { [key: string]: string | number }};
+		delete args.uuid;
+		delete args.method;
+
+		proxy(res, SubsonicClient._generateURL(method, { ...args}));
 	});
 };
