@@ -1,15 +1,25 @@
 import express from 'express';
 import fetch from 'node-fetch';
+import cors from 'cors';
 // import httpProxy from 'http-proxy';
 
 import { Subsonic } from '../subsonic/subsonic';
+import { Notify } from '../subsonic/notify';
+import { Playback } from '../subsonic/playback';
+import { Sockets } from './eventHandler';
 
 const middleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
 	// Check if the uuid is authenticated.
 
+	if (!req.query.uuid || typeof req.query.uuid !== 'string') {
+		// eslint-disable-next-line no-magic-numbers
+		res.status(400).send({ message: 'uuid must be provided as a parameter' });
+		return;
+	}
+
 	if (req.query.uuid && typeof req.query.uuid == 'string' && !Subsonic.signedIn(req.query.uuid)) {
 		// eslint-disable-next-line no-magic-numbers
-		res.status(401).send({ message: 'Unauthorized, uuid must be provided as a parameter and you must be signed in' });
+		res.status(401).send({ message: 'Unauthorized, you must be signed in' });
 		return;
 	}
 
@@ -42,9 +52,37 @@ const proxy = (res: express.Response, target: string) => {
 // Args: The arguments for the method.
 
 export const subsonicRoutes = (app: express.Application) => {
+	app.use(cors());
+
+	app.post('/subsonic/login', async (req, res) => {
+		if (!req.query.uuid || !req.query.username || !req.query.password) {
+			// eslint-disable-next-line no-magic-numbers
+			res.status(400).send({ message: 'username and password must be provided' });
+			return;
+		}
+
+		const response = await Subsonic.login(req.query.uuid as string, req.query.username as string, req.query.password as string);
+
+		if (response.success) {
+			Notify.newUser(req.query.username as string, req.query.uuid as string, Sockets.sockets[req.query.uuid as string]);
+
+			Playback.savePlayback(Subsonic.apis[req.query.uuid as string]);
+		}
+
+		res.status(response.success ? 
+			// eslint-disable-next-line no-magic-numbers
+			200 : 401
+		).send(response);
+	});
+
 	app.use(middleware);
 
 	app.get('/subsonic/ping', (req, res) => {
+		if (Subsonic.signedIn(req.query.uuid as string) === false) {
+			// eslint-disable-next-line no-magic-numbers
+			res.status(403).send({ message: 'Unauthorized, you must be signed in' });
+			return;
+		}
 		res.send({ message: 'pong' });
 	});
 

@@ -132,3 +132,4 @@ dist
 src/helper/constants.ts
 config.json
 app/lib/config.dart
+app/test/config.dart

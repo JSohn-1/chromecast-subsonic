@@ -18,7 +18,7 @@ class Player extends StatelessWidget {
     String getStreamUrl(String id) {
       final socket = socketService.socket;
 
-      return '${socket.io.uri}/subsonic/stream?id=$id&uuid=${socketService.uuid}';
+      return '${socket.io.uri}/subsonic/stream?id=$id&uuid=${socket.id}';
     }
 
     return Scaffold(
@@ -28,55 +28,72 @@ class Player extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
-            ElevatedButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text('Enter Song ID'),
-                      content: TextField(
-                        onChanged: (value) {
-                          // Store the entered song ID
-                          String songId = value;
-                          Navigator.pop(context, songId);
-                        },
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            // Use a default song ID if none is entered
-                            String songId = 'default_song_id';
-                            Navigator.pop(context, songId);
-                          },
-                          child: Text('OK'),
-                        ),
-                      ],
-                    );
-                  },
-                ).then((songId) async {
-                  // Use the entered song ID to create the music player
-                  if (songId != null) {
-                    String streamUrl = getStreamUrl(songId);
-                    // Create the music player using the stream URL
-                    // TODO: Implement the music player
-                    await player.setUrl(streamUrl);
-                    player.play();
-                  }
-                });
-              },
-              child: Text('Select Song'),
-            ),
+            SongSelectButton(player: player, getStreamUrl: getStreamUrl),
             PlayButton(player: player),
           ],
         ),
       ),
+    );
+  }
+}
+
+class SongSelectButton extends StatelessWidget {
+  const SongSelectButton({
+    super.key,
+    required this.player,
+    required this.getStreamUrl,
+  });
+
+  final AudioPlayer player;
+  final String Function(String) getStreamUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Enter Song ID'),
+              content: TextField(
+                onChanged: (value) {
+                  // Store the entered song ID
+                  String songId = value;
+                  Navigator.pop(context, songId);
+                },
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    // Use a default song ID if none is entered
+                    String songId = 'default_song_id';
+                    Navigator.pop(context, songId);
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        ).then((songId) async {
+          // Use the entered song ID to create the music player
+          if (songId != null) {
+            String streamUrl = getStreamUrl(songId);
+            // Create the music player using the stream URL
+            // TODO: Implement the music player
+            await player.setUrl(streamUrl);
+            print(streamUrl);
+            player.play();
+          }
+        });
+      },
+      child: Text('Select Song'),
     );
   }
 }
@@ -113,8 +130,6 @@ class _PlayButtonState extends State<PlayButton> {
 
   @override
   Widget build(BuildContext context) {
-
-
     return ElevatedButton(
       onPressed: () {
         if (playing) {

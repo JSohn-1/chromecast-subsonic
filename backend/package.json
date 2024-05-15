@@ -39,7 +39,8 @@
 		"socket.io": "^4.7.4",
 		"sqlite": "^5.1.1",
 		"subsonic-api": "^2.0.2",
-		"uuid": "^9.0.1"
+		"uuid": "^9.0.1",
+		"cors": "^2.8.5"
 	},
 	"peerDependencies": {
 		"typescript": "^5.0.0"
