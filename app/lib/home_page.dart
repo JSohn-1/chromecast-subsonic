@@ -55,10 +55,28 @@ class SearchScreen extends StatelessWidget {
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
 
-  @override
+  @override 
   Widget build(BuildContext context) {
-    return Column(
+    return Stack(
       children: [
+        Column(
+          children: [
+            const Padding(padding: EdgeInsets.only(top: 70)),
+            SizedBox(
+              height: MediaQuery.of(context).size.height - 140,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.red),
+                    Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.blue),
+                    Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.green),
+                    Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.purple),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
         Positioned(
           top: 0, 
           child: Container(
@@ -80,20 +98,6 @@ class MenuScreen extends StatelessWidget {
             ),
           )
         ),
-        SizedBox(
-          height: MediaQuery.of(context).size.height - 140,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.red),
-                Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.blue),
-                Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.green),
-                Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.purple),
-              ],
-            ),
-          ),
-        ),
-        
       ],
     );
   }

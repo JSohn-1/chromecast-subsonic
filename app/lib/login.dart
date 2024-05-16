@@ -1,3 +1,4 @@
+import 'package:app/home_page.dart';
 import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -74,9 +75,10 @@ class Login extends StatelessWidget {
             },
           );
         } else {
+          await PersistentData.saveLogin(domain, username, password);
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const Player()),
+            MaterialPageRoute(builder: (context) => const HomePage()),
           );
         }
       });

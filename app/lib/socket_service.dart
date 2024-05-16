@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,6 +19,10 @@ class SocketService with ChangeNotifier {
     });
 
     _socket.connect();
+
+    _socket.onConnect((_) {
+      notifyListeners();
+    });
 
     notifyListeners();
   }
@@ -40,29 +46,43 @@ class PersistentData {
 
       final socket = socketService.socket;
 
-      socket.onConnect((_) async {
-        final result = await http.post(
-          Uri.parse('$domain/subsonic/login?&uuid=${socket.id}&username=$username&password=$password'),
-        );
+      final Completer<int> completer = Completer<int>();
 
-        if (result.statusCode == 200) {
-          return true;
-        } else {
-          socketService.disposeSocketConnection();
-          return false;
-        }
+      socket.onConnect((_) async {
+        completer.complete(0);
+        socket.off('connect');
       });
 
       socket.onConnectError((_) {
         socketService.disposeSocketConnection();
-        return false;
       });
 
-      await Future.delayed(const Duration(seconds: 5)); // Wait for 5 seconds
+      final result = await Future.any([completer.future, Future.delayed(const Duration(seconds: 5), () => 1)]);
 
-      socketService.disposeSocketConnection();
-      return false;
+      if (result == 1) {
+        socketService.disposeSocketConnection();
+        return false;
+      }
+
+      final res = await http.post(
+        Uri.parse('$domain/subsonic/login?&uuid=${socket.id}&username=$username&password=$password'),
+      );
+
+      if (res.statusCode == 200) {
+        return true;
+      } else {
+
+        socketService.disposeSocketConnection();
+        return false;
+      }
     }
     return false;
+  }
+
+  static Future<void> saveLogin(String domain, String username, String password) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('domain', domain);
+    await prefs.setString('username', username);
+    await prefs.setString('password', password);
   }
 }

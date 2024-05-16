@@ -6,8 +6,6 @@ import 'login.dart';
 import 'home_page.dart';
 
 void main() {
-
-
   runApp(ChangeNotifierProvider(
       create: (context) => SocketService(),
       child: const MyApp()
@@ -26,7 +24,22 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // home: const Login(),
-      home: const HomePage(),
+      home: FutureBuilder<bool>(
+        future: PersistentData.login(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            if (snapshot.data ?? false) {
+              return const HomePage();
+            } else {
+              return const Login();
+            }
+          } else if (snapshot.hasError) {
+        return const Text('Error');
+          } else {
+        return const CircularProgressIndicator();
+          }
+        },
+      ),
     );
   }
 }

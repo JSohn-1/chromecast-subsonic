@@ -43,6 +43,10 @@ const proxy = (res: express.Response, target: string) => {
 		});
 
 		response.body?.pipe(res);
+
+		response.body?.on('end', () => {
+			res.end();
+		});
 	});
 };
 
@@ -119,6 +123,13 @@ export const subsonicRoutes = (app: express.Application) => {
 		delete args.uuid;
 		delete args.method;
 
-		proxy(res, SubsonicClient._generateURL(method, { ...args}));
+		const url = SubsonicClient._generateURL(method, { ...args });
+
+		console.log(url);
+
+		fetch(url).then(async (response) => {
+			const data = await response.json();
+			res.send(data);
+		});
 	});
 };
