@@ -12,11 +12,10 @@ class Player extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final socketService = Provider.of<SocketService>(context);
     final player = AudioPlayer();
 
     String getStreamUrl(String id) {
-      final socket = socketService.socket;
+      final socket = SocketService.socket;
 
       return '${socket.io.uri}/subsonic/stream?id=$id&uuid=${socket.id}';
     }

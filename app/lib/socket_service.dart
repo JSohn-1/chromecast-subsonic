@@ -5,29 +5,41 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
-class SocketService with ChangeNotifier {
-  late IO.Socket _socket;
-  late String _uuid;
+class SocketService {
+  static late IO.Socket _socket;
 
-  IO.Socket get socket => _socket;
-  String get uuid => _uuid;
+  static IO.Socket get socket => _socket;
 
-  createSocketConnection(String domain) async {
+  static Future<bool> createSocketConnection(String domain) async {
     _socket = IO.io(domain, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
     });
 
-    _socket.connect();
+    final Completer<int> completer = Completer<int>();
 
     _socket.onConnect((_) {
-      notifyListeners();
+      completer.complete(0);
     });
 
-    notifyListeners();
+    _socket.onConnectError((_) {
+      completer.complete(1);
+    });
+
+    _socket.connect();
+
+    final result = await Future.any([completer.future, Future.delayed(const Duration(seconds: 5), () => 1)]);
+
+    if (result == 1) {
+      disposeSocketConnection();
+      return false;
+    }
+
+    return true;
+
   }
 
-  void disposeSocketConnection() {
+  static void disposeSocketConnection() {
     if (_socket.connected) _socket.disconnect();
   }
 }
@@ -41,10 +53,9 @@ class PersistentData {
     final String? password = prefs.getString('password');
 
     if (domain != null && username != null && password != null) {
-      final socketService = SocketService();
-      socketService.createSocketConnection(domain);
+      SocketService.createSocketConnection(domain);
 
-      final socket = socketService.socket;
+      final socket = SocketService.socket;
 
       final Completer<int> completer = Completer<int>();
 
@@ -54,13 +65,14 @@ class PersistentData {
       });
 
       socket.onConnectError((_) {
-        socketService.disposeSocketConnection();
+        SocketService.disposeSocketConnection();
       });
 
       final result = await Future.any([completer.future, Future.delayed(const Duration(seconds: 5), () => 1)]);
 
       if (result == 1) {
-        socketService.disposeSocketConnection();
+        print('Failed to connect to server');
+        SocketService.disposeSocketConnection();
         return false;
       }
 
@@ -69,10 +81,11 @@ class PersistentData {
       );
 
       if (res.statusCode == 200) {
+        // print(socketService.socket.id);
         return true;
       } else {
 
-        socketService.disposeSocketConnection();
+        SocketService.disposeSocketConnection();
         return false;
       }
     }

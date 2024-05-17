@@ -1,3 +1,4 @@
+import 'package:app/playlist_menu.dart';
 import 'package:flutter/material.dart';
 
 enum Screen { search, menu, playlists, settings }
@@ -22,7 +23,7 @@ class _HomePageState extends State<HomePage> {
       child: Stack(children: [
         if (screen == Screen.search) const SearchScreen(),
         if (screen == Screen.menu) const MenuScreen(),
-        if (screen == Screen.playlists) const PlaylistsScreen(),
+        if (screen == Screen.playlists) const PlaylistMenu(),
         if (screen == Screen.settings) const SettingsScreen(),
         Positioned(bottom: 0, child: NavigatorBar(changeMenu: changeScreen)),
       ],
@@ -64,6 +65,7 @@ class MenuScreen extends StatelessWidget {
             const Padding(padding: EdgeInsets.only(top: 70)),
             SizedBox(
               height: MediaQuery.of(context).size.height - 140,
+              width: MediaQuery.of(context).size.width,
               child: SingleChildScrollView(
                 child: Column(
                   children: [
@@ -99,21 +101,6 @@ class MenuScreen extends StatelessWidget {
           )
         ),
       ],
-    );
-  }
-}
-
-class PlaylistsScreen extends StatelessWidget {
-  const PlaylistsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const SingleChildScrollView(
-      child: Column(
-        children: [
-          Text('Playlists'),
-        ],
-      ),
     );
   }
 }

@@ -6,10 +6,8 @@ import 'login.dart';
 import 'home_page.dart';
 
 void main() {
-  runApp(ChangeNotifierProvider(
-      create: (context) => SocketService(),
-      child: const MyApp()
-    )
+  runApp(
+    const MyApp()
   );
 }
 
@@ -29,6 +27,7 @@ class MyApp extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             if (snapshot.data ?? false) {
+              print(snapshot.data);
               return const HomePage();
             } else {
               return const Login();

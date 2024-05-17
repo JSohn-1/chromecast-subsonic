@@ -12,7 +12,6 @@ class Login extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final socketService = Provider.of<SocketService>(context, listen: false);
     final TextEditingController domainController = TextEditingController();
     final TextEditingController usernameController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
@@ -44,9 +43,9 @@ class Login extends StatelessWidget {
       final username = usernameController.text;
       final password = passwordController.text;
 
-      socketService.createSocketConnection(domain);
+      SocketService.createSocketConnection(domain);
 
-      final socket = socketService.socket;
+      final socket = SocketService.socket;
 
       socket.onConnect( (_) async {
         final result = await http.post(
@@ -56,7 +55,7 @@ class Login extends StatelessWidget {
         Navigator.pop(context);
 
         if (result.statusCode != 200) {
-          socketService.disposeSocketConnection();
+          SocketService.disposeSocketConnection();
           showDialog(
             context: context,
             builder: (BuildContext context) {
