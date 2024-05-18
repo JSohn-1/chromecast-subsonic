@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:ui';
 
 import 'package:app/interfaces/playlist.dart';
+import 'package:app/interfaces/song.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -95,16 +97,34 @@ class PlaylistItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () async {
+    return InkWell(
+      onTap: () async {
         final playlist = await getPlaylistInfo();
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => PlaylistInfo(playlist: playlist)),
+          PageRouteBuilder(opaque: false, pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+            return PlaylistInfo(playlist: playlist);
+          },
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1, 0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 100),
+          reverseTransitionDuration: const Duration(milliseconds: 100),
+          ),
+          
         );
       },
       child: Container(
-        color: Colors.grey, 
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Color.fromARGB(16, 255, 255, 255), 
+        ),
         height: 100, 
         width: MediaQuery.of(context).size.width - 20, 
         padding: const EdgeInsets.all(10),
@@ -145,68 +165,120 @@ class PlaylistInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return 
-      Column(
-      children: [
-        Container(
-          alignment: Alignment.centerLeft,
-          color: const Color.fromARGB(20, 255, 255, 255), 
-          width: MediaQuery.of(context).size.width, 
-          height: 70, 
-          child: Row(
+      Align(
+        alignment: Alignment.topCenter,
+        child: Container(
+          color: const Color.fromARGB(255, 18, 18, 18),
+          height: MediaQuery.of(context).size.height- 70,
+          child: Column(
             children: [
-              const Padding(padding: EdgeInsets.all(5),),
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                color: Colors.white,
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+              Container(
+                alignment: Alignment.centerLeft,
+                color: const Color.fromARGB(20, 255, 255, 255), 
+                width: MediaQuery.of(context).size.width, 
+                height: 70, 
+                child: Row(
+                  children: [
+                    const Padding(padding: EdgeInsets.all(5),),
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      color: Colors.white,
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    const Padding(padding: EdgeInsets.all(5)),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(playlist.name, 
+                          style: const TextStyle(
+                            fontSize: 24, 
+                            color: Colors.white,
+                            decoration: TextDecoration.none,
+                          )
+                        ),
+                        Text(playlist.owner, 
+                          style: const TextStyle(
+                            fontSize: 14, 
+                            color: Colors.white,
+                            decoration: TextDecoration.none,
+                          )
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              const Padding(padding: EdgeInsets.all(5)),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(playlist.name, 
-                    style: const TextStyle(
-                      fontSize: 24, 
-                      color: Colors.white,
-                      decoration: TextDecoration.none,
-                    )
+              SizedBox(
+                height: MediaQuery.of(context).size.height - 140,
+                width: MediaQuery.of(context).size.width,
+                child: SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            for (final song in playlist.songs) Column(
+                              children: [
+                                const Padding(padding: EdgeInsets.all(5),),
+                                SongItem(song: song,)
+                              ],
+                            ),
+                          ],
+                        ),
+                    ),
                   ),
-                  Text(playlist.owner, 
-                    style: const TextStyle(
-                      fontSize: 14, 
-                      color: Colors.white,
-                      decoration: TextDecoration.none,
-                    )
-                  ),
-                ],
               ),
             ],
-          ),
+                ),
         ),
-        SizedBox(
-          height: MediaQuery.of(context).size.height - 140,
-          width: MediaQuery.of(context).size.width,
-          child: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      for (final song in playlist.songs) Column(
-                        children: [
-                          const Padding(padding: EdgeInsets.all(10),),
-                          Text(song.title, style: const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold, decoration: TextDecoration.none)),
-                        ],
-                      ),
-                    ],
-                  ),
+      );
+  }
+}
+
+class SongItem extends StatelessWidget {
+  const SongItem({super.key, required this.song});
+
+  final Song song;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Color.fromARGB(16, 255, 255, 255), 
+      ),
+      height: 50, 
+      width: MediaQuery.of(context).size.width - 20, 
+      padding: const EdgeInsets.all(10),
+      child: Row(
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              image: DecorationImage(
+                image: NetworkImage('${SocketService.socket.io.uri}/subsonic/cover?uuid=${SocketService.socket.id}&size=50&id=${song.id}'),
+                fit: BoxFit.scaleDown,
               ),
             ),
-        ),
-      ],
+          ),
+          const Padding(padding: EdgeInsets.all(2)),
+          SizedBox(
+            width: MediaQuery.of(context).size.width - 140,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(song.title, style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold, decoration: TextDecoration.none, overflow: TextOverflow.ellipsis)), 
+                Text(song.artist, style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.normal, decoration: TextDecoration.none, overflow: TextOverflow.ellipsis)),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

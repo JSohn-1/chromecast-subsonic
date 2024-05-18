@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app/home_page.dart';
 import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
@@ -43,44 +45,68 @@ class Login extends StatelessWidget {
       final username = usernameController.text;
       final password = passwordController.text;
 
-      SocketService.createSocketConnection(domain);
+      Future<bool> connect = SocketService.createSocketConnection(domain);
+
+      final result = await Future.any([connect, Future.delayed(const Duration(seconds: 5), () => false)]);
+
+      if (result == false) {
+        Navigator.pop(context);
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Connection Failed'),
+              content: const Text('Could not connect to server'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).pop(true);
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
 
       final socket = SocketService.socket;
 
-      socket.onConnect( (_) async {
-        final result = await http.post(
-          Uri.parse('$domain/subsonic/login?&uuid=${socket.id}&username=$username&password=$password'),
+
+      final res = await http.post(
+        Uri.parse('$domain/subsonic/login?&uuid=${socket.id}&username=$username&password=$password'),
+      );
+
+      Navigator.pop(context);
+
+      if (res.statusCode != 200) {
+        SocketService.disposeSocketConnection();
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Login Failed'),
+              content: const Text('Invalid username or password'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).pop(true);
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
         );
+      } else {
+        await PersistentData.saveLogin(domain, username, password);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      }
 
-        Navigator.pop(context);
-
-        if (result.statusCode != 200) {
-          SocketService.disposeSocketConnection();
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Login Failed'),
-                content: const Text('Invalid username or password'),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context, rootNavigator: true).pop(true);
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              );
-            },
-          );
-        } else {
-          await PersistentData.saveLogin(domain, username, password);
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
-          );
-        }
-      });
     }
 
     return Scaffold(

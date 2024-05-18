@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import 'socket_service.dart';
 import 'login.dart';
@@ -21,23 +20,24 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      // home: const Login(),
-      home: FutureBuilder<bool>(
-        future: PersistentData.login(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            if (snapshot.data ?? false) {
-              print(snapshot.data);
-              return const HomePage();
+      home: Material(
+        child: FutureBuilder<bool>(
+          future: PersistentData.login(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              if (snapshot.data ?? false) {
+                print(snapshot.data);
+                return const HomePage();
+              } else {
+                return const Login();
+              }
+            } else if (snapshot.hasError) {
+          return const Text('Error');
             } else {
-              return const Login();
+          return const CircularProgressIndicator();
             }
-          } else if (snapshot.hasError) {
-        return const Text('Error');
-          } else {
-        return const CircularProgressIndicator();
-          }
-        },
+          },
+        ),
       ),
     );
   }
