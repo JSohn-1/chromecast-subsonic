@@ -58,50 +58,42 @@ class MenuScreen extends StatelessWidget {
 
   @override 
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Column(
-          children: [
-            const Padding(padding: EdgeInsets.only(top: 70)),
-            SizedBox(
-              height: MediaQuery.of(context).size.height - 140,
-              width: MediaQuery.of(context).size.width,
-              child: SingleChildScrollView(
-                child: Column(
+    return Column(
+            children: [
+              Container(
+                alignment: Alignment.centerLeft,
+                color: const Color.fromARGB(20, 255, 255, 255), 
+                width: MediaQuery.of(context).size.width, 
+                height: 70, 
+                child: const Row(
                   children: [
-                    Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.red),
-                    Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.blue),
-                    Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.green),
-                    Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.purple),
+                    Padding(padding: EdgeInsets.all(10)),
+                    Text('Menu', 
+                      style: TextStyle(
+                        fontSize: 24, 
+                        color: Colors.white,
+                        decoration: TextDecoration.none,
+                      )
+                    ),
                   ],
                 ),
               ),
-            ),
-          ],
-        ),
-        Positioned(
-          top: 0, 
-          child: Container(
-            alignment: Alignment.centerLeft,
-            color: const Color.fromARGB(20, 255, 255, 255), 
-            width: MediaQuery.of(context).size.width, 
-            height: 70, 
-            child: const Row(
-              children: [
-                Padding(padding: EdgeInsets.all(10)),
-                Text('Menu', 
-                  style: TextStyle(
-                    fontSize: 24, 
-                    color: Colors.white,
-                    decoration: TextDecoration.none,
-                  )
+              SizedBox(
+                height: MediaQuery.of(context).size.height - 140,
+                width: MediaQuery.of(context).size.width,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.red),
+                      Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.blue),
+                      Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.green),
+                      Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.purple),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          )
-        ),
-      ],
-    );
+              ),
+            ],
+          );
   }
 }
 

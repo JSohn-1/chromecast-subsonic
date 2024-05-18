@@ -125,8 +125,6 @@ export const subsonicRoutes = (app: express.Application) => {
 
 		const url = SubsonicClient._generateURL(method, { ...args });
 
-		console.log(url);
-
 		fetch(url).then(async (response) => {
 			const data = await response.json();
 			res.send(data);
