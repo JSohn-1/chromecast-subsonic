@@ -123,7 +123,7 @@ class PlaylistItem extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: Color.fromARGB(16, 255, 255, 255), 
+          color: const Color.fromARGB(16, 255, 255, 255), 
         ),
         height: 100, 
         width: MediaQuery.of(context).size.width - 20, 
@@ -208,6 +208,23 @@ class PlaylistInfo extends StatelessWidget {
                         ),
                       ],
                     ),
+                    const Padding(padding: EdgeInsets.all(5)),
+                    Container(
+                      alignment: Alignment.centerRight,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: const Color.fromARGB(20, 255, 255, 255),
+                      ),
+                      padding: const EdgeInsets.all(5),
+                      height: 30,
+                      child: Text('${playlist.songs.length} songs', 
+                        style: const TextStyle(
+                          fontSize: 14, 
+                          color: Colors.white,
+                          decoration: TextDecoration.none,
+                        )
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -248,7 +265,7 @@ class SongItem extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Color.fromARGB(16, 255, 255, 255), 
+        color: const Color.fromARGB(16, 255, 255, 255), 
       ),
       height: 50, 
       width: MediaQuery.of(context).size.width - 20, 

@@ -1,3 +1,4 @@
+import 'package:app/player.dart';
 import 'package:app/playlist_menu.dart';
 import 'package:flutter/material.dart';
 
@@ -20,13 +21,17 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Container(
       color: const Color.fromARGB(255, 18, 18, 18),
-      child: Stack(children: [
-        if (screen == Screen.search) const SearchScreen(),
-        if (screen == Screen.menu) const MenuScreen(),
-        if (screen == Screen.playlists) const PlaylistMenu(),
-        if (screen == Screen.settings) const SettingsScreen(),
-        Positioned(bottom: 0, child: NavigatorBar(changeMenu: changeScreen)),
-      ],
+      child: Column(
+        children: [
+          if (screen == Screen.search) const SearchScreen(),
+          if (screen == Screen.menu) const MenuScreen(),
+          if (screen == Screen.playlists) const PlaylistMenu(),
+          if (screen == Screen.settings) const SettingsScreen(),
+
+          if (PlayerContainer.currentSong != null) const MiniPlayer(),
+          NavigatorBar(changeMenu: changeScreen),
+
+        ],
       ),
     );
   }
