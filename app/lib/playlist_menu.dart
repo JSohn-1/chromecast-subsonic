@@ -63,8 +63,9 @@ class _PlaylistMenuState extends State<PlaylistMenu>
 
     _controller = AnimationController(
       duration: const Duration(milliseconds: 200),
+      reverseDuration: const Duration(milliseconds: 200),
       vsync: this,
-    )..repeat(reverse: true);
+    );
     _offsetAnimation = Tween<Offset>(
       begin: const Offset(1.5, 0.0),
       end: Offset.zero,
@@ -161,7 +162,7 @@ class PlaylistItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           color: const Color.fromARGB(16, 255, 255, 255),
         ),
-        height: 100,
+        height: 75,
         width: MediaQuery.of(context).size.width - 20,
         padding: const EdgeInsets.all(10),
         child: Column(
@@ -275,7 +276,16 @@ class PlaylistInfo extends StatelessWidget {
                           color: Colors.white,
                           decoration: TextDecoration.none,
                         )),
-                  )
+                  ),
+                  const Spacer(flex: 1),
+                  IconButton(
+                    icon: const Icon(Icons.play_arrow),
+                    color: Colors.white,
+                    onPressed: () {
+                      //PlayerContainer.player.playPlaylist(playlist);
+                    },
+                  ),
+                  const Padding(padding: EdgeInsets.all(5)),
                 ],
               ),
             ),
@@ -297,6 +307,7 @@ class PlaylistInfo extends StatelessWidget {
                             SongItem(song: song)
                           ],
                         ),
+                      const Padding(padding: EdgeInsets.all(5)),
                     ],
                   ),
                 ),
