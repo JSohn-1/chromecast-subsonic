@@ -35,6 +35,8 @@ class PlayerContainer {
 
     player.setUrl(streamUrl);
     currentSong = song;
+
+    player.play();
   }
 
   
