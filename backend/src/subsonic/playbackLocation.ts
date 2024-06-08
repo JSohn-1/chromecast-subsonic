@@ -12,7 +12,7 @@ export class PlaybackLocation {
 	type: playbackLocationType | undefined;
 	device: Device | Local | undefined;
 
-	constructor(playbackLocation: Device | Local  | undefined) {
+	constructor(playbackLocation: Device | Local | undefined) {
 		this.type = playbackLocation instanceof Device ? playbackLocationType.CHROMECAST : playbackLocation instanceof Local ? playbackLocationType.LOCAL : undefined;
 		this.device = playbackLocation;
 

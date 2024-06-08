@@ -7,6 +7,8 @@ const queuePlaylist = (socket: Socket, uuid: string) => {
 	socket.on('queuePlaylist', (id: string, shuffle?: boolean) => {
 		const username = Subsonic.apis[uuid].username;
 
+		console.log(Playback.users[username]);
+
 		Playback.users[username].playback.playPlaylist(id, shuffle);
 	});
 };

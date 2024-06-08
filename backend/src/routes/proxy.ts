@@ -65,12 +65,12 @@ export const subsonicRoutes = (app: express.Application) => {
 			return;
 		}
 
-		const response = await Subsonic.login(req.query.uuid as string, req.query.username as string, req.query.password as string);
+		const response = await Subsonic.login(req.query.uuid as string, req.query.username as string, req.query.password as string, req.query.uuid as string);
 
 		if (response.success) {
 			Notify.newUser(req.query.username as string, req.query.uuid as string, Sockets.sockets[req.query.uuid as string]);
 
-			Playback.savePlayback(Subsonic.apis[req.query.uuid as string]);
+			Playback.savePlayback(Subsonic.apis[req.query.uuid as string], Sockets.sockets[req.query.uuid as string]);
 		}
 
 		res.status(response.success ? 

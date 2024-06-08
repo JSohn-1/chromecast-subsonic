@@ -4,30 +4,40 @@ import 'dart:convert';
 
 import 'package:app/interfaces/song.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:http/http.dart' as http;
 
 import 'socket_service.dart';
-import 'interfaces/song.dart';
 
 class PlayerContainer {
   static final AudioPlayer player = AudioPlayer();
   static Song? currentSong;
+
+  static init() {
+    SocketService.on('playQueue', (data) {
+      print(data);
+      setSong(data['id']);
+    });
+  }
 
   static Future<void> setSong(String songId) async {
     final socket = SocketService.socket;
 
     final song = await http.get(Uri.parse('${socket.io.uri}/subsonic?id=$songId&uuid=${socket.id}&method=getSong')).then((response) {
       final songData = jsonDecode(response.body);
-      return Song.fromJson(songData);
+      print(songData);
+      return Song.fromJson(songData['subsonic-response']['song']);
     });
 
     final streamUrl = '${socket.io.uri}/subsonic/stream?id=${song.id}&uuid=${socket.id}';
 
+    print(streamUrl);
+
     player.setUrl(streamUrl);
     currentSong = song;
   }
+
+  
 }
 
 class Player extends StatelessWidget {

@@ -6,7 +6,10 @@ import 'package:http/http.dart' as http;
 
 class SocketService {
   static late IO.Socket _socket;
+  static final StreamController<dynamic> _socketResponseController = StreamController<dynamic>.broadcast();
+  static final Map<String, Function(dynamic)> _eventHandlers = {};
 
+  static Stream<dynamic> get socketResponses => _socketResponseController.stream;
   static IO.Socket get socket => _socket;
 
   static Future<bool> createSocketConnection(String domain) async {
@@ -25,6 +28,18 @@ class SocketService {
       completer.complete(1);
     });
 
+    // _socket.on('event', (data) {
+    //   if (_eventHandlers.containsKey(data['type'])) {
+    //     _eventHandlers[data['type']]!(data['payload']);
+    //   }
+    // });
+
+    _socket.onAny((event, data) {
+      if (_eventHandlers.containsKey(event)) {
+        _eventHandlers[event]!(data);
+      }
+    });
+
     _socket.connect();
 
     final result = await Future.any([completer.future, Future.delayed(const Duration(seconds: 5), () => 1)]);
@@ -36,6 +51,10 @@ class SocketService {
 
     return true;
 
+  }
+
+  static void on(String eventName, Function(dynamic) handler) {
+    _eventHandlers[eventName] = handler;
   }
 
   static void disposeSocketConnection() {

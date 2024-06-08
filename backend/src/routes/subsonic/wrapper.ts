@@ -12,13 +12,13 @@ import { chromecast } from './chromecast';
 
 export const subsonicWrapper = (socket: Socket, uuid: string) => {
 	socket.on('login', async (username: string, password: string ) => {
-		const login = await Subsonic.login(uuid, username, password);
+		const login = await Subsonic.login(uuid, username, password, socket.id);
 		socket.emit('login', login);
 
 		if (login.success) {
 			Notify.newUser(username, uuid, socket);
 
-			Playback.savePlayback(Subsonic.apis[uuid]);
+			Playback.savePlayback(Subsonic.apis[uuid], socket);
 
 			socket.on('disconnect', () => {
 				Subsonic.logout(uuid);

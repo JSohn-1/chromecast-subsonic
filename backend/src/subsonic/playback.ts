@@ -1,9 +1,12 @@
+import { Socket } from 'socket.io';
+
 import { Subsonic } from './subsonic';
 import { PlayQueue } from './playQueue';
 import { Notify } from './notify';
 import { PlaybackLocation } from './playbackLocation';
 
 import Device from 'chromecast-api/lib/device';
+import { Local } from './local';
 
 export enum playbackMode {
 	LOOP = 'LOOP',
@@ -16,26 +19,29 @@ export class Playback {
 
 	user: Subsonic;
 	playQueue: PlayQueue;
-	playbackLocation: PlaybackLocation = new PlaybackLocation(undefined);
+	playbackLocation: PlaybackLocation;
 	mode: playbackMode = playbackMode.REPEAT;
 
-	static savePlayback(user: Subsonic) {
+	static savePlayback(user: Subsonic, socket: Socket) {
 		if (Playback.users[user.username]) {
 			return;
 		}
-		Playback.users[user.username] = { playback: new Playback(user), api: user };
+		Playback.users[user.username] = { playback: new Playback(user, socket), api: user };
 	}
 
-	constructor(user: Subsonic) {
+	constructor(user: Subsonic, socket: Socket) {
 		this.user = user;
 		this.playQueue = new PlayQueue(user);
+		this.playbackLocation = new PlaybackLocation(new Local(socket));
 	}
 
-	setLocation(location: Device | undefined) {
+	setLocation(location: Device | Local | undefined) {
 		this.playbackLocation = new PlaybackLocation(location);
 	}
 	
 	async playPlaylist(playlistId: string, shuffle?: boolean) {
+		console.log('Playing playlist');
+
 		const playlist = (await this.user.getPlaylist({ id: playlistId })).playlist;
 
 		await this.playQueue.queuePlaylist(playlist, shuffle);

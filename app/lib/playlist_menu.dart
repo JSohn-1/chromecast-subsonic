@@ -282,7 +282,11 @@ class PlaylistInfo extends StatelessWidget {
                     icon: const Icon(Icons.play_arrow),
                     color: Colors.white,
                     onPressed: () {
+                      print('Playing playlist');
                       //PlayerContainer.player.playPlaylist(playlist);
+                      SocketService.socket.emit('queuePlaylist', 
+                        [playlist.id, false]
+                      );
                     },
                   ),
                   const Padding(padding: EdgeInsets.all(5)),

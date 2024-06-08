@@ -4,6 +4,7 @@ import { Socket } from 'socket.io';
 // import { Chromecast } from '../chromecast/chromecast';
 
 import { subsonicWrapper } from './subsonic/wrapper';
+// import { playback } from './subsonic/playback';
 // import { chromecastRoutes } from './chromecast';
 
 export class Sockets {
@@ -20,6 +21,10 @@ export const eventHandler = (socket: Socket) => {
 	// 		socket.emit('getMediaInfo', _);
 	// 	});
 	// });
+
+	socket.onAny((event, ...args) => {
+		console.log(event, args);
+	});
 
 	socket.emit('uuid', { id: socket.id });
 

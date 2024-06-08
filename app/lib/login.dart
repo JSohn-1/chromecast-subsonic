@@ -73,7 +73,6 @@ class Login extends StatelessWidget {
 
       final socket = SocketService.socket;
 
-
       final res = await http.post(
         Uri.parse('$domain/subsonic/login?&uuid=${socket.id}&username=$username&password=$password'),
       );

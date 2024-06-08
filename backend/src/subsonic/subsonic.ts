@@ -8,6 +8,8 @@ dotenv.config();
 import { subsonicError, subsonicResponse, subsonicSong, subsonicPlaylist } from './types';
 import { Params } from 'subsonic-api';
 import { Playback } from './playback';
+import { Socket } from 'socket.io';
+import { Sockets } from '../routes/eventHandler';
 
 // import { baseResponse } from '../media/media';
 
@@ -35,7 +37,7 @@ export class Subsonic {
 		this.password = password;
 	}
 
-	static async login(uuid: string, username: string, password: string) {
+	static async login(uuid: string, username: string, password: string, socketId: string) {
 		if (this.apis[uuid] !== undefined) {
 			return { success: false, message: 'already signed in' };
 		}
@@ -47,7 +49,8 @@ export class Subsonic {
 			if (data['subsonic-response'].status === 'ok') {
 				const api = new Subsonic(username, password);
 				this.apis[uuid] = api;
-				Playback.savePlayback(api);
+				const socket = Sockets.sockets[socketId] as Socket;
+				Playback.savePlayback(api, socket);
 
 				return { success: true };
 			} else {
