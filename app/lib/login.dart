@@ -2,12 +2,9 @@ import 'dart:async';
 
 import 'package:app/home_page.dart';
 import "package:flutter/material.dart";
-import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:socket_io_client/socket_io_client.dart';
 
 import 'socket_service.dart';
-import 'player.dart';
 
 class Login extends StatelessWidget {
   const Login({Key? key}) : super(key: key);

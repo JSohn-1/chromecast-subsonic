@@ -15,7 +15,6 @@ class PlayerContainer {
 
   static init() {
     SocketService.on('playQueue', (data) {
-      print(data);
       setSong(data['id']);
     });
   }
@@ -25,7 +24,6 @@ class PlayerContainer {
 
     final song = await http.get(Uri.parse('${socket.io.uri}/subsonic?id=$songId&uuid=${socket.id}&method=getSong')).then((response) {
       final songData = jsonDecode(response.body);
-      print(songData);
       return Song.fromJson(songData['subsonic-response']['song']);
     });
 
@@ -38,8 +36,6 @@ class PlayerContainer {
 
     player.play();
   }
-
-  
 }
 
 class Player extends StatelessWidget {
@@ -175,7 +171,7 @@ class _PlayButtonState extends State<PlayButton> {
 }
 
 class MiniPlayer extends StatefulWidget {
-  const  MiniPlayer({super.key});
+  const MiniPlayer({super.key});
 
   @override
   _MiniPlayerState createState() => _MiniPlayerState();
