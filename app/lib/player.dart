@@ -18,9 +18,15 @@ class PlayerContainer {
   static init() async {
     await playQueue();
 
-    print('queued');
-
     SocketService.on('playQueue', (data) {
+      final socket = SocketService.socket;
+      final result = http.get(Uri.parse('${socket.io.uri}/subsonic?id=${data['id']}&uuid=${socket.id}&method=getSong')).then((response) {
+        final songData = jsonDecode(response.body);
+        return Song.fromJson(songData['subsonic-response']['song']);
+      });
+
+      currentSong = result as Song;
+
       setSong(data['id']);
     });
 
@@ -60,8 +66,6 @@ class PlayerContainer {
 
     final streamUrl = '${socket.io.uri}/subsonic/stream?id=${song.id}&uuid=${socket.id}';
 
-    print(streamUrl);
-
     player.setUrl(streamUrl);
     currentSong = song;
 
@@ -80,7 +84,7 @@ class PlayerContainer {
     if(response['playQueue']['userQueue']['queue'].isEmpty) return;
 
     PlayerContainer.playlist = ConcatenatingAudioSource(useLazyPreparation: true, children: [
-      for (final song in response['userQueue']['queue'])
+      for (final song in response['playQueue']['userQueue']['queue'])
         AudioSource.uri(Uri.parse('${SocketService.socket.io.uri}/subsonic/stream?id=$song&uuid=${SocketService.socket.id}')),
     ]);
 
@@ -104,7 +108,7 @@ class PlayerContainer {
       return jsonDecode(response.body);
     });
 
-    print('${socket.io.uri}/subsonic?id=$playlistId&uuid=${socket.id}&method=getPlaylist');
+    // print('${socket.io.uri}/subsonic?id=$playlistId&uuid=${socket.id}&method=getPlaylist');
 
     PlayerContainer.playlist = ConcatenatingAudioSource(useLazyPreparation: true, children: [
       for (final song in response['playlist']['queue'])

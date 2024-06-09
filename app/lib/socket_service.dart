@@ -36,6 +36,7 @@ class SocketService {
     // });
 
     _socket.onAny((event, data) {
+      print(event);
       if (_eventHandlers.containsKey(event)) {
         _eventHandlers[event]!(data);
       }
