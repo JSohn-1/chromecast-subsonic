@@ -131,3 +131,12 @@ export const subsonicRoutes = (app: express.Application) => {
 		});
 	});
 };
+
+export const queueRoutes = (app: express.Application) => {
+	app.get('/queue', (req, res) => {
+		const username = Subsonic.apis[req.query.uuid as string].username;
+		const queue = Playback.users[username].playback;
+
+		res.send(queue);
+	});
+};

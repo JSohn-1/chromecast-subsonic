@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:app/player.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -78,6 +79,7 @@ class PersistentData {
       final Completer<int> completer = Completer<int>();
 
       socket.onConnect((_) async {
+        
         completer.complete(0);
         socket.off('connect');
       });
@@ -100,6 +102,8 @@ class PersistentData {
 
       if (res.statusCode == 200) {
         // print(socketService.socket.id);
+        PlayerContainer.init();
+
         return true;
       } else {
 

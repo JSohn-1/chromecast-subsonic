@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:app/interfaces/playlist.dart';
 import 'package:app/interfaces/song.dart';
+import 'package:app/player.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -105,7 +106,7 @@ class _PlaylistMenuState extends State<PlaylistMenu>
               ),
             ),
             SizedBox(
-              height: MediaQuery.of(context).size.height - 140,
+              height: MediaQuery.of(context).size.height - 210,
               width: MediaQuery.of(context).size.width,
               child: RefreshIndicator(
                 onRefresh: _loadPlaylists,
@@ -222,7 +223,7 @@ class PlaylistInfo extends StatelessWidget {
       alignment: Alignment.topCenter,
       child: Container(
         color: const Color.fromARGB(255, 18, 18, 18),
-        height: MediaQuery.of(context).size.height - 70,
+        height: MediaQuery.of(context).size.height - 140,
         child: Column(
           children: [
             Container(
@@ -287,6 +288,7 @@ class PlaylistInfo extends StatelessWidget {
                       SocketService.socket.emit('queuePlaylist', 
                         [playlist.id, false]
                       );
+                      // PlayerContainer.playPlaylist(playlist.id);
                     },
                   ),
                   const Padding(padding: EdgeInsets.all(5)),
@@ -294,7 +296,7 @@ class PlaylistInfo extends StatelessWidget {
               ),
             ),
             SizedBox(
-              height: MediaQuery.of(context).size.height - 140,
+              height: MediaQuery.of(context).size.height - 210,
               width: MediaQuery.of(context).size.width,
               child: SizedBox(
                 width: MediaQuery.of(context).size.width,

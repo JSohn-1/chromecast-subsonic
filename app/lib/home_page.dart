@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> {
           if (screen == Screen.playlists) const PlaylistMenu(),
           if (screen == Screen.settings) const SettingsScreen(),
 
-          if (PlayerContainer.currentSong != null) const MiniPlayer(),
+          /*if (PlayerContainer.currentSong != null)*/ const MiniPlayer(),
           NavigatorBar(changeMenu: changeScreen),
 
         ],
@@ -64,41 +64,41 @@ class MenuScreen extends StatelessWidget {
   @override 
   Widget build(BuildContext context) {
     return Column(
+      children: [
+        Container(
+          alignment: Alignment.centerLeft,
+          color: const Color.fromARGB(20, 255, 255, 255), 
+          width: MediaQuery.of(context).size.width, 
+          height: 70, 
+          child: const Row(
             children: [
-              Container(
-                alignment: Alignment.centerLeft,
-                color: const Color.fromARGB(20, 255, 255, 255), 
-                width: MediaQuery.of(context).size.width, 
-                height: 70, 
-                child: const Row(
-                  children: [
-                    Padding(padding: EdgeInsets.all(10)),
-                    Text('Menu', 
-                      style: TextStyle(
-                        fontSize: 24, 
-                        color: Colors.white,
-                        decoration: TextDecoration.none,
-                      )
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height - 140,
-                width: MediaQuery.of(context).size.width,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.red),
-                      Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.blue),
-                      Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.green),
-                      Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.purple),
-                    ],
-                  ),
-                ),
+              Padding(padding: EdgeInsets.all(10)),
+              Text('Menu', 
+                style: TextStyle(
+                  fontSize: 24, 
+                  color: Colors.white,
+                  decoration: TextDecoration.none,
+                )
               ),
             ],
-          );
+          ),
+        ),
+        SizedBox(
+          height: MediaQuery.of(context).size.height - 210,
+          width: MediaQuery.of(context).size.width,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.red),
+                Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.blue),
+                Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.green),
+                Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.purple),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 

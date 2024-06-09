@@ -46,4 +46,11 @@ export class Local {
 	previous() {
 		this.socket.emit('previous');
 	}
+
+	toJSON() {
+		return {
+			uuid: this.socket.id,
+			state: this.state,
+		};
+	}
 }

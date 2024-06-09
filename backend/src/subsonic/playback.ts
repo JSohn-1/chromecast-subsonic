@@ -5,7 +5,7 @@ import { PlayQueue } from './playQueue';
 import { Notify } from './notify';
 import { PlaybackLocation } from './playbackLocation';
 
-import Device from 'chromecast-api/lib/device';
+// import Device from 'chromecast-api/lib/device';
 import { Local } from './local';
 
 export enum playbackMode {
@@ -32,10 +32,10 @@ export class Playback {
 	constructor(user: Subsonic, socket: Socket) {
 		this.user = user;
 		this.playQueue = new PlayQueue(user);
-		this.playbackLocation = new PlaybackLocation(new Local(socket));
+		this.playbackLocation = new PlaybackLocation(new Local(socket), 'Local');
 	}
 
-	setLocation(location: Device | Local | undefined) {
+	setLocation(location: Local | undefined) {
 		this.playbackLocation = new PlaybackLocation(location);
 	}
 	
@@ -50,7 +50,8 @@ export class Playback {
 
 		this.playbackLocation.play(song.id);
 		
-		Notify.notifyUsers(this.user.username, 'playQueue', { id: song.id });  
+		Notify.notifyUsers(this.user.username, 'changeQueue', this.playQueue);
+		Notify.notifyUsers(this.user.username, 'playQueue', { id: song.id, uuid: this.playbackLocation.device, name: this.playbackLocation.name });  
 
 		// if (this.playbackLocation.type === playbackLocationType.CHROMECAST) {
 		// 	const device = this.playbackLocation.device!;
@@ -108,5 +109,13 @@ export class Playback {
 			device.play(song.id);
 			Notify.notifyUsers(this.user.username, 'playQueue',  song);
 		}
+	}
+
+	toJSON() {
+		return {
+			playQueue: this.playQueue,
+			playbackLocation: this.playbackLocation.device?.toJSON() ?? undefined,
+			mode: this.mode,
+		};
 	}
 }

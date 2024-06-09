@@ -1,4 +1,4 @@
-import Device = require('chromecast-api/lib/device');
+// import Device = require('chromecast-api/lib/device');
 // import { chromecastDevice } from './chromecastDevice';
 import { Local } from './local';
 // import { playback } from '../routes/subsonic/playback';
@@ -10,18 +10,20 @@ export enum playbackLocationType {
 
 export class PlaybackLocation {
 	type: playbackLocationType | undefined;
-	device: Device | Local | undefined;
+	name: string | undefined;
+	device: Local | undefined;
 
-	constructor(playbackLocation: Device | Local | undefined) {
-		this.type = playbackLocation instanceof Device ? playbackLocationType.CHROMECAST : playbackLocation instanceof Local ? playbackLocationType.LOCAL : undefined;
+	constructor(playbackLocation: Local | undefined, name?: string) {
+		this.type = playbackLocation instanceof Local ? playbackLocationType.LOCAL : undefined;
 		this.device = playbackLocation;
+		this.name = name;
 
-		if (playbackLocation instanceof Device) {
-			playbackLocation.on('finished', () => {
-				this.type = playbackLocationType.LOCAL;
-				this.device = undefined;
-			});
-		}
+		// if (playbackLocation instanceof Device) {
+		// 	playbackLocation.on('finished', () => {
+		// 		this.type = playbackLocationType.LOCAL;
+		// 		this.device = undefined;
+		// 	});
+		// }
 	}
 
 	async play(id: string) {
