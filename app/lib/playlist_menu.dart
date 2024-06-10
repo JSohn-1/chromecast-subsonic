@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:app/interfaces/playlist.dart';
 import 'package:app/interfaces/song.dart';
-import 'package:app/player.dart';
+// import 'package:app/player.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 

@@ -27,13 +27,12 @@ class MyApp extends StatelessWidget {
           future: PersistentData.login(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              print(snapshot.data);
               if (snapshot.data ?? false) {
                 return const HomePage();
+                // return const Text('udj');
               } else {
                 return const Login();
               }
-              // return const HomePage();
             } else if (snapshot.hasError) {
           return const Text('Error');
             } else {

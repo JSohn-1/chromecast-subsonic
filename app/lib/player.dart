@@ -11,21 +11,24 @@ import 'package:http/http.dart' as http;
 import 'socket_service.dart';
 
 class PlayerContainer {
-  static final AudioPlayer player = AudioPlayer();
-  static ConcatenatingAudioSource? playlist;
+  static late final AudioPlayer player;
+
+  static List<String> playlist = [];
   static Song? currentSong;
+  static int index = -1;
 
   static init() async {
+    player = AudioPlayer();
     await playQueue();
 
-    SocketService.on('playQueue', (data) {
+    SocketService.on('playQueue', (data) async {
       final socket = SocketService.socket;
-      final result = http.get(Uri.parse('${socket.io.uri}/subsonic?id=${data['id']}&uuid=${socket.id}&method=getSong')).then((response) {
+      final result = await http.get(Uri.parse('${socket.io.uri}/subsonic?id=${data['id']}&uuid=${socket.id}&method=getSong')).then((response) {
         final songData = jsonDecode(response.body);
         return Song.fromJson(songData['subsonic-response']['song']);
       });
 
-      currentSong = result as Song;
+      currentSong = result;
 
       setSong(data['id']);
     });
@@ -37,15 +40,17 @@ class PlayerContainer {
         return jsonDecode(response.body);
       });
 
-      if(response['playQueue']['userQueue']['queue'].isEmpty) return;
+      PlayerContainer.playlist = response['playQueue']['userQueue']['queue'].cast<String>();
 
-      PlayerContainer.playlist = ConcatenatingAudioSource(useLazyPreparation: true, children: [
-        for (final song in response['userQueue']['queue'])
+      // if(response['playQueue']['userQueue']['queue'].isEmpty) return;
+
+      final playlist = ConcatenatingAudioSource(useLazyPreparation: true, children: [
+        for (final song in response['playQueue']['userQueue']['queue'])
           AudioSource.uri(Uri.parse('${SocketService.socket.io.uri}/subsonic/stream?id=$song&uuid=${SocketService.socket.id}')),
       ]);
 
       if(response['playbackLocation']['uuid'] == socket.id) {
-        await player.setAudioSource(PlayerContainer.playlist!);
+        await player.setAudioSource(playlist);
 
         player.play();
       }
@@ -83,13 +88,13 @@ class PlayerContainer {
 
     if(response['playQueue']['userQueue']['queue'].isEmpty) return;
 
-    PlayerContainer.playlist = ConcatenatingAudioSource(useLazyPreparation: true, children: [
+    final playlist = ConcatenatingAudioSource(useLazyPreparation: true, children: [
       for (final song in response['playQueue']['userQueue']['queue'])
         AudioSource.uri(Uri.parse('${SocketService.socket.io.uri}/subsonic/stream?id=$song&uuid=${SocketService.socket.id}')),
     ]);
 
     if(response['playbackLocation']['uuid'] == socket.id) {
-      await player.setAudioSource(PlayerContainer.playlist!);
+      await player.setAudioSource(playlist);
 
       player.play();
     }
@@ -105,17 +110,18 @@ class PlayerContainer {
     socket.emit('playPlaylist', {'id': playlistId});
 
     final response = await http.get(Uri.parse('${socket.io.uri}/subsonic?id=$playlistId&uuid=${socket.id}&method=getPlaylist')).then((response) {
+      // print(response.body);
       return jsonDecode(response.body);
     });
 
     // print('${socket.io.uri}/subsonic?id=$playlistId&uuid=${socket.id}&method=getPlaylist');
 
-    PlayerContainer.playlist = ConcatenatingAudioSource(useLazyPreparation: true, children: [
+    final playlist = ConcatenatingAudioSource(useLazyPreparation: true, children: [
       for (final song in response['playlist']['queue'])
         AudioSource.uri(Uri.parse('${SocketService.socket.io.uri}/subsonic/stream?id=$song&uuid=${SocketService.socket.id}')),
     ]);
 
-    await player.setAudioSource(PlayerContainer.playlist!, initialIndex: 0);
+    await player.setAudioSource(playlist, initialIndex: 0);
 
     player.play();
 
@@ -276,7 +282,7 @@ class _MiniPlayerState extends State<MiniPlayer> {
 
     @override
     void dispose() {
-      _playbackSubscription?.cancel();
+      // _playbackSubscription?.cancel();
       super.dispose();
     }
 
@@ -288,13 +294,13 @@ class _MiniPlayerState extends State<MiniPlayer> {
       height: 70,
       child: Row(
         children: [
-          Image.network(
-           '${SocketService. socket.io.uri}/subsonic/cover?id=${PlayerContainer.currentSong?.id}&uuid=${SocketService.socket.id}',
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
-          ),
-          const Padding(padding: EdgeInsets.all(8)),
+        Image.network(
+          PlayerContainer.currentSong != null
+              ? '${SocketService.socket.io.uri}/subsonic/cover?id=${PlayerContainer.currentSong?.id}&uuid=${SocketService.socket.id}'
+              : 'https://via.placeholder.com/50',
+          width: 50,
+          height: 50,
+        ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
