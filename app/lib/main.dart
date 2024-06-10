@@ -28,6 +28,7 @@ class MyApp extends StatelessWidget {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               if (snapshot.data ?? false) {
+                print(PlayerContainer.currentSong?.id);
                 return const HomePage();
                 // return const Text('udj');
               } else {

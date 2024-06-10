@@ -46,12 +46,13 @@ export class Playback {
 
 		await this.playQueue.queuePlaylist(playlist, shuffle);
 
-		const song = this.playQueue.nextSong;
+		// const song = this.playQueue.nextSong;
+		const song = this.playQueue.userQueue.queue[0];
 
-		this.playbackLocation.play(song.id);
+		this.playbackLocation.play(song);
 		
 		Notify.notifyUsers(this.user.username, 'changeQueue', this.playQueue);
-		Notify.notifyUsers(this.user.username, 'playQueue', { id: song.id, uuid: this.playbackLocation.device, name: this.playbackLocation.name });  
+		Notify.notifyUsers(this.user.username, 'playQueue', { id: song, index: this.playQueue.userQueue.index, uuid: this.playbackLocation.device, name: this.playbackLocation.name });  
 
 		// if (this.playbackLocation.type === playbackLocationType.CHROMECAST) {
 		// 	const device = this.playbackLocation.device!;

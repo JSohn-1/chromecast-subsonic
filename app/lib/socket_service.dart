@@ -103,7 +103,7 @@ class PersistentData {
 
       if (res.statusCode == 200) {
         // print(socketService.socket.id);
-        PlayerContainer.init();
+        await PlayerContainer.init();
 
         return true;
       } else {

@@ -27,10 +27,12 @@ class PlayerContainer {
         final songData = jsonDecode(response.body);
         return Song.fromJson(songData['subsonic-response']['song']);
       });
+      
+      print(data);
 
       currentSong = result;
-
-      setSong(data['id']);
+      index = data['index'];
+      // setSong(data['id']);
     });
 
     SocketService.on('changeQueue', (data) async {
@@ -39,6 +41,8 @@ class PlayerContainer {
       final response = await http.get(Uri.parse('${socket.io.uri}/queue?uuid=${socket.id}')).then((response) {
         return jsonDecode(response.body);
       });
+
+      print(response);
 
       PlayerContainer.playlist = response['playQueue']['userQueue']['queue'].cast<String>();
 
@@ -50,7 +54,7 @@ class PlayerContainer {
       ]);
 
       if(response['playbackLocation']['uuid'] == socket.id) {
-        await player.setAudioSource(playlist);
+        await player.setAudioSource(playlist, initialIndex: index);
 
         player.play();
       }
@@ -86,7 +90,16 @@ class PlayerContainer {
       return jsonDecode(response.body);
     });
 
-    if(response['playQueue']['userQueue']['queue'].isEmpty) return;
+    print(response);
+
+    if(response['playQueue']['userQueue']['index'] == -1) return;
+
+    PlayerContainer.playlist = response['playQueue']['userQueue']['queue'].cast<String>();
+    PlayerContainer.index = response['playQueue']['userQueue']['index'];
+    PlayerContainer.currentSong = await http.get(Uri.parse('${socket.io.uri}/subsonic?id=${response['playQueue']['userQueue']['queue'][response['playQueue']['userQueue']['index']]}&uuid=${socket.id}&method=getSong')).then((response) {
+      final songData = jsonDecode(response.body);
+      return Song.fromJson(songData['subsonic-response']['song']);
+    });
 
     final playlist = ConcatenatingAudioSource(useLazyPreparation: true, children: [
       for (final song in response['playQueue']['userQueue']['queue'])
@@ -276,6 +289,18 @@ class _MiniPlayerState extends State<MiniPlayer> {
     void initState() {
       super.initState();
       _playbackSubscription = PlayerContainer.player.playingStream.listen((event) {
+        setState(() {});
+      });
+      SocketService.on('playQueue', (data) async {
+        // final socket = SocketService.socket;
+        // final result = await http.get(Uri.parse('${socket.io.uri}/subsonic/cover?id=${data['id']}&uuid=${socket.id}')).then((response) {
+        //   return response.body;
+        // });
+
+        // print(result);
+        setState(() {});
+      });
+      SocketService.on('changeQueue', (data) async {
         setState(() {});
       });
     }

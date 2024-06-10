@@ -47,7 +47,7 @@ export class PlayQueue{
 
 		if (index < queue.length - 1) {
 			this.userQueue.index++;
-			return { id: queue[index + 1], index: index + 1};
+			return { id: queue[index + 1], index: index};
 		}
 
 		if (index === queue.length - 1 && this.mode === playbackMode.LOOP) {
@@ -68,7 +68,7 @@ export class PlayQueue{
 
 		if (index > 0) {
 			this.userQueue.index--;
-			return { id: queue[index - 1], index: index - 1};
+			return { id: queue[index - 1], index: index};
 		}
 
 		if (index === 0) {
