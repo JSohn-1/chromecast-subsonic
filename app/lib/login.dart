@@ -99,7 +99,7 @@ class Login extends StatelessWidget {
         await PersistentData.saveLogin(domain, username, password);
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
+          MaterialPageRoute(builder: (context) => const Material(child: HomePage())),
         );
       }
 

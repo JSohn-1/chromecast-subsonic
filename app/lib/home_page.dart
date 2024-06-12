@@ -19,19 +19,21 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color.fromARGB(255, 18, 18, 18),
-      child: Column(
-        children: [
-          if (screen == Screen.search) const SearchScreen(),
-          if (screen == Screen.menu) const MenuScreen(),
-          if (screen == Screen.playlists) const PlaylistMenu(),
-          if (screen == Screen.settings) const SettingsScreen(),
-
-          /*if (PlayerContainer.currentSong != null)*/ const MiniPlayer(),
-          NavigatorBar(changeMenu: changeScreen),
-
-        ],
+    return SafeArea(
+      child: Container(
+        color: const Color.fromARGB(255, 18, 18, 18),
+        child: Column(
+          children: [
+            if (screen == Screen.search) const SearchScreen(),
+            if (screen == Screen.menu) const MenuScreen(),
+            if (screen == Screen.playlists) const PlaylistMenu(),
+            if (screen == Screen.settings) const SettingsScreen(),
+      
+            /*if (PlayerContainer.currentSong != null)*/ const MiniPlayer(),
+            NavigatorBar(changeMenu: changeScreen),
+      
+          ],
+        ),
       ),
     );
   }
@@ -63,41 +65,43 @@ class MenuScreen extends StatelessWidget {
 
   @override 
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          alignment: Alignment.centerLeft,
-          color: const Color.fromARGB(20, 255, 255, 255), 
-          width: MediaQuery.of(context).size.width, 
-          height: 70, 
-          child: const Row(
-            children: [
-              Padding(padding: EdgeInsets.all(10)),
-              Text('Menu', 
-                style: TextStyle(
-                  fontSize: 24, 
-                  color: Colors.white,
-                  decoration: TextDecoration.none,
-                )
-              ),
-            ],
-          ),
-        ),
-        SizedBox(
-          height: MediaQuery.of(context).size.height - 210,
-          width: MediaQuery.of(context).size.width,
-          child: SingleChildScrollView(
-            child: Column(
+    return Expanded(
+      child: Column(
+        children: [
+          Container(
+            alignment: Alignment.centerLeft,
+            color: const Color.fromARGB(20, 255, 255, 255), 
+            width: MediaQuery.of(context).size.width, 
+            height: 70, 
+            child: const Row(
               children: [
-                Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.red),
-                Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.blue),
-                Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.green),
-                Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.purple),
+                Padding(padding: EdgeInsets.all(10)),
+                Text('Menu', 
+                  style: TextStyle(
+                    fontSize: 24, 
+                    color: Colors.white,
+                    decoration: TextDecoration.none,
+                  )
+                ),
               ],
             ),
           ),
-        ),
-      ],
+          Expanded(
+            // height: MediaQuery.of(context).size.height - 210,
+            // width: MediaQuery.of(context).size.width,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.red),
+                  Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.blue),
+                  Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.green),
+                  Container(width: MediaQuery.of(context).size.width - 20, height: 200, color: Colors.purple),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

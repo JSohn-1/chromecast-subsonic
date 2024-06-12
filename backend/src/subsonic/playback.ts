@@ -120,23 +120,18 @@ export class Playback {
 	}
 
 	static disconnect(socket: Socket) {
-		console.log('Disconnecting');
 		if (Subsonic.apis[socket.id] === undefined) {
 			return;
 		}
-		console.log(1);
+
 		const username = Subsonic.apis[socket.id].username;
 		
-		console.log(Playback.users[username].playback.playbackLocation.device!instanceof Local);
-
 		if (Playback.users[username].playback.playbackLocation.type != playbackLocationType.LOCAL) {
 			return;
 		}
-		// eslint-disable-next-line no-magic-numbers
-		console.log(2);
+
 		if (Playback.users[username].playback.playbackLocation.device!.socket.id === socket.id) {
 			Playback.users[username].playback.setLocation(undefined);
-			console.log('Disconnected');
 		}
 	}
 
