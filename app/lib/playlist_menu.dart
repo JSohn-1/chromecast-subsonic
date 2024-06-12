@@ -84,63 +84,67 @@ class _PlaylistMenuState extends State<PlaylistMenu>
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Column(
-          children: [
-            Container(
-              alignment: Alignment.centerLeft,
-              color: const Color.fromARGB(20, 255, 255, 255),
-              width: MediaQuery.of(context).size.width,
-              height: 70,
-              child: const Row(
-                children: [
-                  Padding(padding: EdgeInsets.all(10)),
-                  Text('Playlists',
-                      style: TextStyle(
-                        fontSize: 24,
-                        color: Colors.white,
-                        decoration: TextDecoration.none,
-                      )),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height - 210,
-              width: MediaQuery.of(context).size.width,
-              child: RefreshIndicator(
-                onRefresh: _loadPlaylists,
-                child: SizedBox(
+    return Expanded(
+      child: Stack(
+        children: [
+          Expanded(
+            child: Column(
+              children: [
+                Container(
+                  alignment: Alignment.centerLeft,
+                  color: const Color.fromARGB(20, 255, 255, 255),
                   width: MediaQuery.of(context).size.width,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        for (final playlist in PlaylistTiles.playlists)
-                          Column(
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.all(10),
+                  height: 70,
+                  child: const Row(
+                    children: [
+                      Padding(padding: EdgeInsets.all(10)),
+                      Text('Playlists',
+                          style: TextStyle(
+                            fontSize: 24,
+                            color: Colors.white,
+                            decoration: TextDecoration.none,
+                          )),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  // height: MediaQuery.of(context).size.height - 210,
+                  // width: MediaQuery.of(context).size.width,
+                  child: RefreshIndicator(
+                    onRefresh: _loadPlaylists,
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            for (final playlist in PlaylistTiles.playlists)
+                              Column(
+                                children: [
+                                  const Padding(
+                                    padding: EdgeInsets.all(10),
+                                  ),
+                                  PlaylistItem(
+                                      playlist: playlist,
+                                      getPlaylistInfo: _showPlaylistInfo),
+                                ],
                               ),
-                              PlaylistItem(
-                                  playlist: playlist,
-                                  getPlaylistInfo: _showPlaylistInfo),
-                            ],
-                          ),
-                      ],
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-        if (_showNewWidget)
-          SlideTransition(
-            position: _offsetAnimation,
-            child: PlaylistInfo(playlist: _playlist!, reverse: reverse),
           ),
-      ],
+          if (_showNewWidget)
+            SlideTransition(
+              position: _offsetAnimation,
+              child: PlaylistInfo(playlist: _playlist!, reverse: reverse),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -223,103 +227,105 @@ class PlaylistInfo extends StatelessWidget {
       alignment: Alignment.topCenter,
       child: Container(
         color: const Color.fromARGB(255, 18, 18, 18),
-        height: MediaQuery.of(context).size.height - 140,
-        child: Column(
-          children: [
-            Container(
-              alignment: Alignment.centerLeft,
-              color: const Color.fromARGB(20, 255, 255, 255),
-              width: MediaQuery.of(context).size.width,
-              height: 70,
-              child: Row(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(5),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    color: Colors.white,
-                    onPressed: () {
-                      reverse();
-                    },
-                  ),
-                  const Padding(padding: EdgeInsets.all(5)),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(playlist.name,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            color: Colors.white,
-                            decoration: TextDecoration.none,
-                          )),
-                      Text(playlist.owner,
+        // height: MediaQuery.of(context).size.height - 140,
+        child: Expanded(
+          child: Column(
+            children: [
+              Container(
+                alignment: Alignment.centerLeft,
+                color: const Color.fromARGB(20, 255, 255, 255),
+                width: MediaQuery.of(context).size.width,
+                height: 70,
+                child: Row(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(5),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      color: Colors.white,
+                      onPressed: () {
+                        reverse();
+                      },
+                    ),
+                    const Padding(padding: EdgeInsets.all(5)),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(playlist.name,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              color: Colors.white,
+                              decoration: TextDecoration.none,
+                            )),
+                        Text(playlist.owner,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.white,
+                              decoration: TextDecoration.none,
+                            )),
+                      ],
+                    ),
+                    const Padding(padding: EdgeInsets.all(5)),
+                    Container(
+                      alignment: Alignment.centerRight,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: const Color.fromARGB(20, 255, 255, 255),
+                      ),
+                      padding: const EdgeInsets.all(5),
+                      height: 30,
+                      child: Text('${playlist.songs.length} songs',
                           style: const TextStyle(
                             fontSize: 14,
                             color: Colors.white,
                             decoration: TextDecoration.none,
                           )),
-                    ],
-                  ),
-                  const Padding(padding: EdgeInsets.all(5)),
-                  Container(
-                    alignment: Alignment.centerRight,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: const Color.fromARGB(20, 255, 255, 255),
                     ),
-                    padding: const EdgeInsets.all(5),
-                    height: 30,
-                    child: Text('${playlist.songs.length} songs',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.white,
-                          decoration: TextDecoration.none,
-                        )),
-                  ),
-                  const Spacer(flex: 1),
-                  IconButton(
-                    icon: const Icon(Icons.play_arrow),
-                    color: Colors.white,
-                    onPressed: () {
-                      print('Playing playlist');
-                      //PlayerContainer.player.playPlaylist(playlist);
-                      SocketService.socket.emit('queuePlaylist', 
-                        [playlist.id, false]
-                      );
-                      // PlayerContainer.playPlaylist(playlist.id);
-                    },
-                  ),
-                  const Padding(padding: EdgeInsets.all(5)),
-                ],
+                    const Spacer(flex: 1),
+                    IconButton(
+                      icon: const Icon(Icons.play_arrow),
+                      color: Colors.white,
+                      onPressed: () {
+                        print('Playing playlist');
+                        //PlayerContainer.player.playPlaylist(playlist);
+                        SocketService.socket.emit('queuePlaylist', 
+                          [playlist.id, false]
+                        );
+                        // PlayerContainer.playPlaylist(playlist.id);
+                      },
+                    ),
+                    const Padding(padding: EdgeInsets.all(5)),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height - 210,
-              width: MediaQuery.of(context).size.width,
-              child: SizedBox(
+              SizedBox(
+                height: MediaQuery.of(context).size.height - 210,
                 width: MediaQuery.of(context).size.width,
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      for (final song in playlist.songs)
-                        Column(
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.all(5),
-                            ),
-                            SongItem(song: song)
-                          ],
-                        ),
-                      const Padding(padding: EdgeInsets.all(5)),
-                    ],
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        for (final song in playlist.songs)
+                          Column(
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.all(5),
+                              ),
+                              SongItem(song: song)
+                            ],
+                          ),
+                        const Padding(padding: EdgeInsets.all(5)),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
