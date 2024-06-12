@@ -3,7 +3,7 @@ import { Socket } from 'socket.io';
 import { Subsonic } from './subsonic';
 import { PlayQueue } from './playQueue';
 import { Notify } from './notify';
-import { PlaybackLocation } from './playbackLocation';
+import { PlaybackLocation, playbackLocationType } from './playbackLocation';
 
 // import Device from 'chromecast-api/lib/device';
 import { Local } from './local';
@@ -39,18 +39,25 @@ export class Playback {
 		this.playbackLocation = new PlaybackLocation(location);
 	}
 	
-	async playPlaylist(playlistId: string, shuffle?: boolean) {
-		console.log('Playing playlist');
+	async playPlaylist(socket: Socket, playlistId: string, shuffle?: boolean,) {
+		// console.log('Playing playlist');
 
 		const playlist = (await this.user.getPlaylist({ id: playlistId })).playlist;
 
 		await this.playQueue.queuePlaylist(playlist, shuffle);
 
+		if (this.playbackLocation.device === undefined) {
+			this.playbackLocation = new PlaybackLocation(new Local(socket));
+		}
 		// const song = this.playQueue.nextSong;
 		const song = this.playQueue.userQueue.queue[0];
 
 		this.playbackLocation.play(song);
 		
+		// console.log('Playing playlist', song);
+
+		console.log(this);
+
 		Notify.notifyUsers(this.user.username, 'changeQueue', this.playQueue);
 		Notify.notifyUsers(this.user.username, 'playQueue', { id: song, index: this.playQueue.userQueue.index, uuid: this.playbackLocation.device, name: this.playbackLocation.name });  
 
@@ -112,10 +119,31 @@ export class Playback {
 		}
 	}
 
+	static disconnect(socket: Socket) {
+		console.log('Disconnecting');
+		if (Subsonic.apis[socket.id] === undefined) {
+			return;
+		}
+		console.log(1);
+		const username = Subsonic.apis[socket.id].username;
+		
+		console.log(Playback.users[username].playback.playbackLocation.device!instanceof Local);
+
+		if (Playback.users[username].playback.playbackLocation.type != playbackLocationType.LOCAL) {
+			return;
+		}
+		// eslint-disable-next-line no-magic-numbers
+		console.log(2);
+		if (Playback.users[username].playback.playbackLocation.device!.socket.id === socket.id) {
+			Playback.users[username].playback.setLocation(undefined);
+			console.log('Disconnected');
+		}
+	}
+
 	toJSON() {
 		return {
 			playQueue: this.playQueue,
-			playbackLocation: this.playbackLocation.device?.toJSON() ?? undefined,
+			playbackLocation: this.playbackLocation.device?.toJSON() ?? { state: 'STOPPED', uuid: '' },
 			mode: this.mode,
 		};
 	}

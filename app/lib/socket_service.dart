@@ -36,8 +36,13 @@ class SocketService {
     // });
 
     _socket.onAny((event, data) {
+      // for (final handler in _eventHandlers.entries) {
+      //   print(handler.key);
+      // }
+
       // print(event);
       if (_eventHandlers.containsKey(event)) {
+        // print(data);
         _eventHandlers[event]!(data);
       }
     });

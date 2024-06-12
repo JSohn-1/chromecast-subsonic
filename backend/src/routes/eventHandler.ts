@@ -22,9 +22,9 @@ export const eventHandler = (socket: Socket) => {
 	// 	});
 	// });
 
-	socket.onAny((event, ...args) => {
-		console.log(event, args);
-	});
+	// socket.onAny((event, ...args) => {
+	// 	console.log(event, args);
+	// });
 
 	socket.emit('uuid', { id: socket.id });
 

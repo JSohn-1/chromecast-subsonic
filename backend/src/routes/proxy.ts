@@ -135,7 +135,7 @@ export const subsonicRoutes = (app: express.Application) => {
 export const queueRoutes = (app: express.Application) => {
 	app.get('/queue', (req, res) => {
 		const username = Subsonic.apis[req.query.uuid as string].username;
-		const queue = Playback.users[username].playback;
+		const queue = Playback.users[username].playback.toJSON();
 
 		res.send(queue);
 	});

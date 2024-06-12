@@ -75,6 +75,10 @@ export class Subsonic {
 		return this.apis[uuid] !== undefined;
 	}
 
+	static userExists(username: string): boolean {
+		return Object.values(this.apis).some(api => api.username === username);
+	}
+
 	// generic subsonic methods
 	async getSong(args: { id: string }) {
 		return this._requestHandler<subsonicResponse & {song?: subsonicSong; error?: subsonicError}>('getSong', args);

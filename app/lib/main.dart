@@ -22,24 +22,27 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: Material(
-        child: FutureBuilder<bool>(
-          future: PersistentData.login(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              if (snapshot.data ?? false) {
-                print(PlayerContainer.currentSong?.id);
-                return const HomePage();
-                // return const Text('udj');
-              } else {
-                return const Login();
-              }
-            } else if (snapshot.hasError) {
-          return const Text('Error');
-            } else {
-          return const CircularProgressIndicator();
-            }
-          },
+      home: Scaffold(
+        body: SafeArea(
+          child: Material(
+            child: FutureBuilder<bool>(
+              future: PersistentData.login(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  if (snapshot.data ?? false) {
+                    return const HomePage();
+                    // return const Text('udj');
+                  } else {
+                    return const Login();
+                  }
+                } else if (snapshot.hasError) {
+              return Text(snapshot.error.toString());
+                } else {
+              return const CircularProgressIndicator();
+                }
+              },
+            ),
+          ),
         ),
       ),
     );

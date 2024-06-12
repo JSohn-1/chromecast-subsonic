@@ -22,7 +22,7 @@ export class Notify {
 	}
 
 	static notifyUsers(user: string, event: string, message: object) {
-		console.log(event);
+		// console.log(event);
 		for (const socket of this.users[user]) {
 			socket.socket.emit(event, message);
 		}
