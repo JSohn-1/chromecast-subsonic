@@ -300,9 +300,9 @@ class PlaylistInfo extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height - 210,
-                width: MediaQuery.of(context).size.width,
+              Expanded(
+                // height: MediaQuery.of(context).size.height - 210,
+                // width: MediaQuery.of(context).size.width,
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width,
                   child: SingleChildScrollView(
