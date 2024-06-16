@@ -36,6 +36,9 @@ class PlayerContainer {
 
       PlayerContainer.currentSong = result;
       PlayerContainer.index = data['index'];
+
+      _currentSongStreamController.add(result);
+
       print('playQueue 2');
     });
 
