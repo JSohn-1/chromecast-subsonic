@@ -4,14 +4,12 @@ import 'package:flutter/material.dart';
 import 'socket_service.dart';
 import 'login.dart';
 import 'home_page.dart';
-
 void main() {
   // PlayerContainer.init();
   runApp(
     const MyApp()
   );
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
@@ -21,7 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
-      ),
+      ), 
       home: Scaffold(
         body: SafeArea(
           child: Material(
@@ -31,7 +29,6 @@ class MyApp extends StatelessWidget {
                 if (snapshot.hasData) {
                   if (snapshot.data ?? false) {
                     return const HomePage();
-                    // return const Text('udj');
                   } else {
                     return const Login();
                   }

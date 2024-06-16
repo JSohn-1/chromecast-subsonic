@@ -21,16 +21,56 @@ class PlayerContainer {
     player = AudioPlayer();
     await playQueue();
 
-    // player.playerState
-
     SocketService.on('playQueue', (data) async {
-      print('playQueue 2');
+      final socket = SocketService.socket;
+      final result = await http
+          .get(Uri.parse(
+              '${socket.io.uri}/subsonic?id=${data['id']}&uuid=${socket.id}&method=getSong'))
+          .then((response) {
+        final songData = jsonDecode(response.body);
+        return Song.fromJson(songData['subsonic-response']['song']);
+      });
 
+      PlayerContainer.currentSong = result;
+      PlayerContainer.index = data['index'];
+      print('playQueue 2');
     });
 
     SocketService.on('changeQueue', (data) async {
-      print('changeQueue 2');
+      final socket = SocketService.socket;
+      final player = PlayerContainer.player;
 
+      final response = await http
+          .get(Uri.parse('${socket.io.uri}/queue?uuid=${socket.id}'))
+          .then((response) {
+        return jsonDecode(response.body);
+      });
+
+      PlayerContainer.playlist =
+          response['playQueue']['userQueue']['queue'].cast<String>();
+
+      PlayerContainer.index = response['playQueue']['userQueue']['index'];
+
+      final playlist =
+          ConcatenatingAudioSource(useLazyPreparation: true, children: [
+        for (final song in response['playQueue']['userQueue']['queue'])
+          AudioSource.uri(Uri.parse(
+              '${SocketService.socket.io.uri}/subsonic/stream?id=$song&uuid=${SocketService.socket.id}')),
+      ]);
+
+      if (response['playbackLocation']['uuid'] == socket.id) {
+        await player.setAudioSource(playlist,
+            initialIndex: PlayerContainer.index);
+
+        player.play();
+      }
+      print('changeQueue 2');
+    });
+
+    PlayerContainer.player.currentIndexStream.listen((index) {
+      if (index != null) {
+        PlayerContainer.index = index;
+      }
     });
   }
 
@@ -279,49 +319,9 @@ class _MiniPlayerState extends State<MiniPlayer> {
       setState(() {});
     });
     SocketService.on('playQueue', (data) async {
-      final socket = SocketService.socket;
-      final result = await http
-          .get(Uri.parse(
-              '${socket.io.uri}/subsonic?id=${data['id']}&uuid=${socket.id}&method=getSong'))
-          .then((response) {
-        final songData = jsonDecode(response.body);
-        return Song.fromJson(songData['subsonic-response']['song']);
-      });
-
-      PlayerContainer.currentSong = result;
-      PlayerContainer.index = data['index'];
       setState(() {});
     });
     SocketService.on('changeQueue', (data) async {
-      print('changeQueue response');
-      final socket = SocketService.socket;
-      final player = PlayerContainer.player;
-
-      final response = await http
-          .get(Uri.parse('${socket.io.uri}/queue?uuid=${socket.id}'))
-          .then((response) {
-        return jsonDecode(response.body);
-      });
-        print(response);
-
-      PlayerContainer.playlist =
-          response['playQueue']['userQueue']['queue'].cast<String>();
-
-      // if(response['playQueue']['userQueue']['queue'].isEmpty) return;
-
-      final playlist =
-          ConcatenatingAudioSource(useLazyPreparation: true, children: [
-        for (final song in response['playQueue']['userQueue']['queue'])
-          AudioSource.uri(Uri.parse(
-              '${SocketService.socket.io.uri}/subsonic/stream?id=$song&uuid=${SocketService.socket.id}')),
-      ]);
-
-      if (response['playbackLocation']['uuid'] == socket.id) {
-        await player.setAudioSource(playlist,
-            initialIndex: PlayerContainer.index);
-
-        player.play();
-      }
       setState(() {});
     });
   }

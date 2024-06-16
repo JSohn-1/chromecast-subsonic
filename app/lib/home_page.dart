@@ -87,8 +87,6 @@ class MenuScreen extends StatelessWidget {
             ),
           ),
           Expanded(
-            // height: MediaQuery.of(context).size.height - 210,
-            // width: MediaQuery.of(context).size.width,
             child: SingleChildScrollView(
               child: Column(
                 children: [

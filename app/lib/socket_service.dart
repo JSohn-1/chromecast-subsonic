@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 class SocketService {
   static late IO.Socket _socket;
   static final StreamController<dynamic> _socketResponseController = StreamController<dynamic>.broadcast();
-  static final Map<String, Function(dynamic)> _eventHandlers = {};
+  static final Map<String, List<Function(dynamic)>> _eventHandlers = {};
 
   static Stream<dynamic> get socketResponses => _socketResponseController.stream;
   static IO.Socket get socket => _socket;
@@ -43,7 +43,10 @@ class SocketService {
       // print(event);
       if (_eventHandlers.containsKey(event)) {
         // print(data);
-        _eventHandlers[event]!(data);
+        // _eventHandlers[event]!(data);
+        for (final handler in _eventHandlers[event]!) {
+          handler(data);
+        }
       }
     });
 
@@ -61,7 +64,11 @@ class SocketService {
   }
 
   static void on(String eventName, Function(dynamic) handler) {
-    _eventHandlers[eventName] = handler;
+    if (!_eventHandlers.containsKey(eventName)) {
+      _eventHandlers[eventName] = [];
+    }
+
+    _eventHandlers[eventName]!.add(handler);
   }
 
   static void disposeSocketConnection() {

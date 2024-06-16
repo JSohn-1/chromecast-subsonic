@@ -56,7 +56,7 @@ export class Playback {
 		
 		// console.log('Playing playlist', song);
 
-		console.log(this);
+		// console.log(this);
 
 		Notify.notifyUsers(this.user.username, 'changeQueue', this.playQueue);
 		Notify.notifyUsers(this.user.username, 'playQueue', { id: song, index: this.playQueue.userQueue.index, uuid: this.playbackLocation.device, name: this.playbackLocation.name });  

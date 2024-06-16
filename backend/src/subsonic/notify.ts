@@ -21,9 +21,14 @@ export class Notify {
 		}
 	}
 
-	static notifyUsers(user: string, event: string, message: object) {
+	static notifyUsers(user: string, event: string, message: object, exclude?: string) {
 		// console.log(event);
 		for (const socket of this.users[user]) {
+
+			if (exclude !== undefined && socket.uuid === exclude) {
+				continue;
+			}
+
 			socket.socket.emit(event, message);
 		}
 	}
