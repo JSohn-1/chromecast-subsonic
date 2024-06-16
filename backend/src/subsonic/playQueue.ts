@@ -37,6 +37,10 @@ export class PlayQueue{
 		this.userQueue.queue.push(songId);
 	}
 
+	set index(index: number) {
+		this.userQueue.index = index;
+	}
+
 	get nextSong() {
 		if (this.userQueue.index === -1) {
 			return { id: '', index: -1 };

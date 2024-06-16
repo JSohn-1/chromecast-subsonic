@@ -13,6 +13,14 @@ const queuePlaylist = (socket: Socket, uuid: string) => {
 	});
 };
 
+const setIndex = (socket: Socket, uuid: string) => {
+	socket.on('setIndex', (index: number) => {
+		const username = Subsonic.apis[uuid].username;
+
+		Playback.users[username].playback.setIndex(index);
+	});
+};
+
 const handleDisconnect = (socket: Socket) => {
 	socket.on('disconnect', () => {
 		Playback.disconnect(socket);
@@ -21,5 +29,6 @@ const handleDisconnect = (socket: Socket) => {
 
 export const playback = (socket: Socket, uuid: string) => {
 	queuePlaylist(socket, uuid);
+	setIndex(socket, uuid);
 	handleDisconnect(socket);
 };

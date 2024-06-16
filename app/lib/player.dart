@@ -12,6 +12,8 @@ import 'socket_service.dart';
 
 class PlayerContainer {
   static late final AudioPlayer player;
+  static Stream<Song?> get currentSongStream => _currentSongStreamController.stream;
+  static StreamController<Song?> _currentSongStreamController = StreamController<Song?>.broadcast();
 
   static List<String> playlist = [];
   static Song? currentSong;
@@ -28,6 +30,7 @@ class PlayerContainer {
               '${socket.io.uri}/subsonic?id=${data['id']}&uuid=${socket.id}&method=getSong'))
           .then((response) {
         final songData = jsonDecode(response.body);
+        print(songData['subsonic-response']['song']);
         return Song.fromJson(songData['subsonic-response']['song']);
       });
 
@@ -67,9 +70,25 @@ class PlayerContainer {
       print('changeQueue 2');
     });
 
-    PlayerContainer.player.currentIndexStream.listen((index) {
+    PlayerContainer.player.currentIndexStream.listen((index) async {
       if (index != null) {
         PlayerContainer.index = index;
+
+        final socket = SocketService.socket;
+
+        socket.emit('setIndex', index);
+
+        final song = await http
+            .get(Uri.parse(
+                '${socket.io.uri}/subsonic?id=${playlist[index]}&uuid=${socket.id}&method=getSong'))
+            .then((response) {
+          final songData = jsonDecode(response.body);
+          return Song.fromJson(songData['subsonic-response']['song']);
+        });
+
+        PlayerContainer.currentSong = song;
+
+        _currentSongStreamController.add(song);
       }
     });
   }
@@ -108,6 +127,8 @@ class PlayerContainer {
     // print(response);
 
     if (response['playQueue']['userQueue']['index'] == -1) return;
+
+    print(response);
 
     PlayerContainer.playlist =
         response['playQueue']['userQueue']['queue'].cast<String>();
@@ -309,21 +330,29 @@ class MiniPlayer extends StatefulWidget {
 }
 
 class _MiniPlayerState extends State<MiniPlayer> {
-  StreamSubscription<bool>? _playbackSubscription;
+  late StreamSubscription<Song?> _playbackSubscription;
+
 
   @override
   void initState() {
     super.initState();
-    _playbackSubscription =
-        PlayerContainer.player.playingStream.listen((event) {
+    _playbackSubscription = PlayerContainer.currentSongStream.listen((event) {
       setState(() {});
     });
-    SocketService.on('playQueue', (data) async {
-      setState(() {});
-    });
-    SocketService.on('changeQueue', (data) async {
-      setState(() {});
-    });
+    //     PlayerContainer.player.playingStream.listen((event) {
+    //   setState(() {});
+    // });
+    // SocketService.on('playQueue', (data) async {
+    //   setState(() {});
+    // });
+    // SocketService.on('changeQueue', (data) async {
+    //   setState(() {});
+    // });
+    // PlayerContainer.player.currentIndexStream.listen((index) async {
+    //   if (index != null) {
+    //     setState(() {});
+    //   }
+    // });
   }
 
   @override

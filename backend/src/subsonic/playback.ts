@@ -24,6 +24,10 @@ export class Playback {
 
 	static savePlayback(user: Subsonic, socket: Socket) {
 		if (Playback.users[user.username]) {
+			if (Playback.users[user.username].playback.playbackLocation.type === undefined) {
+				Playback.users[user.username].playback.setLocation(new Local(socket));
+			}
+
 			return;
 		}
 		Playback.users[user.username] = { playback: new Playback(user, socket), api: user };
@@ -97,6 +101,13 @@ export class Playback {
 		// 	Notify.notifyUsers(this.user.username, 'playQueue',  song);
 		// });
 		
+	}
+
+	setIndex(index: number) {
+		this.playQueue.userQueue.index = index;
+		const song = this.playQueue.userQueue.queue[index];
+
+		Notify.notifyUsers(this.user.username, 'playQueue', { id: song, index: index, uuid: this.playbackLocation.device, name: this.playbackLocation.name });
 	}
 
 	next() {

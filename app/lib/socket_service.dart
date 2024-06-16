@@ -17,6 +17,7 @@ class SocketService {
     _socket = IO.io(domain, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
+      'upgrade': false
     });
 
     final Completer<int> completer = Completer<int>();
