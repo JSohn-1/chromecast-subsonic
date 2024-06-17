@@ -17,7 +17,6 @@ class SocketService {
     _socket = IO.io(domain, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
-      'upgrade': false
     });
 
     final Completer<int> completer = Completer<int>();
@@ -27,6 +26,7 @@ class SocketService {
     });
 
     _socket.onConnectError((_) {
+      print('error: $_');
       completer.complete(1);
     });
 
@@ -99,6 +99,7 @@ class PersistentData {
       });
 
       socket.onConnectError((_) {
+        print('1error: $_');
         SocketService.disposeSocketConnection();
       });
 

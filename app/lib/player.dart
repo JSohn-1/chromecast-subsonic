@@ -30,7 +30,6 @@ class PlayerContainer {
               '${socket.io.uri}/subsonic?id=${data['id']}&uuid=${socket.id}&method=getSong'))
           .then((response) {
         final songData = jsonDecode(response.body);
-        print(songData['subsonic-response']['song']);
         return Song.fromJson(songData['subsonic-response']['song']);
       });
 
@@ -130,8 +129,6 @@ class PlayerContainer {
     // print(response);
 
     if (response['playQueue']['userQueue']['index'] == -1) return;
-
-    print(response);
 
     PlayerContainer.playlist =
         response['playQueue']['userQueue']['queue'].cast<String>();
@@ -379,6 +376,7 @@ class _MiniPlayerState extends State<MiniPlayer> {
             width: 50,
             height: 50,
           ),
+          const SizedBox(width: 10),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
