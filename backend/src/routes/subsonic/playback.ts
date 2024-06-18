@@ -27,8 +27,26 @@ const handleDisconnect = (socket: Socket) => {
 	});
 };
 
+const resume = (socket: Socket, uuid: string) => {
+	socket.on('resume', () => {
+		const username = Subsonic.apis[uuid].username;
+
+		Playback.users[username].playback.resume();
+	});
+};
+
+const pause = (socket: Socket, uuid: string) => {
+	socket.on('pause', () => {
+		const username = Subsonic.apis[uuid].username;
+
+		Playback.users[username].playback.pause();
+	});
+};
+
 export const playback = (socket: Socket, uuid: string) => {
 	queuePlaylist(socket, uuid);
 	setIndex(socket, uuid);
 	handleDisconnect(socket);
+	resume(socket, uuid);
+	pause(socket, uuid);
 };

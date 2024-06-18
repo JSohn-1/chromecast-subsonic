@@ -130,6 +130,14 @@ export class Playback {
 		}
 	}
 
+	pause() {
+		this.playbackLocation.pause();
+	}
+
+	resume() {
+		this.playbackLocation.resume();
+	}
+
 	static disconnect(socket: Socket) {
 		if (Subsonic.apis[socket.id] === undefined) {
 			return;

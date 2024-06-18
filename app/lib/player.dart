@@ -18,6 +18,7 @@ class PlayerContainer {
   static List<String> playlist = [];
   static Song? currentSong;
   static int index = -1;
+  static bool playing = false;
 
   static init() async {
     player = AudioPlayer();
@@ -69,6 +70,9 @@ class PlayerContainer {
 
         player.play();
       }
+
+      playing = response['playbackLocation']['uuid'] == socket.id;
+
       print('changeQueue 2');
     });
 
@@ -92,6 +96,11 @@ class PlayerContainer {
 
         _currentSongStreamController.add(song);
       }
+    });
+
+    PlayerContainer.player.playingStream.listen((playing) {
+      final socket = SocketService.socket;
+      socket.emit(playing ? 'play' : 'pause');
     });
   }
 
@@ -299,6 +308,24 @@ class _PlayButtonState extends State<PlayButton> {
         playing = event;
       });
     });
+
+    SocketService.on('resume', (data) async {
+      if (PlayerContainer.playing) {
+        widget.player.play();
+        return;
+      }
+      playing = true;
+      setState(() {});
+    });
+
+    SocketService.on('pause', (data) async {
+      if (PlayerContainer.playing) {
+        widget.player.pause();
+        return;
+      }
+      playing = false;
+      setState(() {});
+    });
   }
 
   @override
@@ -312,8 +339,10 @@ class _PlayButtonState extends State<PlayButton> {
     return ElevatedButton(
       onPressed: () {
         if (playing) {
+          SocketService.socket.emit('pause');
           widget.player.pause();
         } else {
+          SocketService.socket.emit('play');
           widget.player.play();
         }
       },
@@ -352,7 +381,7 @@ class _MiniPlayerState extends State<MiniPlayer> {
     //   if (index != null) {
     //     setState(() {});
     //   }
-    // });
+    // }); 
   }
 
   @override
