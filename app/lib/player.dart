@@ -100,7 +100,7 @@ class PlayerContainer {
 
     PlayerContainer.player.playingStream.listen((playing) {
       final socket = SocketService.socket;
-      socket.emit(playing ? 'play' : 'pause');
+      socket.emit(playing ? 'resume' : 'pause');
     });
   }
 
@@ -309,23 +309,25 @@ class _PlayButtonState extends State<PlayButton> {
       });
     });
 
-    SocketService.on('resume', (data) async {
-      if (PlayerContainer.playing) {
-        widget.player.play();
-        return;
-      }
-      playing = true;
-      setState(() {});
-    });
+    // SocketService.on('resume', (data) async {
+    //   print('resume');
+    //   if (PlayerContainer.playing) {
+    //     widget.player.play();
+    //     return;
+    //   }
+    //   playing = true;
+    //   setState(() {});
+    // });
 
-    SocketService.on('pause', (data) async {
-      if (PlayerContainer.playing) {
-        widget.player.pause();
-        return;
-      }
-      playing = false;
-      setState(() {});
-    });
+    // SocketService.on('pause', (data) async {
+    //   print('pause 2');
+    //   if (PlayerContainer.playing) {
+    //     widget.player.pause();
+    //     return;
+    //   }
+    //   playing = false;
+    //   setState(() {});
+    // });
   }
 
   @override
@@ -339,10 +341,12 @@ class _PlayButtonState extends State<PlayButton> {
     return ElevatedButton(
       onPressed: () {
         if (playing) {
+          print('pause');
           SocketService.socket.emit('pause');
           widget.player.pause();
         } else {
-          SocketService.socket.emit('play');
+          print('resume');
+          SocketService.socket.emit('resume');
           widget.player.play();
         }
       },
@@ -445,6 +449,25 @@ class _MiniPlayButtonState extends State<MiniPlayButton> {
         playing = event;
       });
     });
+    SocketService.on('resume', (data) async {
+      print('resume');
+      if (PlayerContainer.playing) {
+        widget.player.play();
+        return;
+      }
+      playing = true;
+      setState(() {});
+    });
+
+    SocketService.on('pause', (data) async {
+      print('pause 2');
+      if (PlayerContainer.playing) {
+        widget.player.pause();
+        return;
+      }
+      playing = false;
+      setState(() {});
+    });
   }
 
   @override
@@ -458,9 +481,30 @@ class _MiniPlayButtonState extends State<MiniPlayButton> {
     return ElevatedButton(
       onPressed: () {
         if (playing) {
-          widget.player.pause();
+          print('pause');
+          // SocketService.socket.emit('pause');
+          // widget.player.pause();
+
+          if (PlayerContainer.playing) {
+            widget.player.pause();
+            return;
+          }
+          playing = false;
+          SocketService.socket.emit('pause');
+          setState(() {});
+
         } else {
-          widget.player.play();
+          print('resume');
+          // SocketService.socket.emit('resume');
+          // widget.player.play();
+
+          if (PlayerContainer.playing) {
+            widget.player.play();
+            return;
+          }
+          playing = true;
+          SocketService.socket.emit('resume');
+          setState(() {});
         }
       },
       child: Text(playing ? 'Pause' : 'Play'),

@@ -26,12 +26,12 @@ export class Local {
 
 	resume() {
 		this.changeState(playbackState.PLAYING);
-		this.socket.emit('resume');
+		// this.socket.emit('resume');
 	}
 
 	pause() {
 		this.changeState(playbackState.PAUSED);
-		this.socket.emit('pause');
+		// this.socket.emit('pause');
 	}
 
 	changeState(state: playbackState) {

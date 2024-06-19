@@ -31,7 +31,7 @@ const resume = (socket: Socket, uuid: string) => {
 	socket.on('resume', () => {
 		const username = Subsonic.apis[uuid].username;
 
-		Playback.users[username].playback.resume();
+		Playback.users[username].playback.resume(uuid);
 	});
 };
 
@@ -39,7 +39,7 @@ const pause = (socket: Socket, uuid: string) => {
 	socket.on('pause', () => {
 		const username = Subsonic.apis[uuid].username;
 
-		Playback.users[username].playback.pause();
+		Playback.users[username].playback.pause(uuid);
 	});
 };
 

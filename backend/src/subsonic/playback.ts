@@ -130,12 +130,14 @@ export class Playback {
 		}
 	}
 
-	pause() {
+	pause(socketId: string) {
 		this.playbackLocation.pause();
+		Notify.notifyUsers(this.user.username, 'pause', {}, socketId);
 	}
 
-	resume() {
+	resume(socketId: string) {
 		this.playbackLocation.resume();
+		Notify.notifyUsers(this.user.username, 'resume', {}, socketId);
 	}
 
 	static disconnect(socket: Socket) {
