@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:app/home_page.dart';
+import 'package:app/player.dart';
 import "package:flutter/material.dart";
 import 'package:http/http.dart' as http;
 
 import 'socket_service.dart';
 
 class Login extends StatelessWidget {
-  const Login({Key? key}) : super(key: key);
+  const Login({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +98,7 @@ class Login extends StatelessWidget {
         );
       } else {
         await PersistentData.saveLogin(domain, username, password);
+        await PlayerContainer.init();
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const Material(child: HomePage())),

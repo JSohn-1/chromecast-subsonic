@@ -1,6 +1,7 @@
-import 'package:app/player.dart';
 import 'package:app/playlist_menu.dart';
 import 'package:flutter/material.dart';
+
+import 'mini_player.dart';
 
 enum Screen { search, menu, playlists, settings }
 
@@ -29,7 +30,7 @@ class _HomePageState extends State<HomePage> {
             if (screen == Screen.playlists) const PlaylistMenu(),
             if (screen == Screen.settings) const SettingsScreen(),
       
-            /*if (PlayerContainer.currentSong != null)*/ const MiniPlayer(),
+            const MiniPlayer(),
             NavigatorBar(changeMenu: changeScreen),
       
           ],

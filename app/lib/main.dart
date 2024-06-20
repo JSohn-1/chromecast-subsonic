@@ -1,4 +1,3 @@
-import 'package:app/player.dart';
 import 'package:flutter/material.dart';
 
 import 'socket_service.dart';

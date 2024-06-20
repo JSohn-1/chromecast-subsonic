@@ -25,10 +25,8 @@ export class Notify {
 		// console.log(event);
 		for (const socket of this.users[user]) {
 			if (exclude != undefined && socket.uuid === exclude) {
-				console.log(`excluding ${exclude}`);
 				continue;
 			}
-			console.log(`emitting ${event} to ${socket.uuid}`);
 
 			socket.socket.emit(event, message);
 		}
