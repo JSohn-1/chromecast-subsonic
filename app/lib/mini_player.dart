@@ -27,6 +27,10 @@ class _MiniPlayerState extends State<MiniPlayer> {
     return Container(
       padding: const EdgeInsets.all(8),
       width: MediaQuery.of(context).size.width - 10,
+      decoration:  BoxDecoration(
+        color:  const Color.fromARGB(20, 255, 255, 255),
+        borderRadius: BorderRadius.circular(10),
+      ),
       height: 70,
       child: Row(
         children: [
@@ -41,13 +45,14 @@ class _MiniPlayerState extends State<MiniPlayer> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(PlayerContainer.currentSong?.title ?? '',
+              Text(PlayerContainer.currentSong?.title ?? 'Not Playing',
                   style: const TextStyle(
                       color: Colors.white, fontWeight: FontWeight.bold)),
               Text(PlayerContainer.currentSong?.artist ?? '',
                   style: const TextStyle(color: Colors.grey)),
             ],
           ),
+          const Spacer(),
           const MiniSpeakerButton(),
           const MiniPlayButton(),
         ],
