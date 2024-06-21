@@ -4,7 +4,6 @@ import 'socket_service.dart';
 import 'login.dart';
 import 'home_page.dart';
 void main() {
-  // PlayerContainer.init();
   runApp(
     const MyApp()
   );

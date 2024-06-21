@@ -30,7 +30,8 @@ class _HomePageState extends State<HomePage> {
             if (screen == Screen.menu) const MenuScreen(),
             if (screen == Screen.playlists) const PlaylistMenu(),
             if (screen == Screen.settings) const SettingsScreen(),
-      
+
+            const Padding(padding: EdgeInsets.only(bottom: 1)),
             const MiniPlayer(),
             const Padding(padding: EdgeInsets.only(bottom: 10)),
             NavigatorBar(changeMenu: changeScreen),

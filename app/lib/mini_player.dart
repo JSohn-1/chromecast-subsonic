@@ -26,20 +26,21 @@ class _MiniPlayerState extends State<MiniPlayer> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(8),
-      width: MediaQuery.of(context).size.width - 10,
+      width: MediaQuery.of(context).size.width - 20,
       decoration:  BoxDecoration(
         color:  const Color.fromARGB(20, 255, 255, 255),
         borderRadius: BorderRadius.circular(10),
       ),
-      height: 70,
+      height: 60,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.network(
             PlayerContainer.currentSong != null
                 ? '${SocketService.socket.io.uri}/subsonic/cover?id=${PlayerContainer.currentSong?.id}&uuid=${SocketService.socket.id}'
-                : 'https://via.placeholder.com/50',
-            width: 50,
-            height: 50,
+                : 'https://via.placeholder.com/45',
+            width: 45,
+            height: 45,
           ),
           const SizedBox(width: 10),
           Column(
@@ -113,6 +114,7 @@ class _MiniPlayButtonState extends State<MiniPlayButton> {
     return IconButton(
       icon: Icon(playing ? Icons.pause : Icons.play_arrow),
       color: PlayerContainer.currentSong != null ? Colors.white : Colors.grey,
+      iconSize: 40,
       onPressed: () {
         if (PlayerContainer.currentSong == null) return;
 
