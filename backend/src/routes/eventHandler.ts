@@ -8,12 +8,12 @@ import { subsonicWrapper } from './subsonic/wrapper';
 // import { chromecastRoutes } from './chromecast';
 
 export class Sockets {
-	static sockets: { [uuid: string]: Socket } = {};
+	static sockets: { [uuid: string]: {socket: Socket, name: string | undefined} } = {};
 }
 
 export const eventHandler = (socket: Socket) => {
 	// const uuid = uuidv4();
-	Sockets.sockets[socket.id] = socket;
+	Sockets.sockets[socket.id] = {socket: socket, name: undefined};
 	console.log('a user connected: ' + socket.id);
 
 	// socket.on('getMediaInfo', (id: string) => {

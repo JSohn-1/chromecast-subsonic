@@ -19,13 +19,13 @@ export class Playback {
 
 	user: Subsonic;
 	playQueue: PlayQueue;
-	playbackLocation: PlaybackLocation;
+	playbackLocation: PlaybackLocation | undefined;
 	mode: playbackMode = playbackMode.REPEAT;
 
-	static savePlayback(user: Subsonic, socket: Socket) {
+	static savePlayback(user: Subsonic, name: string, socket: Socket) {
 		if (Playback.users[user.username]) {
-			if (Playback.users[user.username].playback.playbackLocation.type === undefined) {
-				Playback.users[user.username].playback.setLocation(new Local(socket));
+			if (Playback.users[user.username].playback.playbackLocation === undefined) {
+				Playback.users[user.username].playback.setLocation(new Local(socket), name);
 			}
 
 			return;
@@ -39,20 +39,24 @@ export class Playback {
 		this.playbackLocation = new PlaybackLocation(new Local(socket), 'Local');
 	}
 
-	setLocation(location: Local | undefined) {
-		this.playbackLocation = new PlaybackLocation(location);
+	setLocation(location: Local, name: string) {
+		this.playbackLocation = new PlaybackLocation(location, name);
 	}
 	
-	async playPlaylist(socket: Socket, playlistId: string, shuffle?: boolean,) {
+	async playPlaylist(playlistId: string, shuffle?: boolean,) {
+		if(this.playbackLocation === undefined) {
+			throw new Error('No playback location');
+		}
+
 		// console.log('Playing playlist');
 
 		const playlist = (await this.user.getPlaylist({ id: playlistId })).playlist;
 
 		await this.playQueue.queuePlaylist(playlist, shuffle);
 
-		if (this.playbackLocation.device === undefined) {
-			this.playbackLocation = new PlaybackLocation(new Local(socket));
-		}
+		// if (this.playbackLocation === undefined) {
+		// 	this.playbackLocation = new PlaybackLocation(new Local(socket), name);
+		// }
 		// const song = this.playQueue.nextSong;
 		const song = this.playQueue.userQueue.queue[0];
 
@@ -82,6 +86,10 @@ export class Playback {
 	}
 
 	playSong(songId: string, addToQueue?: boolean) {
+		if (this.playbackLocation === undefined) {
+			throw new Error('No playback location');
+		}
+
 		this.playQueue.addSong(songId, addToQueue);
 
 		const device = this.playbackLocation.device!;
@@ -104,38 +112,50 @@ export class Playback {
 	}
 
 	setIndex(index: number) {
+		if (this.playbackLocation === undefined) {
+			throw new Error('No playback location');
+		}
+
 		this.playQueue.userQueue.index = index;
 		const song = this.playQueue.userQueue.queue[index];
 
 		Notify.notifyUsers(this.user.username, 'playQueue', { id: song, index: index, uuid: this.playbackLocation.device, name: this.playbackLocation.name });
 	}
 
-	next() {
-		const song = this.playQueue.nextSong;
-		const device = this.playbackLocation.device!;
+	// next() {
+	// 	const song = this.playQueue.nextSong;
+	// 	const device = this.playbackLocation.device!;
 
-		if(song.index !== -1) {
-			device.play(song.id);
-			Notify.notifyUsers(this.user.username, 'playQueue',  song);
-		}
-	}
+	// 	if(song.index !== -1) {
+	// 		device.play(song.id);
+	// 		Notify.notifyUsers(this.user.username, 'playQueue',  song);
+	// 	}
+	// }
 
-	previous() {
-		const song = this.playQueue.previousSong;
-		const device = this.playbackLocation.device!;
+	// previous() {
+	// 	const song = this.playQueue.previousSong;
+	// 	const device = this.playbackLocation.device!;
 
-		if(song.index !== -1) {
-			device.play(song.id);
-			Notify.notifyUsers(this.user.username, 'playQueue',  song);
-		}
-	}
+	// 	if(song.index !== -1) {
+	// 		device.play(song.id);
+	// 		Notify.notifyUsers(this.user.username, 'playQueue',  song);
+	// 	}
+	// }
 
 	pause(socketId: string) {
+		if (this.playbackLocation === undefined) {
+			throw new Error('No playback location');
+		}
+
 		this.playbackLocation.pause();
 		Notify.notifyUsers(this.user.username, 'pause', {}, socketId);
 	}
 
 	resume(socketId: string) {
+		if (this.playbackLocation === undefined) {
+			throw new Error('No playback location');
+		}
+
 		this.playbackLocation.resume();
 		Notify.notifyUsers(this.user.username, 'resume', {}, socketId);
 	}
@@ -147,16 +167,23 @@ export class Playback {
 
 		const username = Subsonic.apis[socket.id].username;
 		
-		if (Playback.users[username].playback.playbackLocation.type != playbackLocationType.LOCAL) {
+		if (Playback.users[username].playback.playbackLocation === undefined) {
+			throw new Error('No playback location');
+		}
+
+		if (Playback.users[username].playback.playbackLocation!.type != playbackLocationType.LOCAL) {
 			return;
 		}
 
-		if (Playback.users[username].playback.playbackLocation.device!.socket.id === socket.id) {
-			Playback.users[username].playback.setLocation(undefined);
+		if (Playback.users[username].playback.playbackLocation!.device!.socket.id === socket.id) {
+			Playback.users[username].playback.playbackLocation = undefined;
 		}
 	}
 
 	toJSON() {
+		if (this.playbackLocation === undefined) {
+			throw new Error('No playback location');
+		}
 		return {
 			playQueue: this.playQueue,
 			playbackLocation: this.playbackLocation.device?.toJSON() ?? { state: 'STOPPED', uuid: '' },

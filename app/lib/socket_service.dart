@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:app/player.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:device_info_plus/device_info_plus.dart';
 
 class SocketService {
   static late IO.Socket _socket;
@@ -78,6 +80,27 @@ class SocketService {
 }
 
 class PersistentData {
+  static Future<String> getDeviceName() async {
+    final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    if (Platform.isAndroid) {
+      final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      return androidInfo.model;
+    } else if (Platform.isIOS) {
+      final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      return iosInfo.name;
+    } else if (Platform.isMacOS) {
+      final MacOsDeviceInfo macInfo = await deviceInfo.macOsInfo;
+      return macInfo.computerName;
+    } else if (Platform.isWindows) {
+      final WindowsDeviceInfo windowsInfo = await deviceInfo.windowsInfo;
+      return windowsInfo.computerName;
+    } else if (Platform.isLinux) {
+      final LinuxDeviceInfo linuxInfo = await deviceInfo.linuxInfo;
+      return linuxInfo.prettyName;
+    }
+    return 'Unknown';
+  }
+
   static Future<bool> login() async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -93,7 +116,6 @@ class PersistentData {
       final Completer<int> completer = Completer<int>();
 
       socket.onConnect((_) async {
-        
         completer.complete(0);
         socket.off('connect');
       });
@@ -111,8 +133,12 @@ class PersistentData {
         return false;
       }
 
+      final name = await getDeviceName();
+
+      print('name: $name');
+
       final res = await http.post(
-        Uri.parse('$domain/subsonic/login?&uuid=${socket.id}&username=$username&password=$password'),
+        Uri.parse('$domain/subsonic/login?&uuid=${socket.id}&name=$name&username=$username&password=$password'),
       );
 
       if (res.statusCode == 200) {

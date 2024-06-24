@@ -59,18 +59,18 @@ export const subsonicRoutes = (app: express.Application) => {
 	app.use(cors());
 
 	app.post('/subsonic/login', async (req, res) => {
-		if (!req.query.uuid || !req.query.username || !req.query.password) {
+		if (!req.query.uuid || !req.query.username || !req.query.password || !req.query.name) {
 			// eslint-disable-next-line no-magic-numbers
 			res.status(400).send({ message: 'username and password must be provided' });
 			return;
 		}
 
-		const response = await Subsonic.login(req.query.uuid as string, req.query.username as string, req.query.password as string, req.query.uuid as string);
+		const response = await Subsonic.login(req.query.uuid as string, req.query.name as string, req.query.username as string, req.query.password as string, req.query.uuid as string);
 
 		if (response.success) {
-			Notify.newUser(req.query.username as string, req.query.uuid as string, Sockets.sockets[req.query.uuid as string]);
+			Notify.newUser(req.query.username as string, req.query.uuid as string, Sockets.sockets[req.query.uuid as string].socket);
 
-			Playback.savePlayback(Subsonic.apis[req.query.uuid as string], Sockets.sockets[req.query.uuid as string]);
+			Playback.savePlayback(Subsonic.apis[req.query.uuid as string], req.query.name as string, Sockets.sockets[req.query.uuid as string].socket);
 		}
 
 		res.status(response.success ? 

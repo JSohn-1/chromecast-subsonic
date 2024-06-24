@@ -9,12 +9,12 @@ export enum playbackLocationType {
 }
 
 export class PlaybackLocation {
-	type: playbackLocationType | undefined;
-	name: string | undefined;
-	device: Local | undefined;
+	type: playbackLocationType;
+	name: string;
+	device: Local;
 
-	constructor(playbackLocation: Local | undefined, name?: string) {
-		this.type = playbackLocation instanceof Local ? playbackLocationType.LOCAL : undefined;
+	constructor(playbackLocation: Local, name: string) {
+		this.type = playbackLocationType.LOCAL;
 		this.device = playbackLocation;
 		this.name = name;
 

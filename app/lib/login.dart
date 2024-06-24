@@ -104,7 +104,6 @@ class Login extends StatelessWidget {
           MaterialPageRoute(builder: (context) => const Material(child: HomePage())),
         );
       }
-
     }
 
     return Scaffold(
@@ -136,5 +135,4 @@ class Login extends StatelessWidget {
       ),
     );
   }
-
 }

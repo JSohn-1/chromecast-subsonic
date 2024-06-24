@@ -37,7 +37,7 @@ export class Subsonic {
 		this.password = password;
 	}
 
-	static async login(uuid: string, username: string, password: string, socketId: string) {
+	static async login(uuid: string, name: string, username: string, password: string, socketId: string) {
 		if (this.apis[uuid] !== undefined) {
 			return { success: false, message: 'already signed in' };
 		}
@@ -49,8 +49,8 @@ export class Subsonic {
 			if (data['subsonic-response'].status === 'ok') {
 				const api = new Subsonic(username, password);
 				this.apis[uuid] = api;
-				const socket = Sockets.sockets[socketId] as Socket;
-				Playback.savePlayback(api, socket);
+				const socket = Sockets.sockets[socketId].socket as Socket;
+				Playback.savePlayback(api, name, socket);
 
 				return { success: true };
 			} else {
