@@ -152,9 +152,9 @@ class MiniSpeakerButton extends StatelessWidget {
       icon: const Icon(Icons.speaker_group_rounded),
       color: Colors.white,
       onPressed: () {
-        showMaterialModalBottomSheet(
+        showBarModalBottomSheet(
         context: context,
-        builder: (context) => Container(),
+        builder: (context) => Container(color: Colors.white, height: 300),
         );
       },
     );

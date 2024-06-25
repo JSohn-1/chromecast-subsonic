@@ -7,6 +7,7 @@ import { PlaybackLocation, playbackLocationType } from './playbackLocation';
 
 // import Device from 'chromecast-api/lib/device';
 import { Local } from './local';
+import { Sockets } from '../routes/eventHandler';
 
 export enum playbackMode {
 	LOOP = 'LOOP',
@@ -20,6 +21,7 @@ export class Playback {
 	user: Subsonic;
 	playQueue: PlayQueue;
 	playbackLocation: PlaybackLocation | undefined;
+	playbackLocations: PlaybackLocation[] = [];
 	mode: playbackMode = playbackMode.REPEAT;
 
 	static savePlayback(user: Subsonic, name: string, socket: Socket) {
@@ -27,10 +29,12 @@ export class Playback {
 			if (Playback.users[user.username].playback.playbackLocation === undefined) {
 				Playback.users[user.username].playback.setLocation(new Local(socket), name);
 			}
+			Playback.users[user.username].playback.playbackLocations.push(new PlaybackLocation(new Local(socket), name));
 
 			return;
 		}
 		Playback.users[user.username] = { playback: new Playback(user, socket), api: user };
+		Playback.users[user.username].playback.playbackLocations.push(new PlaybackLocation(new Local(socket), name));
 	}
 
 	constructor(user: Subsonic, socket: Socket) {
@@ -43,9 +47,14 @@ export class Playback {
 		this.playbackLocation = new PlaybackLocation(location, name);
 	}
 	
-	async playPlaylist(playlistId: string, shuffle?: boolean,) {
-		if(this.playbackLocation === undefined) {
-			throw new Error('No playback location');
+	async playPlaylist(playlistId: string, socketId: string, shuffle?: boolean,) {
+		// if(this.playbackLocation === undefined) {
+		// 	throw new Error('No playback location');
+		// }
+
+		if (this.playbackLocation === undefined) {
+			const socket = Sockets.sockets[socketId].socket;
+			this.playbackLocation = new PlaybackLocation(new Local(socket), Sockets.sockets[socketId].name as string);
 		}
 
 		// console.log('Playing playlist');
@@ -152,12 +161,34 @@ export class Playback {
 	}
 
 	resume(socketId: string) {
+		// if (this.playbackLocation === undefined) {
+		// 	throw new Error('No playback location');
+		// }
+
 		if (this.playbackLocation === undefined) {
-			throw new Error('No playback location');
+			const socket = Sockets.sockets[socketId].socket;
+			this.playbackLocation = new PlaybackLocation(new Local(socket), Sockets.sockets[socketId].name as string);
+
+			socket.emit('setLocation', socketId, true);
 		}
 
 		this.playbackLocation.resume();
 		Notify.notifyUsers(this.user.username, 'resume', {}, socketId);
+	}
+
+	changePlaybackLocation(socketId: string): { success: boolean, message: string } {
+		const location = this.playbackLocations.find((location) => location.device.socket.id === socketId);
+
+		if (location === undefined) {
+			return {'success': false, 'message': 'Location not found'};
+		}
+
+		this.playbackLocation = location;
+
+		const socket = location.device!.socket;
+
+		socket.emit('setLocation', socketId, true);
+		return {'success': true, 'message': 'Location changed'};
 	}
 
 	static disconnect(socket: Socket) {
@@ -167,6 +198,8 @@ export class Playback {
 
 		const username = Subsonic.apis[socket.id].username;
 		
+		Playback.users[username].playback.playbackLocations = Playback.users[username].playback.playbackLocations.filter((location) => location.device!.socket.id !== socket.id);
+
 		if (Playback.users[username].playback.playbackLocation === undefined) {
 			throw new Error('No playback location');
 		}

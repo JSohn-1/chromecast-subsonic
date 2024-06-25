@@ -140,3 +140,21 @@ export const queueRoutes = (app: express.Application) => {
 		res.send(queue);
 	});
 };
+
+export const playbackRoutes = (app: express.Application) => {
+	app.post('/changeLocation', (req, res) => {
+		if (!req.query.target) {
+			// eslint-disable-next-line no-magic-numbers
+			res.status(400).send({ message: 'target must be provided as a parameter' });
+			return;
+		}
+
+		const username = Subsonic.apis[req.query.uuid as string].username;
+		// const location = req.body.location;
+		const target = req.query.target as string;
+
+		const change = Playback.users[username].playback.changePlaybackLocation(target);
+
+		res.send(change);
+	});
+};

@@ -76,6 +76,21 @@ class PlayerContainer {
       print('changeQueue 2');
     });
 
+    SocketService.on('setLocation', (data) {
+      print(data);
+      // final player = PlayerContainer.player;
+
+      // if (data['uuid'] == SocketService.socket.id) {
+      //   if (data['location'] == 'queue') {
+      //     player.play();
+      //   } else {
+      //     player.pause();
+      //   }
+      // }
+
+      // playing = data['location'] == 'queue';
+    });
+
     PlayerContainer.player.currentIndexStream.listen((index) async {
       if (index != null) {
         PlayerContainer.index = index;
