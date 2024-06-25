@@ -71,8 +71,12 @@ class Login extends StatelessWidget {
 
       final socket = SocketService.socket;
 
+      final name = await PersistentData.getDeviceName();
+
+      print('name $name');
+
       final res = await http.post(
-        Uri.parse('$domain/subsonic/login?&uuid=${socket.id}&username=$username&password=$password'),
+        Uri.parse('$domain/subsonic/login?&uuid=${socket.id}&name=$name&username=$username&password=$password'),
       );
 
       Navigator.pop(context);
