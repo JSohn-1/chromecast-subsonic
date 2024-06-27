@@ -11,7 +11,7 @@ import 'package:http/http.dart' as http;
 import 'socket_service.dart';
 
 class PlayerContainer {
-  static late final AudioPlayer player;
+  static final AudioPlayer player = AudioPlayer(handleInterruptions: false);
   static Stream<Song?> get currentSongStream => _currentSongStreamController.stream;
   static StreamController<Song?> _currentSongStreamController = StreamController<Song?>.broadcast();
 
@@ -21,7 +21,7 @@ class PlayerContainer {
   static bool playing = false;
 
   static init() async {
-    player = AudioPlayer();
+    // player = AudioPlayer();
     await playQueue();
 
     SocketService.on('playQueue', (data) async {
@@ -76,19 +76,24 @@ class PlayerContainer {
       print('changeQueue 2');
     });
 
-    SocketService.on('setLocation', (data) {
+    SocketService.on('setLocation', (data) async {
       print(data);
-      // final player = PlayerContainer.player;
+      final player = PlayerContainer.player;
 
-      // if (data['uuid'] == SocketService.socket.id) {
-      //   if (data['location'] == 'queue') {
-      //     player.play();
-      //   } else {
-      //     player.pause();
-      //   }
-      // }
+      if (data[0] == SocketService.socket.id) {
+        if (data[1]) {
+          final playlist = ConcatenatingAudioSource(children: [
+            for (final song in PlayerContainer.playlist) 
+              AudioSource.uri(Uri.parse('${SocketService.socket.io.uri}/subsonic/stream?id=$song&uuid=${SocketService.socket.id}'))
+          ]);
+          await player.setAudioSource(playlist, initialIndex: PlayerContainer.index);
+          player.play();
+        } else {
+          player.pause();
+        }
+      }
 
-      // playing = data['location'] == 'queue';
+      playing = data[1];
     });
 
     PlayerContainer.player.currentIndexStream.listen((index) async {

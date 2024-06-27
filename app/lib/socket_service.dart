@@ -16,6 +16,7 @@ class SocketService {
   static IO.Socket get socket => _socket;
 
   static Future<bool> createSocketConnection(String domain) async {
+    print('creating socket connection');
     _socket = IO.io(domain, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
@@ -31,12 +32,6 @@ class SocketService {
       print('error: $_');
       completer.complete(1);
     });
-
-    // _socket.on('event', (data) {
-    //   if (_eventHandlers.containsKey(data['type'])) {
-    //     _eventHandlers[data['type']]!(data['payload']);
-    //   }
-    // });
 
     _socket.onAny((event, data) {
       // for (final handler in _eventHandlers.entries) {
@@ -55,7 +50,7 @@ class SocketService {
 
     _socket.connect();
 
-    final result = await Future.any([completer.future, Future.delayed(const Duration(seconds: 5), () => 1)]);
+    final result = await Future.any([completer.future/*, Future.delayed(const Duration(seconds: 5), () {print('timed out'); return 1;})*/]);
 
     if (result == 1) {
       disposeSocketConnection();
@@ -125,7 +120,7 @@ class PersistentData {
         SocketService.disposeSocketConnection();
       });
 
-      final result = await Future.any([completer.future, Future.delayed(const Duration(seconds: 5), () => 1)]);
+      final result = await Future.any([completer.future/*, Future.delayed(const Duration(seconds: 5), () => 1)*/]);
 
       if (result == 1) {
         print('Failed to connect to server');

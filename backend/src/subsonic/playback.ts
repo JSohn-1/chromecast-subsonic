@@ -68,7 +68,6 @@ export class Playback {
 		// }
 		// const song = this.playQueue.nextSong;
 		const song = this.playQueue.userQueue.queue[0];
-
 		this.playbackLocation.play(song);
 		
 		// console.log('Playing playlist', song);
