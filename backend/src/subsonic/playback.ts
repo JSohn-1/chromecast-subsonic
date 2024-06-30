@@ -26,9 +26,14 @@ export class Playback {
 
 	static savePlayback(user: Subsonic, name: string, socket: Socket) {
 		if (Playback.users[user.username]) {
-			if (Playback.users[user.username].playback.playbackLocation === undefined) {
-				Playback.users[user.username].playback.setLocation(new Local(socket), name);
-			}
+			console.log(1);
+			// if (Playback.users[user.username].playback.playbackLocation === undefined) {
+			// 	// eslint-disable-next-line no-magic-numbers
+			// 	console.log(2);
+			// 	Playback.users[user.username].playback.setLocation(new Local(socket), name);
+			// 	socket.emit('setLocation', socket.id, true);
+
+			// }
 			Playback.users[user.username].playback.playbackLocations.push(new PlaybackLocation(new Local(socket), name));
 
 			return;
@@ -151,20 +156,19 @@ export class Playback {
 	// }
 
 	pause(socketId: string) {
-		if (this.playbackLocation === undefined) {
-			throw new Error('No playback location');
-		}
-
-		this.playbackLocation.pause();
-		Notify.notifyUsers(this.user.username, 'pause', {}, socketId);
-	}
-
-	resume(socketId: string) {
 		// if (this.playbackLocation === undefined) {
 		// 	throw new Error('No playback location');
 		// }
 
+		this.playbackLocation?.pause();
+		Notify.notifyUsers(this.user.username, 'pause', {}, socketId);
+	}
+
+	resume(socketId: string) {
+		console.log('resuming');
+		// console.log(this.playbackLocation);
 		if (this.playbackLocation === undefined) {
+			console.log('locaiton was undefined');
 			const socket = Sockets.sockets[socketId].socket;
 			this.playbackLocation = new PlaybackLocation(new Local(socket), Sockets.sockets[socketId].name as string);
 
@@ -208,17 +212,15 @@ export class Playback {
 		}
 
 		if (Playback.users[username].playback.playbackLocation!.device!.socket.id === socket.id) {
+			console.log('Disconnecting');
 			Playback.users[username].playback.playbackLocation = undefined;
 		}
 	}
 
 	toJSON() {
-		if (this.playbackLocation === undefined) {
-			throw new Error('No playback location');
-		}
 		return {
 			playQueue: this.playQueue,
-			playbackLocation: this.playbackLocation.device?.toJSON() ?? { state: 'STOPPED', uuid: '' },
+			playbackLocation: this.playbackLocation?.device?.toJSON() ?? { state: 'STOPPED', uuid: '' },
 			mode: this.mode,
 		};
 	}

@@ -38,7 +38,7 @@ class SocketService {
       //   print(handler.key);
       // }
 
-      // print('event $event');
+      print('event $event');
       if (_eventHandlers.containsKey(event)) {
         // print(data);
         // _eventHandlers[event]!(data);

@@ -74,23 +74,25 @@ class PlayerContainer {
     });
 
     SocketService.on('setLocation', (data) async {
-      print(data);
+      print('setlocation: $data');
       final player = PlayerContainer.player;
 
       if (data[0] == SocketService.socket.id) {
         if (data[1]) {
+          print('playing');
           final playlist = ConcatenatingAudioSource(children: [
             for (final song in PlayerContainer.playlist) 
               AudioSource.uri(Uri.parse('${SocketService.socket.io.uri}/subsonic/stream?id=$song&uuid=${SocketService.socket.id}'))
           ]);
           await player.setAudioSource(playlist, initialIndex: PlayerContainer.index);
           player.play();
+
         } else {
           player.pause();
         }
       }
 
-      playing = data[1];
+      playing = data[0] == SocketService.socket.id;
     });
 
     PlayerContainer.player.currentIndexStream.listen((index) async {
@@ -116,6 +118,7 @@ class PlayerContainer {
     });
 
     PlayerContainer.player.playingStream.listen((playing) {
+      print('playing: $playing');
       final socket = SocketService.socket;
       socket.emit(playing ? 'resume' : 'pause');
     });
