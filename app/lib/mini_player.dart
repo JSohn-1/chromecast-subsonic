@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:app/playback_locations_service.dart';
 import 'package:app/player.dart';
 import 'package:app/socket_service.dart';
 import 'package:flutter/material.dart';
@@ -202,7 +203,33 @@ class MiniSpeakerButton extends StatelessWidget {
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 15,
-                                fontWeight: FontWeight.bold))))
+                                fontWeight: FontWeight.bold)))),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 10),
+                ),
+                SingleChildScrollView(
+                  child: StreamBuilder<String>(
+                    stream: PlaybackLocationsService.messageStream,
+                    builder: (context, snapshot) {
+                      return Column(
+                        children: [
+                          for (final device in PlaybackLocationsService.playbackLocations)
+                            ListTile(
+                              title: Text(device['name'] ?? 'Unknown',
+                                  style: const TextStyle(color: Colors.white)),
+                              onTap: () {
+                                SocketService.socket.emit('setLocation', [
+                                  device['uuid'],
+                                  PlayerContainer.playing,
+                                ]);
+                                Navigator.pop(context);
+                              },
+                            ),
+                        ],
+                      );
+                    }
+                  ),
+                ),
               ])),
         );
       },

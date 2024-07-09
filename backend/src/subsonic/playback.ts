@@ -27,14 +27,8 @@ export class Playback {
 	static savePlayback(user: Subsonic, name: string, socket: Socket) {
 		if (Playback.users[user.username]) {
 			console.log(1);
-			// if (Playback.users[user.username].playback.playbackLocation === undefined) {
-			// 	// eslint-disable-next-line no-magic-numbers
-			// 	console.log(2);
-			// 	Playback.users[user.username].playback.setLocation(new Local(socket), name);
-			// 	socket.emit('setLocation', socket.id, true);
-
-			// }
 			Playback.users[user.username].playback.playbackLocations.push(new PlaybackLocation(new Local(socket), name));
+			Notify.notifyUsersExcept(user.username, 'newLocation', socket.id, { id: socket.id, name });
 
 			return;
 		}
@@ -161,7 +155,7 @@ export class Playback {
 		// }
 
 		this.playbackLocation?.pause();
-		Notify.notifyUsers(this.user.username, 'pause', {}, socketId);
+		Notify.notifyUsersExcept(this.user.username, socketId, 'pause');
 	}
 
 	resume(socketId: string) {
@@ -176,7 +170,7 @@ export class Playback {
 		}
 
 		this.playbackLocation.resume();
-		Notify.notifyUsers(this.user.username, 'resume', {}, socketId);
+		Notify.notifyUsers(this.user.username, socketId, 'resume');
 	}
 
 	changePlaybackLocation(socketId: string): { success: boolean, message: string } {
@@ -192,6 +186,15 @@ export class Playback {
 
 		socket.emit('setLocation', socketId, true);
 		return {'success': true, 'message': 'Location changed'};
+	}
+
+	getPlaybackLocations(exclude?: string) {
+		const locations = this.playbackLocations.map(location => ({ id: location.device.socket.id, name: location.name }));
+
+		if (exclude) 
+			return locations.filter(location => location.id !== exclude);
+		
+		return locations;
 	}
 
 	static disconnect(socket: Socket) {
@@ -214,6 +217,7 @@ export class Playback {
 		if (Playback.users[username].playback.playbackLocation!.device!.socket.id === socket.id) {
 			console.log('Disconnecting');
 			Playback.users[username].playback.playbackLocation = undefined;
+			Notify.notifyUsers(username, 'removeLocation', socket.id);
 		}
 	}
 

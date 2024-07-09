@@ -22,17 +22,18 @@ class PlayerContainer {
     await playQueue();
 
     SocketService.on('playQueue', (data) async {
+      print('data: $data');
       final socket = SocketService.socket;
       final result = await http
           .get(Uri.parse(
-              '${socket.io.uri}/subsonic?id=${data['id']}&uuid=${socket.id}&method=getSong'))
+              '${socket.io.uri}/subsonic?id=${data[0]['id']}&uuid=${socket.id}&method=getSong'))
           .then((response) {
         final songData = jsonDecode(response.body);
         return Song.fromJson(songData['subsonic-response']['song']);
       });
 
       PlayerContainer.currentSong = result;
-      PlayerContainer.index = data['index'];
+      PlayerContainer.index = data[0]['index'];
 
       _currentSongStreamController.add(result);
 
