@@ -8,7 +8,7 @@
     "clean": "tsc --build --clean",
     "run": "node --trace-warnings ./dist/src/index.js",
     "bun-run": "bun ./src/index.ts",
-    "test": "jest --detectOpenHandles --silent=false",
+    "test": "jest --detectOpenHandles --silent=false --runInBand",
     "windowsDebug": "@powershell -Command $env:DEBUG='chromecast-api';node backend/dist/src/index.js > log.txt 2>&1"
   },
   "author": "yacob",

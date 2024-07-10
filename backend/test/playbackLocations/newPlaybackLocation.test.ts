@@ -52,9 +52,29 @@ describe('new playback location support', () => {
 		});
 	});
 
-	beforeEach(() => {
+	beforeEach((done) => {
 		Notify.users = {};
 		Playback.users = {};
+
+		const socketPromises = [];
+		if (!clientSocketOne.connected) {
+			socketPromises.push(new Promise<void>((resolve) => clientSocketOne.on('connect', resolve)));
+		} else {
+			clientSocketOne.removeAllListeners();
+		}
+
+		if (!clientSocketTwo.connected) {
+			socketPromises.push(new Promise<void>((resolve) => clientSocketTwo.on('connect', resolve)));
+		} else {
+			clientSocketTwo.removeAllListeners();
+		}
+
+		if(serverSockets.length === 0) 
+			done();
+
+		Promise.all(socketPromises).then(() => {
+			done();
+		});
 	});
 
 	afterAll(() => {
@@ -64,6 +84,7 @@ describe('new playback location support', () => {
 	});
 
 	test('should notify when new location connects', (done) => {
+		// console.log('connected ' + Notify.users[0]);
 		const subsonicClient = new Subsonic('test', 'test');
 
 		Notify.newUser('test', serverSockets[0].id, serverSockets[0]);
@@ -78,6 +99,39 @@ describe('new playback location support', () => {
 		Playback.savePlayback(subsonicClient, 'second', serverSockets[1]);
 	});
 
+	test('should notify when location changes only once', (done) => {
+		const subsonicClient = new Subsonic('test', 'test');
+		const timeoutPeriod = 1000;
+
+		Notify.newUser('test', serverSockets[0].id, serverSockets[0]);
+		Playback.savePlayback(subsonicClient, 'first', serverSockets[0]);
+
+		let notificationCount = 0;
+
+		clientSocketOne.on('newLocation', (data) => {
+			expect(data).toEqual([clientSocketTwo.id, 'second']);
+			notificationCount++;
+
+			if (notificationCount > 1) {
+				expect(notificationCount).toBe(1);
+				console.log('Received multiple notifications: ' + notificationCount);
+				done('Received multiple notifications: ' + notificationCount);
+				// throw new Error('Received multiple notifications: ' + notificationCount);
+			}
+		});
+
+		Notify.newUser('test', serverSockets[1].id, serverSockets[1]);
+		Playback.savePlayback(subsonicClient, 'second', serverSockets[1]);
+
+		setTimeout(() => {
+			if (notificationCount === 1) {
+				done();
+			} else {
+				done('Did not receive notification');
+			}
+		}, timeoutPeriod);
+	});
+	
 	test('should notify when location disconnects', (done) => {
 		const id = serverSockets[1].id;
 		const subsonicClient = new Subsonic('test', 'test');

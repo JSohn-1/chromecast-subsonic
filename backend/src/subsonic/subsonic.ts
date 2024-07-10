@@ -126,7 +126,6 @@ export class Subsonic {
 			url += key + '=' + value + '&';
 		});
 		url = url.slice(0, -1);
-		console.log('url: $ { url }');
 		return url;
 	}
 
