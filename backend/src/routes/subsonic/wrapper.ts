@@ -8,7 +8,7 @@ import { Subsonic } from '../../subsonic/subsonic';
 import { Notify } from '../../subsonic/notify';
 import { Playback } from '../../subsonic/playback';
 import { playback } from './playback';
-import { chromecast } from './chromecast';
+// import { chromecast } from './chromecast';
 
 export const subsonicWrapper = (socket: Socket, uuid: string) => {
 	socket.on('login', async (name: string, username: string, password: string ) => {
@@ -35,6 +35,6 @@ export const subsonicWrapper = (socket: Socket, uuid: string) => {
 	// playlists(socket);
 	media(socket, uuid);
 	playback(socket, uuid);
-	chromecast(socket);
+	// chromecast(socket);
 
 };

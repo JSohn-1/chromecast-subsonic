@@ -7,7 +7,7 @@ import 'package:app/socket_service.dart';
 
 class PlaybackLocationsService {
   static List<Map<String, String>> playbackLocations = [];
-  static StreamController<String> _messageStreamController = StreamController<String>.broadcast();
+  static final StreamController<String> _messageStreamController = StreamController<String>.broadcast();
 
   static Stream<String> get messageStream => _messageStreamController.stream;
 
@@ -22,6 +22,7 @@ class PlaybackLocationsService {
   static Future<void> init() async {
     // Get playback locations
     SocketService.on('newLocation', (data) {
+      print('data: $data');
       playbackLocations.add({'id': data[0], 'name': data[1]});
       sendMessage('update');
     });

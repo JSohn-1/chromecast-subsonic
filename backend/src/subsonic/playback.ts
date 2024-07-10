@@ -28,7 +28,7 @@ export class Playback {
 		if (Playback.users[user.username]) {
 			console.log(1);
 			Playback.users[user.username].playback.playbackLocations.push(new PlaybackLocation(new Local(socket), name));
-			Notify.notifyUsersExcept(user.username, 'newLocation', socket.id, { id: socket.id, name });
+			Notify.notifyUsersExcept(user.username, 'newLocation', socket.id, socket.id, name );
 
 			return;
 		}
@@ -155,7 +155,7 @@ export class Playback {
 		// }
 
 		this.playbackLocation?.pause();
-		Notify.notifyUsersExcept(this.user.username, socketId, 'pause');
+		Notify.notifyUsersExcept(this.user.username, 'pause', socketId);
 	}
 
 	resume(socketId: string) {
@@ -170,7 +170,7 @@ export class Playback {
 		}
 
 		this.playbackLocation.resume();
-		Notify.notifyUsers(this.user.username, socketId, 'resume');
+		Notify.notifyUsersExcept(this.user.username, 'resume', socketId);
 	}
 
 	changePlaybackLocation(socketId: string): { success: boolean, message: string } {
@@ -205,6 +205,7 @@ export class Playback {
 		const username = Subsonic.apis[socket.id].username;
 		
 		Playback.users[username].playback.playbackLocations = Playback.users[username].playback.playbackLocations.filter((location) => location.device!.socket.id !== socket.id);
+		Notify.notifyUsers(username, 'removeLocation', socket.id);
 
 		if (Playback.users[username].playback.playbackLocation === undefined) {
 			throw new Error('No playback location');
@@ -217,7 +218,6 @@ export class Playback {
 		if (Playback.users[username].playback.playbackLocation!.device!.socket.id === socket.id) {
 			console.log('Disconnecting');
 			Playback.users[username].playback.playbackLocation = undefined;
-			Notify.notifyUsers(username, 'removeLocation', socket.id);
 		}
 	}
 

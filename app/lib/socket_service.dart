@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:app/playback_locations_service.dart';
 import 'package:app/player.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -139,6 +140,7 @@ class PersistentData {
       if (res.statusCode == 200) {
         // print(socketService.socket.id);
         await PlayerContainer.init();
+        await PlaybackLocationsService.init();
 
         return true;
       } else {

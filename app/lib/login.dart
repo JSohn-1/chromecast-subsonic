@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:app/home_page.dart';
+import 'package:app/playback_locations_service.dart';
 import 'package:app/player.dart';
 import "package:flutter/material.dart";
 import 'package:http/http.dart' as http;
@@ -103,6 +104,7 @@ class Login extends StatelessWidget {
       } else {
         await PersistentData.saveLogin(domain, username, password);
         await PlayerContainer.init();
+        await PlaybackLocationsService.init();
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const Material(child: HomePage())),

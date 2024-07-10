@@ -1,8 +1,8 @@
 import fetch from 'node-fetch';
 import cryptoRandomString from 'crypto-random-string';
 import md5 from 'md5';
-import dotenv from 'dotenv';
-dotenv.config();
+// import dotenv from 'dotenv';
+// dotenv.config();
 
 // import config from '../../config.json';
 import { subsonicError, subsonicResponse, subsonicSong, subsonicPlaylist } from './types';
@@ -126,7 +126,7 @@ export class Subsonic {
 			url += key + '=' + value + '&';
 		});
 		url = url.slice(0, -1);
-		
+		console.log('url: $ { url }');
 		return url;
 	}
 

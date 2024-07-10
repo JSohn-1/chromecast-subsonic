@@ -211,19 +211,23 @@ class MiniSpeakerButton extends StatelessWidget {
                   child: StreamBuilder<String>(
                     stream: PlaybackLocationsService.messageStream,
                     builder: (context, snapshot) {
+                      print('refreshing');
                       return Column(
                         children: [
                           for (final device in PlaybackLocationsService.playbackLocations)
-                            ListTile(
-                              title: Text(device['name'] ?? 'Unknown',
-                                  style: const TextStyle(color: Colors.white)),
-                              onTap: () {
-                                SocketService.socket.emit('setLocation', [
-                                  device['uuid'],
-                                  PlayerContainer.playing,
-                                ]);
-                                Navigator.pop(context);
-                              },
+                            Container(
+                              color: const Color.fromARGB(20, 255, 255, 255),
+                              child: ListTile(
+                                title: Text(device['name'] ?? 'Unknown',
+                                    style: const TextStyle(color: Colors.white)),
+                                onTap: () {
+                                  SocketService.socket.emit('setLocation', [
+                                    device['uuid'],
+                                    PlayerContainer.playing,
+                                  ]);
+                                  Navigator.pop(context);
+                                },
+                              ),
                             ),
                         ],
                       );
