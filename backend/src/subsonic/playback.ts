@@ -205,7 +205,7 @@ export class Playback {
 		const username = Subsonic.apis[socket.id].username;
 		
 		Playback.users[username].playback.playbackLocations = Playback.users[username].playback.playbackLocations.filter((location) => location.device!.socket.id !== socket.id);
-		Notify.notifyUsers(username, 'removeLocation', socket.id);
+		Notify.notifyUsersExcept(username, 'removeLocation', socket.id, socket.id);
 
 		if (Playback.users[username].playback.playbackLocation === undefined) {
 			throw new Error('No playback location');

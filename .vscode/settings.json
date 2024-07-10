@@ -3,5 +3,7 @@
 	"editor.detectIndentation": false,
 	"editor.insertSpaces": false,
 	"editor.formatOnSave": false,
-	"cmake.configureOnOpen": false
+	"cmake.configureOnOpen": false,
+	"jest.rootPath": "./backend",
+	"jest.jestCommandLine": ""
 }

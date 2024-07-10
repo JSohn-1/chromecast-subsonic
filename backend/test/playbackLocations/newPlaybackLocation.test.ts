@@ -1,3 +1,4 @@
+import {describe, expect, test} from '@jest/globals';
 import { createServer } from 'node:http';
 import { type AddressInfo } from 'node:net';
 import { io as ioc, type Socket as ClientSocket } from 'socket.io-client';
@@ -11,12 +12,16 @@ import { Notify } from '../../src/subsonic/notify';
 
 describe('new playback location support', () => {
 	let io: Server;
-	let port: number;
 	let clientSocketOne: ClientSocket;
 	let clientSocketTwo: ClientSocket;
-	const serverSockets: ServerSocket[] = [];
+	let serverSockets: ServerSocket[] = [];
 
 	beforeAll((done) => {
+		Notify.users = {};
+		Playback.users = {};
+
+		serverSockets = [];
+
 		const app = express();
 
 		const httpServer = createServer(app);
@@ -27,7 +32,7 @@ describe('new playback location support', () => {
 		playbackRoutes(app);
 
 		httpServer.listen(() => {
-			port = (httpServer.address() as AddressInfo).port;
+			const port = (httpServer.address() as AddressInfo).port;
 
 			clientSocketOne = ioc(`http://localhost:${port}`);
 			clientSocketTwo = ioc(`http://localhost:${port}`);
@@ -73,23 +78,25 @@ describe('new playback location support', () => {
 		Playback.savePlayback(subsonicClient, 'second', serverSockets[1]);
 	});
 
-	// test('should notify when location disconnects', (done) => {
-	// 	const subsonicClient = new Subsonic('test', 'test');
+	test('should notify when location disconnects', (done) => {
+		const id = serverSockets[1].id;
+		const subsonicClient = new Subsonic('test', 'test');
 
-	// 	Notify.newUser('test', serverSockets[0].id, serverSockets[0]);
-	// 	Playback.savePlayback(subsonicClient, 'first', serverSockets[0]);
+		Notify.newUser('test', serverSockets[0].id, serverSockets[0]);
+		Playback.savePlayback(subsonicClient, 'first', serverSockets[0]);
 
-	// 	clientSocketOne.on('removeLocation', (data) => {
-	// 		expect(data).toEqual(clientSocketTwo.id);
-	// 		done();
-	// 	});
+		clientSocketOne.on('removeLocation', (data) => {
+			expect(data[0]).toEqual(id);
+			done();
+		});
 
-	// 	clientSocketOne.on('newLocation', (data) => {
-	// 		expect(data).toEqual([clientSocketTwo.id, 'second']);
-	// 		clientSocketTwo.disconnect();
-	// 	});
+		clientSocketOne.on('newLocation', (data) => {
+			expect(data).toEqual([clientSocketTwo.id, 'second']);
+			clientSocketTwo.disconnect();
+		});
 
-	// 	Notify.newUser('test', serverSockets[1].id, serverSockets[1]);
-	// 	Playback.savePlayback(subsonicClient, 'second', serverSockets[1]);
-	// });
+		Notify.newUser('test', serverSockets[1].id, serverSockets[1]);
+		Subsonic.apis[serverSockets[1].id] = subsonicClient;
+		Playback.savePlayback(subsonicClient, 'second', serverSockets[1]);
+	});
 });
