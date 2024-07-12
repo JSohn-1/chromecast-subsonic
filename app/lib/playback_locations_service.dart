@@ -89,7 +89,7 @@ class PlaybackLocationsService {
   }
 
   static Future<Map> setPlaybackLocation(String id) async {
-    final res = await http.post(Uri.parse(SocketService.socket.io.uri)).then((response) {
+    final res = await http.post(Uri.parse('${SocketService.socket.io.uri}/changeLocation?uuid=${SocketService.socket.id}&target=$id')).then((response) {
       final data = jsonDecode(response.body);
       return {'message': data['message'], 'status': data['status']};
     });

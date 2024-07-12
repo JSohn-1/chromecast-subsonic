@@ -137,7 +137,6 @@ class PlayerContainer {
             AudioSource.uri(Uri.parse('${SocketService.socket.io.uri}/subsonic/stream?id=$song&uuid=${SocketService.socket.id}'))
         ]);
         await player.setAudioSource(playlist, initialIndex: PlayerContainer.index);
-        player.play();
       } else {
         playing = false;
       }
