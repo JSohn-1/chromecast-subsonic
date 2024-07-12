@@ -188,7 +188,7 @@ class MiniSpeakerButton extends StatelessWidget {
                         stream: PlaybackLocationsService.currentMessageStream,
                         builder: (context, snapshot) {
                           return Text(PlaybackLocationsService.currentLocation?.name ?? 'Not Playing',
-                              style: TextStyle(
+                              style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold));

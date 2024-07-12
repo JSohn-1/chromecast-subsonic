@@ -59,7 +59,7 @@ class PlaybackLocationsService {
 
     SocketService.on('updateLocation', (data) {
       currentLocation = PlaybackLocation(id: data[0], name: data[1]);
-      sendCurrentMessage('update');
+      sendCurrentMessage(data[0]);
     });
   }
 

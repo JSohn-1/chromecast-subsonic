@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:app/interfaces/song.dart';
+import 'package:app/playback_locations_service.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:http/http.dart' as http;
 
@@ -122,6 +123,16 @@ class PlayerContainer {
       print('playing: $playing');
       final socket = SocketService.socket;
       socket.emit(playing ? 'resume' : 'pause');
+    });
+
+    PlaybackLocationsService.currentMessageStream.listen((event) {
+      if (event == SocketService.socket.id) {
+        playing = true;
+        PlayerContainer.player.play();
+      } else {
+        playing = false;
+        PlayerContainer.player.pause();
+      }
     });
   }
 
