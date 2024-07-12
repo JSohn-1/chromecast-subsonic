@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:app/interfaces/song.dart';
 import 'package:app/playback_locations_service.dart';
@@ -128,15 +129,19 @@ class PlayerContainer {
     PlaybackLocationsService.currentMessageStream.listen((event) async {
       print('new location');
       if (event == SocketService.socket.id) {        
+        if (playing) return;
+
         playing = true;
         final player = PlayerContainer.player;
 
-        print(PlayerContainer.playlist);
+        print('start playing');
         final playlist = ConcatenatingAudioSource(children: [
           for (final song in PlayerContainer.playlist) 
             AudioSource.uri(Uri.parse('${SocketService.socket.io.uri}/subsonic/stream?id=$song&uuid=${SocketService.socket.id}'))
         ]);
         await player.setAudioSource(playlist, initialIndex: PlayerContainer.index);
+
+        if (Platform.isWindows) player.play();
       } else {
         playing = false;
       }
