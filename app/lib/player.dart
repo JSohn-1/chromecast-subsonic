@@ -129,6 +129,7 @@ class PlayerContainer {
         ]);
         player.setAudioSource(playlist, initialIndex: PlayerContainer.index);
       } else {
+        player.pause();
         playing = false;
       }
     });

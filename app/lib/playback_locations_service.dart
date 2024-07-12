@@ -50,6 +50,13 @@ class PlaybackLocationsService {
       print('rec: ' + response.body);
 
       final data = jsonDecode(response.body);
+
+      if (data['id'] == '') {
+        currentLocation = null;
+        sendCurrentMessage('Not Playing');
+        return;
+      }
+
       currentLocation = PlaybackLocation.fromJson(data);
       print(currentLocation!.name);
       sendCurrentMessage(currentLocation!.name);
