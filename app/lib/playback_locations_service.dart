@@ -45,12 +45,14 @@ class PlaybackLocationsService {
       sendMessage('update');
     });
 
-    http.get(Uri.parse('${SocketService.socket.io.uri}//currentLocation?uuid=${SocketService.socket.id}&exclude=${SocketService.socket.id}'))
+    http.get(Uri.parse('${SocketService.socket.io.uri}/currentLocation?uuid=${SocketService.socket.id}&exclude=${SocketService.socket.id}'))
         .then((response) {
+      print('rec: ' + response.body);
+
       final data = jsonDecode(response.body);
-      print(data);
       currentLocation = PlaybackLocation.fromJson(data);
-      sendCurrentMessage(data['id']);
+      print(currentLocation!.name);
+      sendCurrentMessage(currentLocation!.name);
     });
 
     // Get playback locations
@@ -66,6 +68,11 @@ class PlaybackLocationsService {
     });
 
     SocketService.on('updateLocation', (data) {
+      if (data[0] == ''){
+        currentLocation = null;
+        sendCurrentMessage('Not Playing');
+      }
+
       currentLocation = PlaybackLocation(id: data[0], name: data[1]);
       sendCurrentMessage(data[0]);
     });

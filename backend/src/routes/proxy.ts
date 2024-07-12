@@ -164,7 +164,7 @@ export const playbackRoutes = (app: express.Application) => {
 		const rawLocation = Playback.users[username].playback.playbackLocation;
 
 		res.send(
-			{'id': rawLocation?.device.socket.id, 'name': rawLocation?.name}
+			{'id': rawLocation?.device.socket.id ?? '', 'name': rawLocation?.name ?? ''}
 		);
 	});
 

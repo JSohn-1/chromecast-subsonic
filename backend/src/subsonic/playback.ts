@@ -177,10 +177,7 @@ export class Playback {
 		}
 
 		this.playbackLocation = location;
-
-		// const socket = location.device!.socket;
-
-		// socket.emit('setLocation', socketId, true);
+		
 		Notify.notifyUsers(this.user.username, 'updateLocation', socketId, location.name);
 		return {'success': true, 'message': 'Location changed'};
 	}
@@ -214,6 +211,8 @@ export class Playback {
 
 		if (Playback.users[username].playback.playbackLocation!.device!.socket.id === socket.id) {
 			console.log('Disconnecting');
+
+			Notify.notifyUsers(username, 'updateLocation', '', '');
 			Playback.users[username].playback.playbackLocation = undefined;
 		}
 	}
