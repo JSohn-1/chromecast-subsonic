@@ -45,6 +45,13 @@ class PlaybackLocationsService {
       sendMessage('update');
     });
 
+    http.get(Uri.parse('http://localhost:3000/currentLocation?uuid=${SocketService.socket.id}&exclude=${SocketService.socket.id}'))
+        .then((response) {
+      final data = jsonDecode(response.body);
+      currentLocation = PlaybackLocation.fromJson(data);
+      sendCurrentMessage(data['id']);
+    });
+
     // Get playback locations
     SocketService.on('newLocation', (data) {
       print('data: $data');

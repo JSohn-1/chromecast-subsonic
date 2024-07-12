@@ -159,6 +159,13 @@ export const playbackRoutes = (app: express.Application) => {
 		res.send(change);
 	});
 
+	app.get('/currentLocation', (req, res) => {
+		const username = Subsonic.apis[req.query.uuid as string].username;
+		const location = Playback.users[username].playback.playbackLocation;
+
+		res.send(location);
+	});
+
 	app.get('/getLocations', (req, res) => {
 		const username = Subsonic.apis[req.query.uuid as string].username;
 		const locations = Playback.users[username].playback.getPlaybackLocations(req.query.exclude as string | undefined);
