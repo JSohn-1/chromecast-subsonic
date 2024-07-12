@@ -68,6 +68,7 @@ class PlaybackLocationsService {
     });
 
     SocketService.on('updateLocation', (data) {
+      print('updateLocation: $data');
       if (data[0] == ''){
         currentLocation = null;
         sendCurrentMessage('Not Playing');

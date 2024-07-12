@@ -158,7 +158,7 @@ export class Playback {
 		console.log('resuming');
 		// console.log(this.playbackLocation);
 		if (this.playbackLocation === undefined) {
-			console.log('locaiton was undefined');
+			// console.log('location was undefined');
 			const socket = Sockets.sockets[socketId].socket;
 			this.playbackLocation = new PlaybackLocation(new Local(socket), Sockets.sockets[socketId].name as string);
 

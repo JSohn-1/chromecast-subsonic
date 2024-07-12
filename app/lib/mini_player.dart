@@ -128,6 +128,7 @@ class _MiniPlayButtonState extends State<MiniPlayButton> {
 
         if (playing) {
           if (PlayerContainer.playing) {
+            print('paused');
             PlayerContainer.player.pause();
             return;
           }
@@ -137,6 +138,7 @@ class _MiniPlayButtonState extends State<MiniPlayButton> {
           setState(() {});
         } else {
           if (PlayerContainer.playing) {
+            print('playing');
             PlayerContainer.player.play();
             return;
           }

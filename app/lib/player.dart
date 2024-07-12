@@ -126,19 +126,20 @@ class PlayerContainer {
     });
 
     PlaybackLocationsService.currentMessageStream.listen((event) async {
-      if (event == SocketService.socket.id) {
+      print('new location');
+      if (event == SocketService.socket.id) {        
+        playing = true;
         final player = PlayerContainer.player;
 
-        print('playing');
+        print(PlayerContainer.playlist);
         final playlist = ConcatenatingAudioSource(children: [
           for (final song in PlayerContainer.playlist) 
             AudioSource.uri(Uri.parse('${SocketService.socket.io.uri}/subsonic/stream?id=$song&uuid=${SocketService.socket.id}'))
         ]);
         await player.setAudioSource(playlist, initialIndex: PlayerContainer.index);
-        
+        player.play();
       } else {
         playing = false;
-        PlayerContainer.player.pause();
       }
     });
   }
@@ -174,8 +175,6 @@ class PlayerContainer {
       return jsonDecode(response.body);
     });
 
-    // print(response);
-
     if (response['playQueue']['userQueue']['index'] == -1) return;
 
     PlayerContainer.playlist =
@@ -201,8 +200,6 @@ class PlayerContainer {
 
       player.play();
     }
-
-    // await player.setAudioSource(playlist);
 
     return;
   }
