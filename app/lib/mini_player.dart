@@ -128,7 +128,6 @@ class _MiniPlayButtonState extends State<MiniPlayButton> {
 
         if (playing) {
           if (PlayerContainer.playing) {
-            print('paused');
             PlayerContainer.player.pause();
             return;
           }
@@ -138,7 +137,6 @@ class _MiniPlayButtonState extends State<MiniPlayButton> {
           setState(() {});
         } else {
           if (PlayerContainer.playing) {
-            print('playing');
             PlayerContainer.player.play();
             return;
           }
@@ -218,7 +216,6 @@ class MiniSpeakerButton extends StatelessWidget {
                   child: StreamBuilder<String>(
                     stream: PlaybackLocationsService.messageStream,
                     builder: (context, snapshot) {
-                      print('refreshing');
                       return Column(
                         children: [
                           for (final device in PlaybackLocationsService.playbackLocations)

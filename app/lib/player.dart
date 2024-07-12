@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:app/interfaces/song.dart';
 import 'package:app/playback_locations_service.dart';
@@ -12,7 +11,7 @@ import 'socket_service.dart';
 class PlayerContainer {
   static final AudioPlayer player = AudioPlayer(handleInterruptions: false);
   static Stream<Song?> get currentSongStream => _currentSongStreamController.stream;
-  static StreamController<Song?> _currentSongStreamController = StreamController<Song?>.broadcast();
+  static final StreamController<Song?> _currentSongStreamController = StreamController<Song?>.broadcast();
 
   static List<String> playlist = [];
   static Song? currentSong;
@@ -20,11 +19,9 @@ class PlayerContainer {
   static bool playing = false;
 
   static init() async {
-    // player = AudioPlayer();
     await playQueue();
 
     SocketService.on('playQueue', (data) async {
-      print('data: $data');
       final socket = SocketService.socket;
       final result = await http
           .get(Uri.parse(
@@ -38,8 +35,6 @@ class PlayerContainer {
       PlayerContainer.index = data[0]['index'];
 
       _currentSongStreamController.add(result);
-
-      print('playQueue 2');
     });
 
     SocketService.on('changeQueue', (data) async {
@@ -72,17 +67,13 @@ class PlayerContainer {
       }
 
       playing = response['playbackLocation']['uuid'] == socket.id;
-
-      print('changeQueue 2');
     });
 
     SocketService.on('setLocation', (data) async {
-      print('setlocation: $data');
       final player = PlayerContainer.player;
 
       if (data[0] == SocketService.socket.id) {
         if (data[1]) {
-          print('playing');
           final playlist = ConcatenatingAudioSource(children: [
             for (final song in PlayerContainer.playlist) 
               AudioSource.uri(Uri.parse('${SocketService.socket.io.uri}/subsonic/stream?id=$song&uuid=${SocketService.socket.id}'))
@@ -121,27 +112,22 @@ class PlayerContainer {
     });
 
     PlayerContainer.player.playingStream.listen((playing) {
-      print('playing: $playing');
       final socket = SocketService.socket;
       socket.emit(playing ? 'resume' : 'pause');
     });
 
     PlaybackLocationsService.currentMessageStream.listen((event) async {
-      print('new location');
-      if (event == SocketService.socket.id) {        
+      if (event == SocketService.socket.id) {
         if (playing) return;
 
         playing = true;
         final player = PlayerContainer.player;
 
-        print('start playing');
         final playlist = ConcatenatingAudioSource(children: [
           for (final song in PlayerContainer.playlist) 
             AudioSource.uri(Uri.parse('${SocketService.socket.io.uri}/subsonic/stream?id=$song&uuid=${SocketService.socket.id}'))
         ]);
-        await player.setAudioSource(playlist, initialIndex: PlayerContainer.index);
-
-        if (Platform.isWindows) player.play();
+        player.setAudioSource(playlist, initialIndex: PlayerContainer.index);
       } else {
         playing = false;
       }
@@ -217,11 +203,8 @@ class PlayerContainer {
         .get(Uri.parse(
             '${socket.io.uri}/subsonic?id=$playlistId&uuid=${socket.id}&method=getPlaylist'))
         .then((response) {
-      // print(response.body);
       return jsonDecode(response.body);
     });
-
-    // print('${socket.io.uri}/subsonic?id=$playlistId&uuid=${socket.id}&method=getPlaylist');
 
     final playlist =
         ConcatenatingAudioSource(useLazyPreparation: true, children: [

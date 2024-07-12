@@ -164,6 +164,7 @@ export class Playback {
 
 			// socket.emit('setLocation', socketId, true);
 			this.changePlaybackLocation(socketId);
+			Notify.notifyUsers(this.user.username, 'resume', socketId);
 		}
 
 		this.playbackLocation.resume();
