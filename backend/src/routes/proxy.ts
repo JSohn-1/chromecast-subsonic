@@ -161,9 +161,11 @@ export const playbackRoutes = (app: express.Application) => {
 
 	app.get('/currentLocation', (req, res) => {
 		const username = Subsonic.apis[req.query.uuid as string].username;
-		const location = Playback.users[username].playback.playbackLocation;
+		const rawLocation = Playback.users[username].playback.playbackLocation;
 
-		res.send(location);
+		res.send(
+			{'id': rawLocation?.device.socket.id, 'name': rawLocation?.name}
+		);
 	});
 
 	app.get('/getLocations', (req, res) => {

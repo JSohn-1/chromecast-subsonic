@@ -38,31 +38,21 @@ export class Playback {
 
 			return;
 		}
-		Playback.users[user.username] = { playback: new Playback(user, socket), api: user };
+		Playback.users[user.username] = { playback: new Playback(user, socket, name), api: user };
 		Playback.users[user.username].playback.playbackLocations.push(new PlaybackLocation(new Local(socket), name));
 	}
 
-	constructor(user: Subsonic, socket: Socket) {
+	constructor(user: Subsonic, socket: Socket, name: string) {
 		this.user = user;
 		this.playQueue = new PlayQueue(user);
-		this.playbackLocation = new PlaybackLocation(new Local(socket), 'Local');
-	}
-
-	setLocation(location: Local, name: string) {
-		this.playbackLocation = new PlaybackLocation(location, name);
+		this.playbackLocation = new PlaybackLocation(new Local(socket), name);
 	}
 	
 	async playPlaylist(playlistId: string, socketId: string, shuffle?: boolean,) {
-		// if(this.playbackLocation === undefined) {
-		// 	throw new Error('No playback location');
-		// }
-
 		if (this.playbackLocation === undefined) {
 			const socket = Sockets.sockets[socketId].socket;
 			this.playbackLocation = new PlaybackLocation(new Local(socket), Sockets.sockets[socketId].name as string);
 		}
-
-		// console.log('Playing playlist');
 
 		const playlist = (await this.user.getPlaylist({ id: playlistId })).playlist;
 

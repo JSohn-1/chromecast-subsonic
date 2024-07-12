@@ -36,7 +36,7 @@ class PlaybackLocationsService {
   static Future<void> init() async {
     http
         .get(Uri.parse(
-            'http://localhost:3000/getLocations?uuid=${SocketService.socket.id}&exclude=${SocketService.socket.id}'))
+            '${SocketService.socket.io.uri}/getLocations?uuid=${SocketService.socket.id}&exclude=${SocketService.socket.id}'))
         .then((response) {
       final data = jsonDecode(response.body)['locations'];
       for (final location in data) {
@@ -45,9 +45,10 @@ class PlaybackLocationsService {
       sendMessage('update');
     });
 
-    http.get(Uri.parse('http://localhost:3000/currentLocation?uuid=${SocketService.socket.id}&exclude=${SocketService.socket.id}'))
+    http.get(Uri.parse('${SocketService.socket.io.uri}//currentLocation?uuid=${SocketService.socket.id}&exclude=${SocketService.socket.id}'))
         .then((response) {
       final data = jsonDecode(response.body);
+      print(data);
       currentLocation = PlaybackLocation.fromJson(data);
       sendCurrentMessage(data['id']);
     });
