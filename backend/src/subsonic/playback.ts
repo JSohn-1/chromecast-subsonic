@@ -203,9 +203,9 @@ export class Playback {
 		Playback.users[username].playback.playbackLocations = Playback.users[username].playback.playbackLocations.filter((location) => location.device!.socket.id !== socket.id);
 		Notify.notifyUsersExcept(username, 'removeLocation', socket.id, socket.id);
 
-		// if (Playback.users[username].playback.playbackLocation === undefined) {
-		// 	throw new Error('No playback location');
-		// }
+		if (Playback.users[username].playback.playbackLocation === undefined) {
+			return;
+		}
 
 		if (Playback.users[username].playback.playbackLocation!.type != playbackLocationType.LOCAL) {
 			return;
