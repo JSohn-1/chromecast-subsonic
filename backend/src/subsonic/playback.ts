@@ -162,7 +162,8 @@ export class Playback {
 			const socket = Sockets.sockets[socketId].socket;
 			this.playbackLocation = new PlaybackLocation(new Local(socket), Sockets.sockets[socketId].name as string);
 
-			socket.emit('setLocation', socketId, true);
+			// socket.emit('setLocation', socketId, true);
+			this.changePlaybackLocation(socketId);
 		}
 
 		this.playbackLocation.resume();
@@ -177,7 +178,7 @@ export class Playback {
 		}
 
 		this.playbackLocation = location;
-		
+
 		Notify.notifyUsers(this.user.username, 'updateLocation', socketId, location.name);
 		return {'success': true, 'message': 'Location changed'};
 	}

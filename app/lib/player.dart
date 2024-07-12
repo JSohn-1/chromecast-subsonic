@@ -125,10 +125,17 @@ class PlayerContainer {
       socket.emit(playing ? 'resume' : 'pause');
     });
 
-    PlaybackLocationsService.currentMessageStream.listen((event) {
+    PlaybackLocationsService.currentMessageStream.listen((event) async {
       if (event == SocketService.socket.id) {
-        playing = true;
-        PlayerContainer.player.play();
+        final player = PlayerContainer.player;
+
+        print('playing');
+        final playlist = ConcatenatingAudioSource(children: [
+          for (final song in PlayerContainer.playlist) 
+            AudioSource.uri(Uri.parse('${SocketService.socket.io.uri}/subsonic/stream?id=$song&uuid=${SocketService.socket.id}'))
+        ]);
+        await player.setAudioSource(playlist, initialIndex: PlayerContainer.index);
+        
       } else {
         playing = false;
         PlayerContainer.player.pause();
