@@ -124,11 +124,14 @@ describe('new playback location support', () => {
 		Playback.savePlayback(subsonicClient, 'second', serverSockets[1]);
 
 		setTimeout(() => {
-			if (notificationCount === 1) {
-				done();
-			} else {
-				done('Did not receive notification');
-			}
+			console.log('Notification count: ' + notificationCount);
+			expect(notificationCount).toBe(1);
+			done();
+			// if (notificationCount === 1) {
+			// 	done();
+			// } else {
+			// 	done('Did not receive notification');
+			// }
 		}, timeoutPeriod);
 	});
 	

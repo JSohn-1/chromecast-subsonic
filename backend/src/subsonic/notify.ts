@@ -6,7 +6,8 @@ export class Notify {
 	static newUser(username: string, uuid: string, socket: EventEmitter) {
 		if (this.users[username] === undefined) {
 			this.users[username] = [{ uuid, socket }];
-		} else {
+		} else if (this.users[username].find((user) => user.uuid === uuid) === undefined){
+			console.log('adding user');
 			this.users[username].push({ uuid, socket });
 		}
 
@@ -31,6 +32,7 @@ export class Notify {
 			if (exclude != undefined && socket.uuid === exclude) 
 				continue;
 
+			console.log('emitting ' + socket.uuid);
 			socket.socket.emit(event, message);
 		}
 	}

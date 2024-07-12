@@ -27,8 +27,14 @@ export class Playback {
 	static savePlayback(user: Subsonic, name: string, socket: Socket) {
 		if (Playback.users[user.username]) {
 			console.log(1);
+
+			if(Playback.users[user.username].playback.playbackLocations.find((location) => location.device!.socket.id === socket.id)) {
+				console.log('Location already exists');
+				return;
+			}
+
 			Playback.users[user.username].playback.playbackLocations.push(new PlaybackLocation(new Local(socket), name));
-			Notify.notifyUsersExcept(user.username, 'newLocation', socket.id, socket.id, name );
+			Notify.notifyUsersExcept(user.username, 'newLocation', socket.id, socket.id, name);
 
 			return;
 		}

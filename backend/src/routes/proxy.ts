@@ -70,7 +70,8 @@ export const subsonicRoutes = (app: express.Application) => {
 		if (response.success) {
 			Notify.newUser(req.query.username as string, req.query.uuid as string, Sockets.sockets[req.query.uuid as string].socket);
 
-			Playback.savePlayback(Subsonic.apis[req.query.uuid as string], req.query.name as string, Sockets.sockets[req.query.uuid as string].socket);
+			console.log('saving playback');
+			// Playback.savePlayback(Subsonic.apis[req.query.uuid as string], req.query.name as string, Sockets.sockets[req.query.uuid as string].socket);
 		}
 
 		res.status(response.success ? 
