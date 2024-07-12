@@ -8,33 +8,33 @@ import { Notify } from '../subsonic/notify';
 import { Playback } from '../subsonic/playback';
 import { Sockets } from './eventHandler';
 
-// const middleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-// 	// Check if the uuid is authenticated.
+const middleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+	// Check if the uuid is authenticated.
 
-// 	if (!req.query.uuid || typeof req.query.uuid !== 'string') {
-// 		// eslint-disable-next-line no-magic-numbers
-// 		res.status(400).send({ message: 'uuid must be provided as a parameter' });
-// 		return;
-// 	}
+	if (!req.query.uuid || typeof req.query.uuid !== 'string') {
+		// eslint-disable-next-line no-magic-numbers
+		res.status(400).send({ message: 'uuid must be provided as a parameter' });
+		return;
+	}
 
-// 	if (typeof req.query.uuid == 'string' && !Subsonic.signedIn(req.query.uuid)) {
-// 		// eslint-disable-next-line no-magic-numbers
-// 		res.status(401).send({ message: 'Unauthorized, you must be signed in' });
-// 		return;
-// 	}
+	if (typeof req.query.uuid == 'string' && !Subsonic.signedIn(req.query.uuid)) {
+		// eslint-disable-next-line no-magic-numbers
+		res.status(401).send({ message: 'Unauthorized, you must be signed in' });
+		return;
+	}
 
-// 	// Check every item in query to ensure that it is either a string or a number
-// 	for (const key in req.query) {
-// 		const value = req.query[key];
-// 		if (typeof value !== 'string' && typeof value !== 'number') {
-// 			// eslint-disable-next-line no-magic-numbers
-// 			res.status(400).send({ message: 'Invalid query parameter' });
-// 			return;
-// 		}
-// 	}
+	// Check every item in query to ensure that it is either a string or a number
+	for (const key in req.query) {
+		const value = req.query[key];
+		if (typeof value !== 'string' && typeof value !== 'number') {
+			// eslint-disable-next-line no-magic-numbers
+			res.status(400).send({ message: 'Invalid query parameter' });
+			return;
+		}
+	}
 
-// 	next();
-// };
+	next();
+};
 
 const proxy = (res: express.Response, target: string) => {
 	fetch(target).then(async (response) => {
@@ -80,7 +80,7 @@ export const subsonicRoutes = (app: express.Application) => {
 		).send(response);
 	});
 
-	// app.use(middleware);
+	app.use(middleware);
 
 	app.get('/subsonic/ping', (req, res) => {
 		if (Subsonic.signedIn(req.query.uuid as string) === false) {
@@ -159,7 +159,7 @@ export const playbackRoutes = (app: express.Application) => {
 		res.send(change);
 	});
 
-	app.post('/getLocations', (req, res) => {
+	app.get('/getLocations', (req, res) => {
 		const username = Subsonic.apis[req.query.uuid as string].username;
 		const locations = Playback.users[username].playback.getPlaybackLocations(req.query.exclude as string | undefined);
 

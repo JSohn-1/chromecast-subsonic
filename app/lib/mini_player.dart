@@ -176,19 +176,24 @@ class MiniSpeakerButton extends StatelessWidget {
                   width: MediaQuery.of(context).size.width - 20,
                   height: 100,
                   padding: const EdgeInsets.all(10),
-                  child: const Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Current device:',
+                      const Text('Current device:',
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 25,
                               fontWeight: FontWeight.bold)),
-                      Text('This iPhone',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold)),
+                      StreamBuilder<String>(
+                        stream: PlaybackLocationsService.currentMessageStream,
+                        builder: (context, snapshot) {
+                          return Text(PlaybackLocationsService.currentLocation?.name ?? 'Not Playing',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold));
+                        }
+                      ),
                     ],
                   ),
                 ),
@@ -218,13 +223,14 @@ class MiniSpeakerButton extends StatelessWidget {
                             Container(
                               color: const Color.fromARGB(20, 255, 255, 255),
                               child: ListTile(
-                                title: Text(device['name'] ?? 'Unknown',
+                                title: Text(device.name,
                                     style: const TextStyle(color: Colors.white)),
                                 onTap: () {
-                                  SocketService.socket.emit('setLocation', [
-                                    device['uuid'],
-                                    PlayerContainer.playing,
-                                  ]);
+                                  // SocketService.socket.emit('setLocation', [
+                                  //   device.id,
+                                  //   PlayerContainer.playing,
+                                  // ]);
+                                  PlaybackLocationsService.setPlaybackLocation(device.id);
                                   Navigator.pop(context);
                                 },
                               ),

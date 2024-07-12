@@ -188,9 +188,10 @@ export class Playback {
 
 		this.playbackLocation = location;
 
-		const socket = location.device!.socket;
+		// const socket = location.device!.socket;
 
-		socket.emit('setLocation', socketId, true);
+		// socket.emit('setLocation', socketId, true);
+		Notify.notifyUsers(this.user.username, 'updateLocation', socketId, location.name);
 		return {'success': true, 'message': 'Location changed'};
 	}
 
@@ -198,9 +199,9 @@ export class Playback {
 		const locations = this.playbackLocations.map(location => ({ id: location.device.socket.id, name: location.name }));
 
 		if (exclude) 
-			return locations.filter(location => location.id !== exclude);
+			return {'locations': locations.filter(location => location.id !== exclude)};
 		
-		return locations;
+		return { 'locations': locations };
 	}
 
 	static disconnect(socket: Socket) {
