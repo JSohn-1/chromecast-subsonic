@@ -181,6 +181,7 @@ export class Playback {
 		this.playbackLocation = location;
 
 		Notify.notifyUsers(this.user.username, 'updateLocation', socketId, location.name);
+		Notify.notifyUsers(this.user.username, 'pause');
 		return {'success': true, 'message': 'Location changed'};
 	}
 

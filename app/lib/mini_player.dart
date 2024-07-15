@@ -89,19 +89,17 @@ class _MiniPlayButtonState extends State<MiniPlayButton> {
       });
     });
 
-    SocketService.on('resume', (data) async {
+    SocketService.on('resume', (data) {
       if (PlayerContainer.playing) {
         PlayerContainer.player.play();
-        return;
       }
       playing = true;
       setState(() {});
     });
 
-    SocketService.on('pause', (data) async {
+    SocketService.on('pause', (data) {
       if (PlayerContainer.playing) {
         PlayerContainer.player.pause();
-        return;
       }
       playing = false;
       setState(() {});
@@ -218,6 +216,17 @@ class MiniSpeakerButton extends StatelessWidget {
                     builder: (context, snapshot) {
                       return Column(
                         children: [
+                          if (!PlayerContainer.playing) Container(
+                            color: const Color.fromARGB(20, 255, 255, 255),
+                            child: ListTile(
+                              title: const Text('This device',
+                                  style: TextStyle(color: Colors.white)),
+                              onTap: () {
+                                PlaybackLocationsService.setPlaybackLocation(SocketService.socket.id!);
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ),
                           for (final device in PlaybackLocationsService.playbackLocations)
                             Container(
                               color: const Color.fromARGB(20, 255, 255, 255),
@@ -225,10 +234,6 @@ class MiniSpeakerButton extends StatelessWidget {
                                 title: Text(device.name,
                                     style: const TextStyle(color: Colors.white)),
                                 onTap: () {
-                                  // SocketService.socket.emit('setLocation', [
-                                  //   device.id,
-                                  //   PlayerContainer.playing,
-                                  // ]);
                                   PlaybackLocationsService.setPlaybackLocation(device.id);
                                   Navigator.pop(context);
                                 },
