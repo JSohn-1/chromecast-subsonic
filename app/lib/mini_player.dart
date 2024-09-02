@@ -3,9 +3,10 @@ import 'package:app/playback_locations_service.dart';
 import 'package:app/player.dart';
 import 'package:app/socket_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+import 'music_player_screen.dart';
 
 class MiniPlayer extends StatefulWidget {
   const MiniPlayer({super.key});
@@ -14,7 +15,24 @@ class MiniPlayer extends StatefulWidget {
   State<MiniPlayer> createState() => _MiniPlayerState();
 }
 
-class _MiniPlayerState extends State<MiniPlayer> {
+class _MiniPlayerState extends State<MiniPlayer>{
+  void _navigateToMusicPlayerScreen(BuildContext context) {
+    Navigator.of(context).push(PageRouteBuilder(
+      opaque: false,
+      pageBuilder: (_, __, ___) => const MusicPlayerScreen(),
+                  transitionsBuilder: (_, anim, __, child) {
+        const begin = Offset(0.0, 1.0);
+        const end = Offset(0.0, 0.0);
+        const curve = Curves.ease;
+
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = anim.drive(tween);
+
+        return SlideTransition(position: offsetAnimation, child: child);
+      },
+    ));
+  }
+
   @override
   void initState() {
     PlayerContainer.currentSongStream.listen((event) {
@@ -25,45 +43,75 @@ class _MiniPlayerState extends State<MiniPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      width: MediaQuery.of(context).size.width - 20,
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(20, 255, 255, 255),
-        borderRadius: BorderRadius.circular(10),
+    return InkWell(
+      onTap: () {
+        _navigateToMusicPlayerScreen(context);
+      },
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        width: MediaQuery.of(context).size.width - 20,
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(20, 255, 255, 255),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        height: 60,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Hero(
+              tag: 'albumCover',
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(5),
+                child: PlayerContainer.currentSong != null
+                    ? Image.network(
+                        '${SocketService.socket.io.uri}/subsonic/cover?id=${PlayerContainer.currentSong?.id}&uuid=${SocketService.socket.id}',
+                        width: 45,
+                        height: 45,
+                      )
+                    : SvgPicture.asset('assets/svgs/defaultAlbumCover.svg',
+                        width: 45, height: 45),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(PlayerContainer.currentSong?.title ?? 'Not Playing',
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold)),
+                Text(PlayerContainer.currentSong?.artist ?? '',
+                    style: const TextStyle(color: Colors.grey)),
+              ],
+            ),
+            const Spacer(),
+            const MiniSpeakerButton(),
+            const MiniPlayButton(),
+          ],
+        ),
       ),
-      height: 60,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(5),
-            child:
-          PlayerContainer.currentSong != null
-              ? Image.network(
-                  '${SocketService.socket.io.uri}/subsonic/cover?id=${PlayerContainer.currentSong?.id}&uuid=${SocketService.socket.id}',
-                  width: 45,
-                  height: 45,
-                )
-              : SvgPicture.asset('assets/svgs/defaultAlbumCover.svg',
-                  width: 45, height: 45),
-          ),
-          const SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(PlayerContainer.currentSong?.title ?? 'Not Playing',
-                  style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-              Text(PlayerContainer.currentSong?.artist ?? '',
-                  style: const TextStyle(color: Colors.grey)),
-            ],
-          ),
-          const Spacer(),
-          const MiniSpeakerButton(),
-          const MiniPlayButton(),
-        ],
-      ),
+    );
+  }
+}
+
+class MiniPlayerControls extends StatelessWidget {
+  const MiniPlayerControls({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.only(bottom: 10),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // MiniSkipButton(),
+            MiniPlayButton(),
+            MiniSpeakerButton(),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -183,15 +231,17 @@ class MiniSpeakerButton extends StatelessWidget {
                               fontSize: 25,
                               fontWeight: FontWeight.bold)),
                       StreamBuilder<String>(
-                        stream: PlaybackLocationsService.currentMessageStream,
-                        builder: (context, snapshot) {
-                          return Text(PlaybackLocationsService.currentLocation?.name ?? 'Not Playing',
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold));
-                        }
-                      ),
+                          stream: PlaybackLocationsService.currentMessageStream,
+                          builder: (context, snapshot) {
+                            return Text(
+                                PlaybackLocationsService
+                                        .currentLocation?.name ??
+                                    'Not Playing',
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold));
+                          }),
                     ],
                   ),
                 ),
@@ -212,37 +262,45 @@ class MiniSpeakerButton extends StatelessWidget {
                 ),
                 SingleChildScrollView(
                   child: StreamBuilder<String>(
-                    stream: PlaybackLocationsService.messageStream,
-                    builder: (context, snapshot) {
-                      return Column(
-                        children: [
-                          if (!PlayerContainer.playing) Container(
-                            color: const Color.fromARGB(20, 255, 255, 255),
-                            child: ListTile(
-                              title: const Text('This device',
-                                  style: TextStyle(color: Colors.white)),
-                              onTap: () {
-                                PlaybackLocationsService.setPlaybackLocation(SocketService.socket.id!);
-                                Navigator.pop(context);
-                              },
-                            ),
-                          ),
-                          for (final device in PlaybackLocationsService.playbackLocations)
-                            Container(
-                              color: const Color.fromARGB(20, 255, 255, 255),
-                              child: ListTile(
-                                title: Text(device.name,
-                                    style: const TextStyle(color: Colors.white)),
-                                onTap: () {
-                                  PlaybackLocationsService.setPlaybackLocation(device.id);
-                                  Navigator.pop(context);
-                                },
+                      stream: PlaybackLocationsService.messageStream,
+                      builder: (context, snapshot) {
+                        return Column(
+                          children: [
+                            if (!PlayerContainer.playing)
+                              Container(
+                                color: const Color.fromARGB(20, 255, 255, 255),
+                                child: ListTile(
+                                  title: const Text('This device',
+                                      style: TextStyle(color: Colors.white)),
+                                  onTap: () {
+                                    PlaybackLocationsService
+                                        .setPlaybackLocation(
+                                            SocketService.socket.id!);
+                                    Navigator.pop(context);
+                                  },
+                                ),
                               ),
-                            ),
-                        ],
-                      );
-                    }
-                  ),
+                            for (final device
+                                in PlaybackLocationsService.playbackLocations)
+                              if (device.id !=
+                                  PlaybackLocationsService.currentLocation?.id)
+                                Container(
+                                  color:
+                                      const Color.fromARGB(20, 255, 255, 255),
+                                  child: ListTile(
+                                    title: Text(device.name,
+                                        style: const TextStyle(
+                                            color: Colors.white)),
+                                    onTap: () {
+                                      PlaybackLocationsService
+                                          .setPlaybackLocation(device.id);
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ),
+                          ],
+                        );
+                      }),
                 ),
               ])),
         );

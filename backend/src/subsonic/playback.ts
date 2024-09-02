@@ -125,44 +125,16 @@ export class Playback {
 		Notify.notifyUsers(this.user.username, 'playQueue', { id: song, index: index, uuid: this.playbackLocation.device, name: this.playbackLocation.name });
 	}
 
-	// next() {
-	// 	const song = this.playQueue.nextSong;
-	// 	const device = this.playbackLocation.device!;
-
-	// 	if(song.index !== -1) {
-	// 		device.play(song.id);
-	// 		Notify.notifyUsers(this.user.username, 'playQueue',  song);
-	// 	}
-	// }
-
-	// previous() {
-	// 	const song = this.playQueue.previousSong;
-	// 	const device = this.playbackLocation.device!;
-
-	// 	if(song.index !== -1) {
-	// 		device.play(song.id);
-	// 		Notify.notifyUsers(this.user.username, 'playQueue',  song);
-	// 	}
-	// }
-
 	pause(socketId: string) {
-		// if (this.playbackLocation === undefined) {
-		// 	throw new Error('No playback location');
-		// }
-
 		this.playbackLocation?.pause();
 		Notify.notifyUsersExcept(this.user.username, 'pause', socketId);
 	}
 
 	resume(socketId: string) {
-		console.log('resuming');
-		// console.log(this.playbackLocation);
 		if (this.playbackLocation === undefined) {
-			// console.log('location was undefined');
 			const socket = Sockets.sockets[socketId].socket;
 			this.playbackLocation = new PlaybackLocation(new Local(socket), Sockets.sockets[socketId].name as string);
 
-			// socket.emit('setLocation', socketId, true);
 			this.changePlaybackLocation(socketId);
 			Notify.notifyUsers(this.user.username, 'resume', socketId);
 		}
