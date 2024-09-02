@@ -13,7 +13,7 @@ class MusicPlayerScreen extends StatelessWidget {
     return SlidingUpPanel(
         controller: PanelController(),
         maxHeight: MediaQuery.of(context).size.height,
-        minHeight: 0,
+        minHeight: 71,
         defaultPanelState: PanelState.OPEN,
         backdropEnabled: true,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
