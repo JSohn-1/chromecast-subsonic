@@ -10,8 +10,10 @@ import 'socket_service.dart';
 
 class PlayerContainer {
   static final AudioPlayer player = AudioPlayer(handleInterruptions: false);
-  static Stream<Song?> get currentSongStream => _currentSongStreamController.stream;
-  static final StreamController<Song?> _currentSongStreamController = StreamController<Song?>.broadcast();
+  static Stream<Song?> get currentSongStream =>
+      _currentSongStreamController.stream;
+  static final StreamController<Song?> _currentSongStreamController =
+      StreamController<Song?>.broadcast();
 
   static List<String> playlist = [];
   static Song? currentSong;
@@ -75,12 +77,13 @@ class PlayerContainer {
       if (data[0] == SocketService.socket.id) {
         if (data[1]) {
           final playlist = ConcatenatingAudioSource(children: [
-            for (final song in PlayerContainer.playlist) 
-              AudioSource.uri(Uri.parse('${SocketService.socket.io.uri}/subsonic/stream?id=$song&uuid=${SocketService.socket.id}'))
+            for (final song in PlayerContainer.playlist)
+              AudioSource.uri(Uri.parse(
+                  '${SocketService.socket.io.uri}/subsonic/stream?id=$song&uuid=${SocketService.socket.id}'))
           ]);
-          await player.setAudioSource(playlist, initialIndex: PlayerContainer.index);
+          await player.setAudioSource(playlist,
+              initialIndex: PlayerContainer.index);
           player.play();
-
         } else {
           player.pause();
         }
@@ -124,8 +127,9 @@ class PlayerContainer {
         final player = PlayerContainer.player;
 
         final playlist = ConcatenatingAudioSource(children: [
-          for (final song in PlayerContainer.playlist) 
-            AudioSource.uri(Uri.parse('${SocketService.socket.io.uri}/subsonic/stream?id=$song&uuid=${SocketService.socket.id}'))
+          for (final song in PlayerContainer.playlist)
+            AudioSource.uri(Uri.parse(
+                '${SocketService.socket.io.uri}/subsonic/stream?id=$song&uuid=${SocketService.socket.id}'))
         ]);
         player.setAudioSource(playlist, initialIndex: PlayerContainer.index);
       } else {
