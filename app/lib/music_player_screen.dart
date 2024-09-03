@@ -48,12 +48,15 @@ class MusicPlayerScreen extends StatelessWidget {
                           child: PlayerContainer.currentSong != null
                               ? Image.network(
                                   '${SocketService.socket.io.uri}/subsonic/cover?id=${PlayerContainer.currentSong?.id}&uuid=${SocketService.socket.id}',
-                                  width: MediaQuery.of(context).size.width * 0.8,
-                                  height: MediaQuery.of(context).size.width * 0.8,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.8,
+                                  height:
+                                      MediaQuery.of(context).size.width * 0.8,
                                 )
                               : SvgPicture.asset(
                                   'assets/svgs/defaultAlbumCover.svg',
-                                  width: MediaQuery.of(context).size.width * 0.9,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.9,
                                   height:
                                       MediaQuery.of(context).size.width * 0.9),
                         ),

@@ -10,10 +10,14 @@ import 'package:device_info_plus/device_info_plus.dart';
 
 class SocketService {
   static late IO.Socket _socket;
-  static final StreamController<dynamic> _socketResponseController = StreamController<dynamic>.broadcast();
+  static final StreamController<dynamic> _socketResponseController =
+      StreamController<dynamic>.broadcast();
   static final Map<String, List<Function(dynamic)>> _eventHandlers = {};
+  static final Map<String, List<Map<String, Function(dynamic)>>>
+      _eventHandlersWithTag = {};
 
-  static Stream<dynamic> get socketResponses => _socketResponseController.stream;
+  static Stream<dynamic> get socketResponses =>
+      _socketResponseController.stream;
   static IO.Socket get socket => _socket;
 
   static Future<bool> createSocketConnection(String domain) async {
@@ -51,7 +55,10 @@ class SocketService {
 
     _socket.connect();
 
-    final result = await Future.any([completer.future/*, Future.delayed(const Duration(seconds: 5), () {print('timed out'); return 1;})*/]);
+    final result = await Future.any([
+      completer
+          .future /*, Future.delayed(const Duration(seconds: 5), () {print('timed out'); return 1;})*/
+    ]);
 
     if (result == 1) {
       disposeSocketConnection();
@@ -59,15 +66,30 @@ class SocketService {
     }
 
     return true;
-
   }
 
-  static void on(String eventName, Function(dynamic) handler) {
+  static void on(String eventName, Function(dynamic) handler, {String? tag}) {
+    if (tag != null) {
+      if (!_eventHandlersWithTag.containsKey(eventName)) {
+        _eventHandlersWithTag[eventName] = [];
+      }
+
+      _eventHandlersWithTag[eventName]!.add({tag: handler});
+      return;
+    }
+
     if (!_eventHandlers.containsKey(eventName)) {
       _eventHandlers[eventName] = [];
     }
 
     _eventHandlers[eventName]!.add(handler);
+  }
+
+  static void off(String eventName, String tag) {
+    if (_eventHandlersWithTag.containsKey(eventName)) {
+      _eventHandlersWithTag[eventName]!
+          .removeWhere((element) => element.keys.first == tag);
+    }
   }
 
   static void disposeSocketConnection() {
@@ -121,7 +143,10 @@ class PersistentData {
         SocketService.disposeSocketConnection();
       });
 
-      final result = await Future.any([completer.future/*, Future.delayed(const Duration(seconds: 5), () => 1)*/]);
+      final result = await Future.any([
+        completer
+            .future /*, Future.delayed(const Duration(seconds: 5), () => 1)*/
+      ]);
 
       if (result == 1) {
         print('Failed to connect to server');
@@ -134,7 +159,8 @@ class PersistentData {
       print('name: $name');
 
       final res = await http.post(
-        Uri.parse('$domain/subsonic/login?&uuid=${socket.id}&name=$name&username=$username&password=$password'),
+        Uri.parse(
+            '$domain/subsonic/login?&uuid=${socket.id}&name=$name&username=$username&password=$password'),
       );
 
       if (res.statusCode == 200) {
@@ -144,7 +170,6 @@ class PersistentData {
 
         return true;
       } else {
-
         SocketService.disposeSocketConnection();
         return false;
       }
@@ -152,7 +177,8 @@ class PersistentData {
     return false;
   }
 
-  static Future<void> saveLogin(String domain, String username, String password) async {
+  static Future<void> saveLogin(
+      String domain, String username, String password) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('domain', domain);
     await prefs.setString('username', username);

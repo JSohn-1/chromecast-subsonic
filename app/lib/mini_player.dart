@@ -143,7 +143,7 @@ class _MiniPlayButtonState extends State<MiniPlayButton> {
       }
       playing = true;
       setState(() {});
-    });
+    }, tag: 'miniPlayButton');
 
     SocketService.on('pause', (data) {
       if (PlayerContainer.playing) {
@@ -151,7 +151,7 @@ class _MiniPlayButtonState extends State<MiniPlayButton> {
       }
       playing = false;
       setState(() {});
-    });
+    }, tag: 'miniPlayButton');
 
     super.initState();
   }
@@ -159,6 +159,9 @@ class _MiniPlayButtonState extends State<MiniPlayButton> {
   @override
   void dispose() {
     _playbackSubscription?.cancel();
+    
+    SocketService.off('resume', 'miniPlayButton');
+    SocketService.off('pause', 'miniPlayButton');
     super.dispose();
   }
 
