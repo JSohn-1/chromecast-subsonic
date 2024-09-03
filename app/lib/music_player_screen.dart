@@ -1,4 +1,5 @@
-import 'package:app/mini_player.dart';
+import 'dart:async';
+
 import 'package:app/player.dart';
 import 'package:app/socket_service.dart';
 import 'package:flutter/material.dart';
@@ -79,11 +80,100 @@ class MusicPlayerScreen extends StatelessWidget {
                   const Padding(
                     padding: EdgeInsets.only(bottom: 10),
                   ),
-                  const MiniPlayerControls(),
+                  const PlayButton(),
                 ],
               ),
             ),
           )),
+    );
+  }
+}
+
+class PlayButton extends StatefulWidget {
+  const PlayButton({super.key});
+
+  @override
+  State<PlayButton> createState() => _PlayButtonState();
+}
+
+class _PlayButtonState extends State<PlayButton> {
+  bool playing = false;
+
+  StreamSubscription<bool>? _playbackSubscription;
+
+  @override
+  void initState() {
+    _playbackSubscription =
+        PlayerContainer.player.playingStream.listen((event) {
+      setState(() {
+        playing = event;
+      });
+    });
+
+    SocketService.on('resume', (data) {
+      if (PlayerContainer.playing) {
+        PlayerContainer.player.play();
+      }
+      playing = true;
+      setState(() {});
+    }, tag: 'miniPlayButton');
+
+    SocketService.on('pause', (data) {
+      if (PlayerContainer.playing) {
+        PlayerContainer.player.pause();
+      }
+      playing = false;
+      setState(() {});
+    }, tag: 'miniPlayButton');
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _playbackSubscription?.cancel();
+
+    SocketService.off('resume', 'miniPlayButton');
+    SocketService.off('pause', 'miniPlayButton');
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 75,
+      height: 75,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: PlayerContainer.currentSong != null ? Colors.white : Colors.grey,
+      ),
+      child: IconButton(
+        icon: Icon(playing ? Icons.pause : Icons.play_arrow,
+            color: const Color.fromARGB(255, 18, 18, 18), size: 50),
+        onPressed: () {
+          if (PlayerContainer.currentSong == null) return;
+
+          if (playing) {
+            if (PlayerContainer.playing) {
+              PlayerContainer.player.pause();
+              return;
+            }
+
+            playing = false;
+            SocketService.socket.emit('pause');
+            setState(() {});
+          } else {
+            if (PlayerContainer.playing) {
+              PlayerContainer.player.play();
+              return;
+            }
+
+            playing = true;
+            SocketService.socket.emit('resume');
+            setState(() {});
+          }
+        },
+      ),
     );
   }
 }
