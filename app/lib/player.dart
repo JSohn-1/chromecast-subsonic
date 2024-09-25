@@ -37,6 +37,10 @@ class PlayerContainer {
       PlayerContainer.index = data[0]['index'];
 
       _currentSongStreamController.add(result);
+
+      if (playing) {
+        player.seek(Duration.zero, index: data[0]['index']);
+      }
     });
 
     SocketService.on('changeQueue', (data) async {

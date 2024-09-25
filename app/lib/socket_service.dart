@@ -51,6 +51,13 @@ class SocketService {
           handler(data);
         }
       }
+      if (_eventHandlersWithTag.containsKey(event)) {
+        // print(data);
+        // _eventHandlers[event]!(data);
+        for (final handler in _eventHandlersWithTag[event]!) {
+          handler.values.first(data);
+        }
+      }
     });
 
     _socket.connect();

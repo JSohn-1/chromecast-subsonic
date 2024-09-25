@@ -1,13 +1,37 @@
 import 'dart:async';
 
+import 'package:app/interfaces/song.dart';
 import 'package:app/player.dart';
 import 'package:app/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-class MusicPlayerScreen extends StatelessWidget {
+class MusicPlayerScreen extends StatefulWidget {
   const MusicPlayerScreen({super.key});
+
+  @override
+  State<MusicPlayerScreen> createState() => _MusicPlayerScreenState();
+}
+
+class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
+  StreamSubscription<Song?>? _currentSongSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _currentSongSubscription = PlayerContainer.currentSongStream.listen((event) {
+      if(mounted) setState(() {print('change');});
+    });
+    
+  }
+
+  @override
+  void dispose() {
+    _currentSongSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +104,13 @@ class MusicPlayerScreen extends StatelessWidget {
                   const Padding(
                     padding: EdgeInsets.only(bottom: 10),
                   ),
-                  const PlayButton(),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      PlayButton(),
+                      SkipButton(),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -140,40 +170,55 @@ class _PlayButtonState extends State<PlayButton> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 75,
-      height: 75,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: PlayerContainer.currentSong != null ? Colors.white : Colors.grey,
-      ),
-      child: IconButton(
-        icon: Icon(playing ? Icons.pause : Icons.play_arrow,
-            color: const Color.fromARGB(255, 18, 18, 18), size: 50),
-        onPressed: () {
-          if (PlayerContainer.currentSong == null) return;
-
-          if (playing) {
-            if (PlayerContainer.playing) {
-              PlayerContainer.player.pause();
-              return;
-            }
-
-            playing = false;
-            SocketService.socket.emit('pause');
-            setState(() {});
-          } else {
-            if (PlayerContainer.playing) {
-              PlayerContainer.player.play();
-              return;
-            }
-
-            playing = true;
-            SocketService.socket.emit('resume');
-            setState(() {});
+    return IconButton(
+      icon: Icon(playing ? Icons.pause : Icons.play_arrow,
+          color:  PlayerContainer.currentSong != null ? Colors.white : Colors.grey, size: 60),
+      onPressed: () {
+        if (PlayerContainer.currentSong == null) return;
+    
+        if (playing) {
+          if (PlayerContainer.playing) {
+            PlayerContainer.player.pause();
+            return;
           }
-        },
-      ),
+    
+          playing = false;
+          SocketService.socket.emit('pause');
+          setState(() {});
+        } else {
+          if (PlayerContainer.playing) {
+            PlayerContainer.player.play();
+            return;
+          }
+    
+          playing = true;
+          SocketService.socket.emit('resume');
+          setState(() {});
+        }
+      },
+    );
+  }
+}
+
+class SkipButton extends StatefulWidget {
+  const SkipButton({super.key});
+
+  @override
+  State<SkipButton> createState() => _SkipButtonState();
+}
+
+class _SkipButtonState extends State<SkipButton> {
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.skip_next, color: Colors.white, size: 60),
+      onPressed: () {
+        if (PlayerContainer.currentSong == null) return;
+
+        if (PlayerContainer.index >= PlayerContainer.playlist.length - 1) return;
+
+        SocketService.socket.emit('setIndex', PlayerContainer.index + 1);
+      },
     );
   }
 }
